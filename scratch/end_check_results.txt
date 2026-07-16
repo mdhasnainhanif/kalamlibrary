@@ -1,0 +1,34 @@
+Physical PDF Page 737 (printed page check) -> Based on the image provided, here is the identification and description of the page:
+
+### **Printed Page Number**
+There is **no printed page number** on this page, as it is the **back cover** of an Islamic book or booklet.
+
+---
+
+### **Description of the Page**
+This is the **back cover** of a religious publication by *Maktaba-tul-Madina* (the publishing wing of Dawat-e-Islami). It consists of the following elements:
+
+1. **Islamic Quote/Moral Advice (Central Circle):**
+   * **Heading:** *"فضول بولنے کی خواہش ختم کرنے کا نسخہ"* (The remedy to end the desire for useless talking).
+   * **Text:** An Urdu passage advising that anyone wishing to guard their tongue against backbiting and useless chatter should practice silence, speaking only for the remembrance of Allah (*Zikr*) or matters of religion, until the urge for vain talk is gone and they only speak the truth.
+   * **Citation:** It cites the famous Islamic scholarly work **"Ihya Ulum-id-Din"** (translated version), Volume 3, Page 205.
+
+2. **Publisher & Contact Details (Bottom Section):**
+   * **Publisher Logos:** Logos for *Maktaba-tul-Madina* and a green dome icon representing Madina.
+   * **Address:** *Faizan-e-Madina, Muhallah Saudagaran, Old Sabzi Mandi, Karachi, Pakistan*.
+   * **Contact Info:** UAN phone number, official website (`www.dawateislami.net`), and email address.
+
+3. **Product Identifiers:**
+   * A barcode with the code `0101018`.
+   * An **ISBN** number: `978-969-579-729-7`.
+
+Physical PDF Page 728 (printed page check) -> Based on the image provided:
+
+*   **Printed Page Number:** **710** (also written as **۷۱۰** at the top in Urdu/Arabic numerals).
+*   **Description:** The page contains Urdu **Kalam (religious/moral poetry)** focusing on the transience of worldly wealth and the importance of devotion to God and the Prophet. Below the poetry, there is a boxed section containing a **Hadith (saying of Prophet Muhammad)** warning against giving religious rulings (*Fatwas*) without proper knowledge, cited from *Sunan Abi Dawud*.
+
+Page 718 failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.5-flash\nPlease retry in 23.412233505s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '23s'}]}}
+
+Page 708 failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.5-flash\nPlease retry in 22.485141212s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'model': 'gemini-3.5-flash', 'location': 'global'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '22s'}]}}
+
+Page 698 failed: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 20, model: gemini-3.5-flash\nPlease retry in 21.564941659s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-3.5-flash'}, 'quotaValue': '20'}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '21s'}]}}

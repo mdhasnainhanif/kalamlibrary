@@ -1,0 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;700&family=Outfit:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-gold-50: hsl(45, 100%, 96%);
+  --color-gold-100: hsl(45, 90%, 90%);
+  --color-gold-200: hsl(45, 80%, 80%);
+  --color-gold-500: hsl(45, 85%, 60%);
+  --color-gold-600: hsl(45, 80%, 50%);
+  --color-gold-700: hsl(45, 80%, 40%);
+  
+  --color-emerald-900: hsl(160, 50%, 8%);
+  --color-emerald-950: hsl(160, 50%, 4%);
+  
+  --font-sans: 'Outfit', 'Inter', var(--font-geist-sans), sans-serif;
+  --font-urdu: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', serif;
+}
+
+:root {
+  --background: #020806;
+  --foreground: #f3f4f6;
+  --accent: #d97706;
+  
+  --card-bg: rgba(6, 20, 16, 0.45);
+  --card-border: rgba(16, 185, 129, 0.1);
+  --glass-bg: rgba(2, 8, 6, 0.7);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: 'Outfit', 'Inter', sans-serif;
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(160, 80%, 15%, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, hsla(45, 80%, 10%, 0.1) 0px, transparent 50%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #020806;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(16, 185, 129, 0.2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(217, 119, 6, 0.4);
+}
+
+/* Micro-animations */
+.hover-gold-glow {
+  transition: all 0.3s ease;
+}
+.hover-gold-glow:hover {
+  box-shadow: 0 0 15px rgba(217, 119, 6, 0.2);
+  border-color: rgba(217, 119, 6, 0.4);
+}
+
+.kalam-urdu-lyrics {
+  font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif;
+  line-height: 2.8;
+  word-spacing: 2px;
+}
+
