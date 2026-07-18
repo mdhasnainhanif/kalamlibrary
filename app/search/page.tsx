@@ -43,7 +43,7 @@ export default async function SearchResultsPage({ searchParams }: SearchPageProp
         .from("kalam_translations")
         .select("kalam_id, title, language, kalams(primary_title_roman, slug, authors(name_roman))")
         .or(`title.ilike.%${query}%,lyrics.ilike.%${query}%`)
-        .limit(40);
+        .limit(300);
 
       if (error) throw error;
 
@@ -71,6 +71,7 @@ export default async function SearchResultsPage({ searchParams }: SearchPageProp
           }
         }
       }
+      results = results.slice(0, 40);
     } catch (err) {
       console.error("Search query database error:", err);
       errorMsg = "Something went wrong while querying the database.";

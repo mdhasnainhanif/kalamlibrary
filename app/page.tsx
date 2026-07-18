@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { supabase } from "@/utils/supabase";
 import SearchBar from "@/components/SearchBar";
+import FAQAccordion from "@/components/FAQAccordion";
 
 export const revalidate = 3600; // Cache for 1 hour
 
@@ -103,7 +104,7 @@ export default async function Home() {
     },
     {
       q: "Who are the primary poets featured here?",
-      a: "Our archive focuses on prominent scholars and poets of spiritual odes, including Ala Hazrat Imam Ahmad Raza Khan Qadri, Allama Hasan Raza Khan, Mufti-e-Azam Hind Mustafa Raza Khan Qadri, and Maulana Muhammad Ilyas Attar Qadri."
+      a: "Our archive focuses on prominent scholars and poets of spiritual odes, including <strong>Ala Hazrat Imam Ahmad Raza Khan Qadri</strong>, <strong>Allama Hasan Raza Khan</strong>, <strong>Mufti-e-Azam Hind Mustafa Raza Khan Qadri</strong>, and <strong>Maulana Muhammad Ilyas Attar Qadri</strong>."
     },
     {
       q: "Are these lyric transcriptions authenticated?",
@@ -158,7 +159,6 @@ export default async function Home() {
 
         {/* Hero Section */}
         <div className="w-full max-w-4xl text-center mb-16 relative">
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl -z-10 animate-pulse"></div>
           
           <h1 className="text-4xl md:text-6xl font-extrabold text-gold-500 mb-6 tracking-tight flex flex-col items-center gap-1.5">
             <span className="font-urdu text-3xl md:text-5xl text-emerald-400 font-bold block mb-2" dir="rtl">
@@ -223,10 +223,10 @@ export default async function Home() {
                         </h3>
                         <div className="flex justify-between items-center mt-0.5">
                           {author.name_urdu && (
-                            <span className="text-[11px] text-emerald-400 font-urdu" dir="rtl">
-                              {author.name_urdu}
-                            </span>
-                          )}
+                             <span className="text-xs text-emerald-400 font-urdu block py-0.5" dir="rtl">
+                               {author.name_urdu}
+                             </span>
+                           )}
                           <span className="text-[10px] text-gray-500 font-sans ml-auto">
                             {kalamCount} Kalam{kalamCount !== 1 ? "s" : ""}
                           </span>
@@ -267,7 +267,7 @@ export default async function Home() {
                           {kalam.primary_title_roman}
                         </h3>
                         {kalam.primary_title_urdu && (
-                          <p className="text-sm text-emerald-400/80 font-urdu mt-1.5 line-clamp-1" dir="rtl">
+                          <p className="text-lg text-emerald-400/80 font-urdu mt-1.5 truncate py-1" dir="rtl">
                             {kalam.primary_title_urdu}
                           </p>
                         )}
@@ -364,27 +364,24 @@ export default async function Home() {
           </div>
         </div>
 
-        {/* WhatsApp Support CTA */}
-        <div className="w-full max-w-6xl p-6 md:p-8 rounded-2xl bg-emerald-950/60 border border-emerald-500/10 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left mt-8">
-          <div className="flex-1">
-            <h3 className="text-lg md:text-xl font-bold text-gray-100 flex items-center justify-center md:justify-start gap-2">
-              <svg className="w-5 h-5 text-emerald-400 fill-current" viewBox="0 0 24 24">
-                <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.62.962 3.21 1.46 4.887 1.461 5.436-.001 9.861-4.43 9.864-9.869.003-2.636-1.018-5.114-2.875-6.974C16.602 1.95 14.135.928 11.5.927c-5.439 0-9.867 4.431-9.87 9.871-.001 1.765.467 3.49 1.357 5.018l-.989 3.607 3.659-.97zm11.755-7.25c-.322-.162-1.905-.94-2.2-.1.047-.297-.156-.454-.234-.57l-.375-.544c-.218-.328-.5-.331-.765-.112l-.24.2c-.22.18-.35.32-.5.53-.15.2-.28.45-.44.62-.31.33-.6.3-.92.12-.32-.18-.62-.38-.91-.6-.24-.18-.46-.38-.68-.6-.23-.23-.42-.48-.6-.74-.18-.26-.17-.4-.05-.55.12-.15.24-.31.36-.47.12-.16.16-.27.24-.45.08-.18.04-.33-.02-.49-.06-.16-.54-1.32-.74-1.81-.19-.48-.38-.41-.53-.42-.14-.01-.3-.01-.46-.01-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.03 0 1.2.88 2.37 1 2.53.12.16 1.73 2.637 4.19 3.7c.584.253 1.04.404 1.396.517.588.187 1.123.161 1.546.098.472-.07 1.464-.599 1.67-1.177.206-.577.206-1.072.144-1.176-.06-.104-.22-.167-.54-.33z" />
-              </svg>
-              <span>Join our WhatsApp Community</span>
-            </h3>
-            <p className="text-xs text-gray-400 mt-2 max-w-lg leading-relaxed">
-              Stay updated with newly digitized books, transcription releases, and corrections. Join our active WhatsApp group.
-            </p>
-          </div>
-          <a
-            href="https://wa.me/923174731957"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm shrink-0 transition-all flex items-center gap-2 shadow-lg shadow-emerald-500/10 cursor-pointer"
-          >
-            Join Group
-          </a>
+        {/* Spiritual Couplet Showcase */}
+        <div className="w-full max-w-6xl p-8 md:p-12 rounded-3xl bg-gradient-to-br from-emerald-950/40 via-emerald-900/10 to-emerald-950/40 border border-emerald-500/10 text-center relative overflow-hidden mt-8 shadow-2xl">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/5 rounded-full blur-2xl pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
+          
+          <span className="text-[10px] uppercase font-bold text-gold-500 tracking-[0.2em] mb-4 block">Spiritual Couplet Showcase</span>
+          
+          <p className="font-urdu text-2xl md:text-3xl lg:text-4xl text-emerald-300 leading-loose mb-6 max-w-3xl mx-auto" dir="rtl">
+            مصطفٰے جانِ رحمت پہ لاکھوں سلام<br />
+            شمعِ بزمِ ہدایت پہ لاکھوں سلام
+          </p>
+          
+          <p className="text-xs md:text-sm text-gray-400 italic mb-2 font-sans">
+            "Mustafa Jaan-e-Rehmat Pe Lakhon Salaam, Shama-e-Bazm-e-Hidayat Pe Lakhon Salaam"
+          </p>
+          <p className="text-xs text-gold-500 font-semibold font-sans">
+            — Imam Ahmad Raza Khan Qadri (Hadaiq-e-Bakhshish)
+          </p>
         </div>
 
         {/* FAQ Section */}
@@ -392,21 +389,7 @@ export default async function Home() {
           <h2 className="text-2xl font-bold text-gold-500 mb-2 text-center font-sans">Frequently Asked Questions</h2>
           <p className="text-xs text-gray-400 text-center mb-8">Got questions? We have answers.</p>
           
-          <div className="flex flex-col gap-4">
-            {faqItems.map((item, idx) => (
-              <div
-                key={idx}
-                className="p-5 rounded-xl bg-emerald-900/10 border border-emerald-500/10"
-              >
-                <h3 className="font-bold text-gray-100 text-sm md:text-base mb-2">
-                  {item.q}
-                </h3>
-                <p className="text-xs md:text-sm text-gray-400 leading-relaxed">
-                  {item.a}
-                </p>
-              </div>
-            ))}
-          </div>
+          <FAQAccordion items={faqItems} />
         </div>
 
       </main>

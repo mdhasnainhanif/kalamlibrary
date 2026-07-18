@@ -147,7 +147,7 @@ export default async function AuthorPage({ params }: PageProps) {
                   {kalam.primary_title_roman}
                 </h3>
                 {kalam.primary_title_urdu && (
-                  <span className="text-xs text-emerald-400/70 font-urdu block mt-1" dir="rtl">
+                  <span className="text-base text-emerald-400/70 font-urdu block mt-1 py-0.5 truncate" dir="rtl">
                     {kalam.primary_title_urdu}
                   </span>
                 )}

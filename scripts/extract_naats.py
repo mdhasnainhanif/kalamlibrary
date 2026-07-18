@@ -4,10 +4,14 @@ import re
 import json
 import time
 import argparse
+import socket
 import fitz
 from PIL import Image
 from pypdf import PdfReader, PdfWriter
 from supabase import create_client
+
+# Set global socket timeout to 60 seconds to prevent network requests from hanging forever
+socket.setdefaulttimeout(60)
 
 # Simple environment loader to parse .env and .env.local
 def load_env():

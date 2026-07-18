@@ -13,9 +13,6 @@ export default function Footer() {
             <span className="text-xl font-urdu text-gold-500 font-bold" dir="rtl">
               کلام لائبریری
             </span>
-            <span className="text-[9px] uppercase font-semibold text-emerald-400 tracking-[0.2em] -mt-1 block font-sans">
-              Kalam Library
-            </span>
           </div>
           <p className="text-xs md:text-sm text-gray-400 leading-relaxed max-w-sm">
             Kalam Library is a curated, dynamic repository dedicated to transcribing and sharing classic Sufi Kalam, Hamd, and Naat poetry in Roman English, Urdu Nastaliq, Hindi, and Bangla translations.

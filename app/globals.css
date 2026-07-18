@@ -63,8 +63,14 @@ body {
 }
 
 .kalam-urdu-lyrics {
-  font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', serif;
-  line-height: 2.8;
+  font-family: 'Noto Nastaliq Urdu', 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', serif;
+  line-height: 1.8;
   word-spacing: 2px;
+}
+
+@media (min-width: 768px) {
+  .kalam-urdu-lyrics {
+    line-height: 2.4;
+  }
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "@/utils/supabase";
+import { toast } from "react-hot-toast";
 
 export default function ContactForm({ defaultSubject = "" }: { defaultSubject?: string }) {
   const [name, setName] = useState("");
@@ -19,31 +19,44 @@ export default function ContactForm({ defaultSubject = "" }: { defaultSubject?: 
     setSuccess(false);
 
     if (!name || !email || !message) {
-      setErrorMsg("Please fill in all required fields (Name, Email, Message).");
+      const valErr = "Please fill in all required fields (Name, Email, Message).";
+      setErrorMsg(valErr);
+      toast.error(valErr);
       setLoading(false);
       return;
     }
 
     try {
-      const { error } = await supabase
-        .from("contact_submissions")
-        .insert({
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
           name: name.trim(),
           email: email.trim(),
           subject: subject.trim(),
           message: message.trim(),
-        });
+        }),
+      });
 
-      if (error) throw error;
+      const result = await res.json();
+
+      if (!res.ok || result.error) {
+        throw new Error(result.error || "Failed to submit message");
+      }
 
       setSuccess(true);
+      toast.success("Your message has been sent successfully!");
       setName("");
       setEmail("");
       setSubject("");
       setMessage("");
     } catch (err: any) {
-      console.error("Form submission database insert failed:", err);
-      setErrorMsg("Failed to submit form. Please make sure the 'contact_submissions' table exists in your database or try again later.");
+      console.error("Form submission failed:", err);
+      const dbErr = err.message || "Failed to submit form. Please try again later.";
+      setErrorMsg(dbErr);
+      toast.error(dbErr);
     } finally {
       setLoading(false);
     }
@@ -52,18 +65,6 @@ export default function ContactForm({ defaultSubject = "" }: { defaultSubject?: 
   return (
     <div className="w-full bg-emerald-900/10 border border-emerald-500/10 rounded-2xl p-6 md:p-8 shadow-md">
       <h2 className="text-xl font-bold text-gold-500 mb-6 text-left">Send us a Message</h2>
-
-      {success && (
-        <div className="mb-6 p-4 rounded-xl bg-emerald-950/80 border border-emerald-500 text-emerald-300 text-xs md:text-sm text-left">
-          Thank you! Your submission has been received successfully. We will reply to you within 24–48 hours.
-        </div>
-      )}
-
-      {errorMsg && (
-        <div className="mb-6 p-4 rounded-xl bg-red-950/80 border border-red-500/50 text-red-300 text-xs md:text-sm text-left">
-          {errorMsg}
-        </div>
-      )}
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5 text-left">
         <div>
@@ -76,7 +77,7 @@ export default function ContactForm({ defaultSubject = "" }: { defaultSubject?: 
             required
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Muhammad Hasnain"
+            placeholder="Enter your name"
             className="w-full px-4 py-3 rounded-xl bg-emerald-950/40 border border-emerald-500/20 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/50 transition-all text-sm"
           />
         </div>
@@ -91,7 +92,7 @@ export default function ContactForm({ defaultSubject = "" }: { defaultSubject?: 
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="hasnain@example.com"
+            placeholder="Enter your email address"
             className="w-full px-4 py-3 rounded-xl bg-emerald-950/40 border border-emerald-500/20 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/50 transition-all text-sm"
           />
         </div>
@@ -105,7 +106,7 @@ export default function ContactForm({ defaultSubject = "" }: { defaultSubject?: 
             type="text"
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
-            placeholder="e.g. Digitization request, lyrics typo fix..."
+            placeholder="Enter your subject type"
             className="w-full px-4 py-3 rounded-xl bg-emerald-950/40 border border-emerald-500/20 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/50 transition-all text-sm"
           />
         </div>
@@ -120,7 +121,7 @@ export default function ContactForm({ defaultSubject = "" }: { defaultSubject?: 
             rows={5}
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Type your query, citation corrections or transcription requests here..."
+            placeholder="Enter your message"
             className="w-full px-4 py-3 rounded-xl bg-emerald-950/40 border border-emerald-500/20 text-gray-100 placeholder-gray-500 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/50 transition-all text-sm resize-y"
           ></textarea>
         </div>

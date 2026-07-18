@@ -7,3 +7,11 @@ CREATE TABLE IF NOT EXISTS contact_submissions (
     message TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Enable Row Level Security (RLS)
+ALTER TABLE contact_submissions ENABLE ROW LEVEL SECURITY;
+
+-- Allow anonymous users to submit contact forms (INSERT only)
+CREATE POLICY "Allow public insert" ON contact_submissions 
+    FOR INSERT 
+    WITH CHECK (true);

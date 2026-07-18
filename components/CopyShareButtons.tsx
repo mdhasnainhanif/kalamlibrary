@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { toast } from "react-hot-toast";
 
 interface CopyShareButtonsProps {
   lyrics: string;
@@ -16,9 +17,11 @@ export default function CopyShareButtons({ lyrics, title, author }: CopyShareBut
     try {
       await navigator.clipboard.writeText(`${title} - ${author}\n\n${lyrics}`);
       setCopied(true);
+      toast.success("Lyrics copied to clipboard!");
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
       console.error("Failed to copy lyrics: ", err);
+      toast.error("Failed to copy lyrics.");
     }
   };
 
@@ -45,9 +48,11 @@ export default function CopyShareButtons({ lyrics, title, author }: CopyShareBut
       try {
         await navigator.clipboard.writeText(url);
         setShared(true);
+        toast.success("Share link copied to clipboard!");
         setTimeout(() => setShared(false), 2000);
       } catch (err) {
         console.error("Failed to copy link: ", err);
+        toast.error("Failed to copy link.");
       }
     }
   };

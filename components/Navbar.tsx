@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { Toaster } from "react-hot-toast";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,16 +29,11 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16 md:h-20">
           
           {/* Logo Section */}
-          <div className="flex-shrink-0">
-            <Link href="/" className="flex items-center gap-3 group">
-              <div className="flex flex-col text-left">
-                <span className="text-xl md:text-2xl font-urdu text-gold-500 font-bold tracking-wide transition-colors group-hover:text-gold-100" dir="rtl">
-                  کلام لائبریری
-                </span>
-                <span className="text-[9px] md:text-[10px] uppercase font-semibold text-emerald-400 tracking-[0.2em] -mt-1 block font-sans">
-                  Kalam Library
-                </span>
-              </div>
+          <div className="flex-shrink-0 flex items-center">
+            <Link href="/" className="flex items-center group">
+              <span className="text-xl md:text-2xl font-urdu text-gold-500 font-bold tracking-wide transition-colors group-hover:text-gold-100 relative -top-[2px] md:-top-[3px]" dir="rtl">
+                کلام لائبریری
+              </span>
             </Link>
           </div>
 
@@ -112,6 +108,31 @@ export default function Navbar() {
           </div>
         </div>
       )}
+      <Toaster 
+        position="top-right" 
+        toastOptions={{
+          duration: 2000,
+          style: {
+            background: "#061410",
+            color: "#f3f4f6",
+            border: "1px solid rgba(16, 185, 129, 0.15)",
+            fontSize: "14px",
+            fontFamily: "var(--font-sans), sans-serif",
+          },
+          success: {
+            iconTheme: {
+              primary: "#eab308", // gold success icon matching the logo
+              secondary: "#061410",
+            },
+          },
+          error: {
+            iconTheme: {
+              primary: "#f43f5e",
+              secondary: "#061410",
+            },
+          },
+        }}
+      />
     </nav>
   );
 }

@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
       .from("kalam_translations")
       .select("kalam_id, title, language, kalams(primary_title_roman, slug, authors(name_roman))")
       .or(`title.ilike.%${query}%,lyrics.ilike.%${query}%`)
-      .limit(10);
+      .limit(100);
 
     if (error) {
       throw error;
@@ -57,7 +57,8 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    return NextResponse.json(results);
+    // Return the first 10 unique results
+    return NextResponse.json(results.slice(0, 10));
   } catch (err) {
     console.error("Search API Error:", err);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });

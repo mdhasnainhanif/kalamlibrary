@@ -189,39 +189,45 @@ export default async function KalamPage({ params }: PageProps) {
           )}
         </div>
 
-        {/* Translation Switcher Tabs */}
-        <div className="flex justify-center border-b border-emerald-500/10 mb-8 overflow-x-auto py-1 scrollbar-none">
-          <div className="flex bg-emerald-950/60 p-1.5 rounded-xl border border-emerald-500/10 gap-1">
-            {Object.entries(LANGUAGES_MAP).map(([key, config]) => {
-              const isSelected = key === lang;
-              const hasLanguageTranslation = translations.some((t) => t.language === config.code);
+        {/* Translation Switcher Tabs with visual scroll indicator gradient */}
+        <div className="relative w-full border-b border-emerald-500/10 mb-8">
+          {/* Visual gradient overlays indicating scrollability on mobile */}
+          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#020806] to-transparent pointer-events-none md:hidden z-10"></div>
+          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#020806] to-transparent pointer-events-none md:hidden z-10"></div>
 
-              if (!hasLanguageTranslation) return null;
+          <div className="flex justify-start md:justify-center overflow-x-auto py-2 px-6 scrollbar-none w-full max-w-full">
+            <div className="flex bg-emerald-950/60 p-1.5 rounded-xl border border-emerald-500/10 gap-1 shrink-0">
+              {Object.entries(LANGUAGES_MAP).map(([key, config]) => {
+                const isSelected = key === lang;
+                const hasLanguageTranslation = translations.some((t) => t.language === config.code);
 
-              return (
-                <Link
-                  key={key}
-                  href={`/kalam/${slug}/${key}`}
-                  className={`px-4 py-2 text-xs md:text-sm font-medium rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                    isSelected
-                      ? "bg-gold-500 text-black shadow-md font-semibold scale-[1.02]"
-                      : "text-gray-400 hover:text-white hover:bg-emerald-900/40"
-                  }`}
-                >
-                  {config.label}
-                </Link>
-              );
-            })}
+                if (!hasLanguageTranslation) return null;
+
+                return (
+                  <Link
+                    key={key}
+                    href={`/kalam/${slug}/${key}`}
+                    className={`px-4 py-2 text-xs md:text-sm font-medium rounded-lg transition-all cursor-pointer whitespace-nowrap ${
+                      isSelected
+                        ? "bg-gold-500 text-black shadow-md font-semibold scale-[1.02]"
+                        : "text-gray-400 hover:text-white hover:bg-emerald-900/40"
+                    }`}
+                  >
+                    {config.label}
+                  </Link>
+                );
+              })}
+            </div>
           </div>
         </div>
 
         {/* Lyrics Content Display Panel */}
         <div className="flex-1 flex flex-col justify-center items-center">
           <div 
-            className={`w-full bg-emerald-900/10 backdrop-blur-md border border-emerald-500/10 rounded-2xl p-6 md:p-12 shadow-inner leading-loose text-center whitespace-pre-line select-text ${
+            className={`w-full bg-emerald-900/10 backdrop-blur-md border border-emerald-500/10 rounded-2xl p-6 md:p-12 shadow-inner text-center whitespace-pre-line select-text ${
               lang === "urdu" 
-                ? "kalam-urdu-lyrics text-xl md:text-3xl text-emerald-100/90" 
-                : "font-sans text-base md:text-xl text-gray-200 tracking-wide"
+                ? "kalam-urdu-lyrics text-lg md:text-2xl text-emerald-100/90" 
+                : "font-sans text-sm md:text-lg text-gray-200 tracking-wide leading-relaxed md:leading-loose"
             }`}
             dir={langConfig.dir}
           >
