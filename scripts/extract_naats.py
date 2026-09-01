@@ -332,6 +332,17 @@ def main():
                 urdu_title = naat.get("title_urdu", "").strip()
                 author_name = naat.get("author_name", args.author).strip()
                 
+                # If title is Deegar / دیگر, replace with first line of lyrics
+                if roman_title.lower() in ["deegar", "digar", "deegar..."] or urdu_title in ["دیگر", "دیگر..."]:
+                    lyrics_r = naat.get("lyrics_roman_english", "").strip()
+                    lyrics_u = naat.get("lyrics_urdu", "").strip()
+                    if lyrics_r and lyrics_r.split("\n")[0].strip().lower() not in ["deegar", "digar"]:
+                        roman_title = lyrics_r.split("\n")[0].strip()
+                        naat["title_roman_english"] = roman_title
+                    if lyrics_u and lyrics_u.split("\n")[0].strip() not in ["دیگر", "دیگر..."]:
+                        urdu_title = lyrics_u.split("\n")[0].strip()
+                        naat["title_urdu"] = urdu_title
+                
                 try:
                     # Check/Insert Author (query by name_roman)
                     author_res = supabase.table("authors").select("id").eq("name_roman", author_name).execute()

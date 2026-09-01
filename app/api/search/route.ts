@@ -42,7 +42,15 @@ export async function GET(request: NextRequest) {
           ? authorData[0]?.name_roman 
           : authorData?.name_roman;
 
-        if (kalam && !seen.has(item.kalam_id)) {
+        if (
+          kalam &&
+          !seen.has(item.kalam_id) &&
+          kalam.primary_title_roman.toLowerCase().trim() !== "deegar" &&
+          item.title?.toLowerCase().trim() !== "deegar" &&
+          item.title?.trim() !== "دیگر" &&
+          !kalam.slug.startsWith("deegar") &&
+          !kalam.slug.startsWith("digar")
+        ) {
           seen.add(item.kalam_id);
           results.push({
             kalam_id: item.kalam_id,

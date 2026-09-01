@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/utils/supabase";
-import CopyShareButtons from "@/components/CopyShareButtons";
+import LyricsDisplay from "@/components/LyricsDisplay";
 
 // Helper to slugify author names in code for routing
 function slugify(text: string) {
@@ -221,26 +221,14 @@ export default async function KalamPage({ params }: PageProps) {
           </div>
         </div>
 
-        {/* Lyrics Content Display Panel */}
-        <div className="flex-1 flex flex-col justify-center items-center">
-          <div 
-            className={`w-full bg-emerald-900/10 backdrop-blur-md border border-emerald-500/10 rounded-2xl p-6 md:p-12 shadow-inner text-center whitespace-pre-line select-text ${
-              lang === "urdu" 
-                ? "kalam-urdu-lyrics text-lg md:text-2xl text-emerald-100/90" 
-                : "font-sans text-sm md:text-lg text-gray-200 tracking-wide leading-relaxed md:leading-loose"
-            }`}
-            dir={langConfig.dir}
-          >
-            {activeTranslation.lyrics}
-          </div>
-
-          {/* Copy and Share Buttons (Client-side interactive) */}
-          <CopyShareButtons 
-            lyrics={activeTranslation.lyrics} 
-            title={activeTranslation.title} 
-            author={authorName} 
-          />
-        </div>
+        {/* Lyrics Content Display Panel with Font Controls (A+ / A-) & Utility Buttons */}
+        <LyricsDisplay 
+          lyrics={activeTranslation.lyrics} 
+          title={activeTranslation.title} 
+          author={authorName} 
+          lang={lang} 
+          dir={langConfig.dir} 
+        />
       </div>
     </>
   );

@@ -79,11 +79,21 @@ export default async function Home() {
     .limit(8);
 
   // Fetch recent/featured Kalams
-  const { data: kalams, error: kalamsError } = await supabase
+  const { data: rawKalams, error: kalamsError } = await supabase
     .from("kalams")
     .select("*, authors(*)")
     .order("created_at", { ascending: false })
-    .limit(8);
+    .limit(30);
+
+  const kalams = rawKalams
+    ?.filter(
+      (k) =>
+        k.primary_title_roman.toLowerCase().trim() !== "deegar" &&
+        k.primary_title_urdu?.trim() !== "دیگر" &&
+        !k.slug.startsWith("deegar") &&
+        !k.slug.startsWith("digar")
+    )
+    .slice(0, 8);
 
   // Fetch kalam translation counts to show on author cards
   const { data: allKalams } = await supabase.from("kalams").select("id, author_id");

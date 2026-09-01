@@ -35,7 +35,7 @@ async function getAuthorData(slug: string) {
   }
 
   // Fetch all kalams for this author
-  const { data: kalams, error: kalamsError } = await supabase
+  const { data: rawKalams, error: kalamsError } = await supabase
     .from("kalams")
     .select("*")
     .eq("author_id", author.id)
@@ -44,6 +44,14 @@ async function getAuthorData(slug: string) {
   if (kalamsError) {
     return null;
   }
+
+  const kalams = rawKalams?.filter(
+    (k) =>
+      k.primary_title_roman.toLowerCase().trim() !== "deegar" &&
+      k.primary_title_urdu?.trim() !== "دیگر" &&
+      !k.slug.startsWith("deegar") &&
+      !k.slug.startsWith("digar")
+  ) || [];
 
   return {
     author,

@@ -57,6 +57,15 @@ def main():
         urdu_title = naat.get("title_urdu", "").strip()
         author_name = naat.get("author_name", default_author).strip()
 
+        # If title is Deegar / دیگر, replace with first line of lyrics
+        if roman_title.lower() in ["deegar", "digar", "deegar..."] or urdu_title in ["دیگر", "دیگر..."]:
+            lyrics_r = naat.get("lyrics_roman_english", "").strip()
+            lyrics_u = naat.get("lyrics_urdu", "").strip()
+            if lyrics_r and lyrics_r.split("\n")[0].strip().lower() not in ["deegar", "digar"]:
+                roman_title = lyrics_r.split("\n")[0].strip()
+            if lyrics_u and lyrics_u.split("\n")[0].strip() not in ["دیگر", "دیگر..."]:
+                urdu_title = lyrics_u.split("\n")[0].strip()
+
         print(f"\nProcessing block {idx + 1}/{len(blocks)}: '{roman_title}' (New: {belongs_to_new})")
 
         # 1. Ensure author exists
