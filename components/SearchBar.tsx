@@ -101,7 +101,7 @@ export default function SearchBar() {
   };
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-xl mx-auto z-50">
+    <div ref={containerRef} className="relative w-full max-w-xl mx-auto z-30">
       {/* Dynamic Screen Reader Live Region */}
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {announcement}
@@ -157,7 +157,7 @@ export default function SearchBar() {
 
       {/* Results Dropdown */}
       {isOpen && (
-        <div className="absolute w-full mt-2 rounded-2xl bg-emerald-950 border border-emerald-500/20 shadow-2xl overflow-hidden backdrop-blur-lg z-50 max-h-80 overflow-y-auto">
+        <div className="absolute w-full mt-2 rounded-2xl bg-emerald-950 border border-emerald-500/20 shadow-2xl overflow-hidden backdrop-blur-lg z-40 max-h-80 overflow-y-auto">
           {results.length === 0 ? (
             <div className="px-5 py-4 text-sm text-gray-400 text-center">
               No Naats found matching &quot;{query}&quot;

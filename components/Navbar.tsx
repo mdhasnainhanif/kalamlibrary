@@ -35,7 +35,7 @@ export default function Navbar() {
   }, [isOpen]);
 
   return (
-    <nav aria-label="Main navigation" className="w-full bg-emerald-950/80 backdrop-blur-md border-b border-emerald-500/10 sticky top-0 z-50 transition-all">
+    <nav aria-label="Main navigation" className="w-full bg-emerald-950/95 backdrop-blur-md border-b border-emerald-500/10 sticky top-0 z-50 transition-all">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           
