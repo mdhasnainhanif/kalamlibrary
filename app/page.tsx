@@ -16,6 +16,7 @@ function slugify(text: string) {
 // Geometric Pattern Component for background styling
 const GeometricPattern = () => (
   <svg
+    aria-hidden="true"
     className="absolute inset-0 w-full h-full opacity-[0.025] pointer-events-none -z-10"
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
@@ -59,7 +60,7 @@ const GeometricPattern = () => (
 
 // Rosette Flourish Divider
 const OrnamentalDivider = () => (
-  <div className="flex items-center justify-center gap-4 my-8 w-full">
+  <div aria-hidden="true" className="flex items-center justify-center gap-4 my-8 w-full">
     <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-gold-500/30"></div>
     <div className="text-gold-500 flex items-center justify-center shrink-0 w-6 h-6">
       <svg className="w-5 h-5 fill-none stroke-current" strokeWidth="1" viewBox="0 0 24 24">
@@ -163,7 +164,7 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
       />
 
-      <main className="w-full flex-grow relative py-12 md:py-20 px-4 flex flex-col items-center">
+      <main id="main-content" className="w-full flex-grow relative py-12 md:py-20 px-4 flex flex-col items-center">
         {/* Subtle repeating background */}
         <GeometricPattern />
 
@@ -171,7 +172,7 @@ export default async function Home() {
         <div className="w-full max-w-4xl text-center mb-16 relative">
           
           <h1 className="text-4xl md:text-6xl font-extrabold text-gold-500 mb-6 tracking-tight flex flex-col items-center gap-1.5">
-            <span className="font-urdu text-3xl md:text-5xl text-emerald-400 font-bold block mb-2" dir="rtl">
+            <span lang="ur" className="font-urdu text-3xl md:text-5xl text-emerald-400 font-bold block mb-2" dir="rtl">
               کلام لائبریری
             </span>
             <span className="font-sans">Kalam Library</span>
@@ -205,14 +206,14 @@ export default async function Home() {
         <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-3 gap-12 mt-4" id="featured">
           
           {/* Left Side: Popular Poets list (1 column) */}
-          <div className="lg:col-span-1 flex flex-col gap-6">
+          <section className="lg:col-span-1 flex flex-col gap-6" aria-label="Browse by Poet">
             <div className="flex items-center gap-2 border-b border-emerald-500/15 pb-3">
               <h2 className="text-lg font-bold text-gray-200 uppercase tracking-wider font-sans">Browse by Poet</h2>
-              <span className="w-1.5 h-1.5 rounded-full bg-gold-500 animate-ping"></span>
+              <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-gold-500 animate-ping"></span>
             </div>
 
             {authorsError || !authors || authors.length === 0 ? (
-              <p className="text-xs text-gray-500">No poets uploaded yet.</p>
+              <p className="text-xs text-gray-400">No poets uploaded yet.</p>
             ) : (
               <div className="flex flex-col gap-3">
                 {authors.map((author) => {
@@ -222,9 +223,10 @@ export default async function Home() {
                     <Link
                       key={author.id}
                       href={`/author/${authorSlug}`}
+                      aria-label={`Read Kalam lyrics by ${author.name_roman}`}
                       className="p-4 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex items-center gap-4 group"
                     >
-                      <div className="w-10 h-10 rounded-full bg-emerald-950 flex items-center justify-center border border-gold-500/10 text-gold-500 font-semibold shrink-0 group-hover:border-gold-500/30 transition-colors">
+                      <div aria-hidden="true" className="w-10 h-10 rounded-full bg-emerald-950 flex items-center justify-center border border-gold-500/10 text-gold-500 font-semibold shrink-0 group-hover:border-gold-500/30 transition-colors">
                         {author.name_roman.charAt(0)}
                       </div>
                       <div className="flex-grow min-w-0 text-left">
@@ -233,11 +235,11 @@ export default async function Home() {
                         </h3>
                         <div className="flex justify-between items-center mt-0.5">
                           {author.name_urdu && (
-                             <span className="text-xs text-emerald-400 font-urdu block py-0.5" dir="rtl">
+                             <span lang="ur" className="text-xs text-emerald-400 font-urdu block py-0.5" dir="rtl">
                                {author.name_urdu}
                              </span>
                            )}
-                          <span className="text-[10px] text-gray-500 font-sans ml-auto">
+                          <span className="text-[10px] text-gray-400 font-sans ml-auto">
                             {kalamCount} Kalam{kalamCount !== 1 ? "s" : ""}
                           </span>
                         </div>
@@ -247,13 +249,13 @@ export default async function Home() {
                 })}
               </div>
             )}
-          </div>
+          </section>
 
           {/* Right Side: Featured Kalam list (2 columns) */}
-          <div className="lg:col-span-2 flex flex-col gap-6">
+          <section className="lg:col-span-2 flex flex-col gap-6" aria-label="Recently Added Kalam">
             <div className="flex items-center gap-2 border-b border-emerald-500/15 pb-3">
               <h2 className="text-lg font-bold text-gray-200 uppercase tracking-wider font-sans">Recently Added Kalam</h2>
-              <span className="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
+              <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
             </div>
 
             {kalamsError || !kalams || kalams.length === 0 ? (
@@ -270,6 +272,7 @@ export default async function Home() {
                     <Link
                       key={kalam.id}
                       href={`/kalam/${kalam.slug}/roman-english`}
+                      aria-label={`Read ${kalam.primary_title_roman} lyrics by ${authorName}`}
                       className="p-5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex flex-col justify-between h-36 text-left group"
                     >
                       <div>
@@ -277,7 +280,7 @@ export default async function Home() {
                           {kalam.primary_title_roman}
                         </h3>
                         {kalam.primary_title_urdu && (
-                          <p className="text-lg text-emerald-400/80 font-urdu mt-1.5 truncate py-1" dir="rtl">
+                          <p lang="ur" className="text-lg text-emerald-400/80 font-urdu mt-1.5 truncate py-1" dir="rtl">
                             {kalam.primary_title_urdu}
                           </p>
                         )}
@@ -287,7 +290,7 @@ export default async function Home() {
                           By {authorName}
                         </span>
                         <div className="w-7 h-7 rounded-full bg-emerald-950/80 flex items-center justify-center text-emerald-400 border border-emerald-500/10 shrink-0">
-                          <svg className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg aria-hidden="true" className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                           </svg>
                         </div>
@@ -297,7 +300,7 @@ export default async function Home() {
                 })}
               </div>
             )}
-          </div>
+          </section>
 
         </div>
 
@@ -307,7 +310,7 @@ export default async function Home() {
         </div>
 
         {/* Browse by Language Quick Links */}
-        <div className="w-full max-w-6xl py-8 text-center">
+        <section className="w-full max-w-6xl py-8 text-center" aria-label="Browse lyrics by Language">
           <h2 className="text-xl font-bold text-gray-200 mb-6 font-sans">Browse lyrics by Language</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
@@ -319,6 +322,7 @@ export default async function Home() {
               <Link
                 key={lang.label}
                 href={lang.href}
+                aria-label={`Browse Naat lyrics in ${lang.label}`}
                 className="p-5 rounded-xl bg-emerald-900/10 border border-emerald-500/10 hover:bg-emerald-900/20 hover-gold-glow transition-all text-left flex flex-col justify-between group"
               >
                 <div>
@@ -333,13 +337,13 @@ export default async function Home() {
               </Link>
             ))}
           </div>
-        </div>
+        </section>
 
         {/* Teaser block linking to About/Services */}
         <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-8 py-10">
           <div className="p-6 rounded-2xl bg-emerald-900/10 border border-emerald-500/10 flex flex-col justify-between text-left">
             <div>
-              <h3 className="text-lg font-bold text-gold-500 mb-2">Our Digital Mission</h3>
+              <h2 className="text-lg font-bold text-gold-500 mb-2">Our Digital Mission</h2>
               <p className="text-xs md:text-sm text-gray-400 leading-relaxed mb-4">
                 We are archiving and preserving spiritual poetry. Utilizing advanced AI OCR models, we digitize text exactly from historical collections like Hadaiq-e-Bakhshish and Wasail-e-Bakhshish, translating odes into multiple languages for readers globally.
               </p>
@@ -349,7 +353,7 @@ export default async function Home() {
               className="text-xs font-bold text-emerald-400 hover:text-gold-500 flex items-center gap-1 group w-fit"
             >
               <span>Learn about our mission</span>
-              <svg className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg aria-hidden="true" className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
@@ -357,7 +361,7 @@ export default async function Home() {
 
           <div className="p-6 rounded-2xl bg-emerald-900/10 border border-emerald-500/10 flex flex-col justify-between text-left">
             <div>
-              <h3 className="text-lg font-bold text-gold-500 mb-2">Digitization Services</h3>
+              <h2 className="text-lg font-bold text-gold-500 mb-2">Digitization Services</h2>
               <p className="text-xs md:text-sm text-gray-400 leading-relaxed mb-4">
                 Do you have a scanned compilation or a rare collection of Naats and Kalam that you want digitized? We offer accurate transcription, custom transliterations, and multi-language translation formatting.
               </p>
@@ -367,7 +371,7 @@ export default async function Home() {
               className="text-xs font-bold text-emerald-400 hover:text-gold-500 flex items-center gap-1 group w-fit"
             >
               <span>Explore services</span>
-              <svg className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg aria-hidden="true" className="w-3.5 h-3.5 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </Link>
@@ -375,32 +379,32 @@ export default async function Home() {
         </div>
 
         {/* Spiritual Couplet Showcase */}
-        <div className="w-full max-w-6xl p-8 md:p-12 rounded-3xl bg-gradient-to-br from-emerald-950/40 via-emerald-900/10 to-emerald-950/40 border border-emerald-500/10 text-center relative overflow-hidden mt-8 shadow-2xl">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-gold-500/5 rounded-full blur-2xl pointer-events-none"></div>
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
+        <section aria-label="Spiritual Couplet Showcase" className="w-full max-w-6xl p-8 md:p-12 rounded-3xl bg-gradient-to-br from-emerald-950/40 via-emerald-900/10 to-emerald-950/40 border border-emerald-500/10 text-center relative overflow-hidden mt-8 shadow-2xl">
+          <div aria-hidden="true" className="absolute top-0 right-0 w-32 h-32 bg-gold-500/5 rounded-full blur-2xl pointer-events-none"></div>
+          <div aria-hidden="true" className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
           
           <span className="text-[10px] uppercase font-bold text-gold-500 tracking-[0.2em] mb-4 block">Spiritual Couplet Showcase</span>
           
-          <p className="font-urdu text-2xl md:text-3xl lg:text-4xl text-emerald-300 leading-loose mb-6 max-w-3xl mx-auto" dir="rtl">
+          <p lang="ur" className="font-urdu text-2xl md:text-3xl lg:text-4xl text-emerald-300 leading-loose mb-6 max-w-3xl mx-auto" dir="rtl">
             مصطفٰے جانِ رحمت پہ لاکھوں سلام<br />
             شمعِ بزمِ ہدایت پہ لاکھوں سلام
           </p>
           
           <p className="text-xs md:text-sm text-gray-400 italic mb-2 font-sans">
-            "Mustafa Jaan-e-Rehmat Pe Lakhon Salaam, Shama-e-Bazm-e-Hidayat Pe Lakhon Salaam"
+            &quot;Mustafa Jaan-e-Rehmat Pe Lakhon Salaam, Shama-e-Bazm-e-Hidayat Pe Lakhon Salaam&quot;
           </p>
           <p className="text-xs text-gold-500 font-semibold font-sans">
             — Imam Ahmad Raza Khan Qadri (Hadaiq-e-Bakhshish)
           </p>
-        </div>
+        </section>
 
         {/* FAQ Section */}
-        <div className="w-full max-w-3xl py-12 text-left">
+        <section aria-label="Frequently Asked Questions" className="w-full max-w-3xl py-12 text-left">
           <h2 className="text-2xl font-bold text-gold-500 mb-2 text-center font-sans">Frequently Asked Questions</h2>
           <p className="text-xs text-gray-400 text-center mb-8">Got questions? We have answers.</p>
           
           <FAQAccordion items={faqItems} />
-        </div>
+        </section>
 
       </main>
     </>

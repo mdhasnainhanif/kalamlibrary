@@ -5,8 +5,7 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: "/api/",
     },
-    sitemap: "https://kalamlibrary.com/sitemap.xml",
+    sitemap: "https://kalamlibrary.me/sitemap.xml",
   };
 }

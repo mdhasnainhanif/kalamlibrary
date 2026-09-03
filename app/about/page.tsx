@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 
 const GeometricPattern = () => (
   <svg
+    aria-hidden="true"
     className="absolute inset-0 w-full h-full opacity-[0.015] pointer-events-none -z-10"
     xmlns="http://www.w3.org/2000/svg"
     width="100%"
@@ -31,7 +32,7 @@ const GeometricPattern = () => (
 
 export default function AboutPage() {
   return (
-    <main className="w-full max-w-4xl mx-auto px-4 py-8 md:py-16 flex-grow relative text-left">
+    <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-16 flex-grow relative text-left">
       <GeometricPattern />
 
       {/* Header */}

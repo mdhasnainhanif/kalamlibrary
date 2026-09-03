@@ -19,17 +19,25 @@ export default function FAQAccordion({ items }: { items: FAQItem[] }) {
     <div className="flex flex-col gap-4">
       {items.map((item, idx) => {
         const isOpen = openIndex === idx;
+        const questionId = `faq-question-${idx}`;
+        const answerId = `faq-answer-${idx}`;
+
         return (
           <div
             key={idx}
             className="rounded-xl bg-emerald-900/10 border border-emerald-500/10 overflow-hidden transition-all duration-300"
           >
             <button
+              id={questionId}
+              type="button"
               onClick={() => toggleIndex(idx)}
+              aria-expanded={isOpen}
+              aria-controls={answerId}
               className="w-full p-5 flex justify-between items-center text-left font-bold text-gray-100 text-sm md:text-base hover:text-gold-500 transition-colors focus:outline-none cursor-pointer"
             >
               <span className="pr-4">{item.q}</span>
               <svg
+                aria-hidden="true"
                 className={`w-4 h-4 text-gold-500 transition-transform duration-300 shrink-0 ${
                   isOpen ? "rotate-180" : ""
                 }`}
@@ -42,6 +50,9 @@ export default function FAQAccordion({ items }: { items: FAQItem[] }) {
             </button>
             
             <div
+              id={answerId}
+              role="region"
+              aria-labelledby={questionId}
               className={`transition-all duration-300 ease-in-out overflow-hidden ${
                 isOpen ? "max-h-[300px] opacity-100 border-t border-emerald-500/5" : "max-h-0 opacity-0"
               }`}

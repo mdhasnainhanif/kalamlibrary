@@ -93,28 +93,28 @@ export default async function AuthorPage({ params }: PageProps) {
   const { author, kalams } = data;
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 py-8 md:py-12 flex-1">
+    <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-12 flex-1">
       {/* Breadcrumb */}
-      <div className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center gap-2">
+      <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center gap-2">
         <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
-        <span>/</span>
+        <span aria-hidden="true">/</span>
         <span className="text-gray-400 font-medium">Authors</span>
-        <span>/</span>
+        <span aria-hidden="true">/</span>
         <span className="text-gray-400 font-medium">{author.name_roman}</span>
-      </div>
+      </nav>
 
       {/* Poet Profile Header */}
-      <div className="bg-emerald-900/10 border border-emerald-500/10 rounded-2xl p-6 md:p-8 mb-8 shadow-md">
+      <header className="bg-emerald-900/10 border border-emerald-500/10 rounded-2xl p-6 md:p-8 mb-8 shadow-md">
         <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
           {/* Avatar Placeholder */}
-          <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-emerald-950 flex items-center justify-center border border-gold-500/20 text-gold-500 text-3xl font-bold shadow-inner shrink-0 animate-pulse">
+          <div aria-hidden="true" className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-emerald-950 flex items-center justify-center border border-gold-500/20 text-gold-500 text-3xl font-bold shadow-inner shrink-0">
             {author.name_roman.charAt(0)}
           </div>
           <div className="text-center md:text-left flex-1">
             <div className="flex flex-col md:flex-row md:items-baseline md:gap-3 justify-center md:justify-start">
               <h1 className="text-2xl md:text-3xl font-bold text-gold-500 mb-1">{author.name_roman}</h1>
               {author.name_urdu && (
-                <span className="text-lg md:text-xl text-emerald-300/85 font-urdu" dir="rtl">
+                <span lang="ur" className="text-lg md:text-xl text-emerald-300/85 font-urdu" dir="rtl">
                   ({author.name_urdu})
                 </span>
               )}
@@ -123,52 +123,55 @@ export default async function AuthorPage({ params }: PageProps) {
               {author.bio || "Classic poet of devotional Sufi Naats and Islamic literature."}
             </p>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/10 text-xs font-semibold text-emerald-300">
-              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg aria-hidden="true" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
               </svg>
               <span>{kalams.length} Kalam{kalams.length !== 1 ? "s" : ""} Available</span>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* Naats / Kalam List */}
-      <h2 className="text-xl font-bold text-gray-200 mb-4 flex items-center gap-2">
-        <span>Kalam Collection</span>
-        <span className="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
-      </h2>
+      <section aria-label="Kalam Collection">
+        <h2 className="text-xl font-bold text-gray-200 mb-4 flex items-center gap-2">
+          <span>Kalam Collection</span>
+          <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
+        </h2>
 
-      {kalams.length === 0 ? (
-        <div className="text-center py-12 bg-emerald-900/5 border border-dashed border-emerald-500/10 rounded-xl">
-          <p className="text-gray-400">No Naats uploaded yet for this author.</p>
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {kalams.map((kalam) => (
-            <Link
-              key={kalam.id}
-              href={`/kalam/${kalam.slug}/roman-english`}
-              className="group p-5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex justify-between items-center"
-            >
-              <div>
-                <h3 className="font-semibold text-gray-100 group-hover:text-gold-500 transition-colors">
-                  {kalam.primary_title_roman}
-                </h3>
-                {kalam.primary_title_urdu && (
-                  <span className="text-base text-emerald-400/70 font-urdu block mt-1 py-0.5 truncate" dir="rtl">
-                    {kalam.primary_title_urdu}
-                  </span>
-                )}
-              </div>
-              <div className="w-8 h-8 rounded-full bg-emerald-950/60 border border-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:text-gold-500 group-hover:border-gold-500/30 transition-all shrink-0">
-                <svg className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </div>
-            </Link>
-          ))}
-        </div>
-      )}
-    </div>
+        {kalams.length === 0 ? (
+          <div className="text-center py-12 bg-emerald-900/5 border border-dashed border-emerald-500/10 rounded-xl">
+            <p className="text-gray-400">No Naats uploaded yet for this author.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {kalams.map((kalam) => (
+              <Link
+                key={kalam.id}
+                href={`/kalam/${kalam.slug}/roman-english`}
+                aria-label={`Read ${kalam.primary_title_roman} lyrics by ${author.name_roman}`}
+                className="group p-5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex justify-between items-center"
+              >
+                <div>
+                  <h3 className="font-semibold text-gray-100 group-hover:text-gold-500 transition-colors">
+                    {kalam.primary_title_roman}
+                  </h3>
+                  {kalam.primary_title_urdu && (
+                    <span lang="ur" className="text-base text-emerald-400/70 font-urdu block mt-1 py-0.5 truncate" dir="rtl">
+                      {kalam.primary_title_urdu}
+                    </span>
+                  )}
+                </div>
+                <div className="w-8 h-8 rounded-full bg-emerald-950/60 border border-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:text-gold-500 group-hover:border-gold-500/30 transition-all shrink-0">
+                  <svg aria-hidden="true" className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+    </main>
   );
 }

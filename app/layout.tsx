@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 import Navbar from "@/components/Navbar";
@@ -34,10 +35,34 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {/* Google Analytics (gtag.js) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-Z7H5JF3KB9"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-Z7H5JF3KB9');
+          `}
+        </Script>
+      </head>
       <body className="min-h-full flex flex-col relative overflow-x-hidden">
+        {/* Keyboard Accessibility: Skip to Main Content Link */}
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-gold-500 focus:text-black focus:font-bold focus:rounded-xl focus:shadow-xl focus:outline-none"
+        >
+          Skip to main content
+        </a>
+
         {/* Global Glowing Background Elements */}
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] -z-10 animate-pulse pointer-events-none"></div>
-        <div className="fixed bottom-10 left-10 w-70 h-70 bg-gold-500/5 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
+        <div aria-hidden="true" className="fixed top-20 left-1/2 -translate-x-1/2 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] -z-10 animate-pulse pointer-events-none"></div>
+        <div aria-hidden="true" className="fixed bottom-10 left-10 w-70 h-70 bg-gold-500/5 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
 
         <Navbar />
         <div className="flex-1 flex flex-col w-full">

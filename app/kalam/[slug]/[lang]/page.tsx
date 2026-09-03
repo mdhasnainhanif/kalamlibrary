@@ -152,23 +152,24 @@ export default async function KalamPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="w-full max-w-4xl mx-auto px-4 py-8 md:py-12 flex-1 flex flex-col">
+      <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-12 flex-1 flex flex-col">
         {/* Navigation Breadcrumbs */}
-        <div className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center gap-2">
+        <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center gap-2">
           <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
-          <span>/</span>
+          <span aria-hidden="true">/</span>
           {author && (
             <>
               <Link href={`/author/${authorSlug}`} className="hover:text-gold-500 transition-colors">{authorName}</Link>
-              <span>/</span>
+              <span aria-hidden="true">/</span>
             </>
           )}
           <span className="text-gray-400 font-medium truncate max-w-[200px] md:max-w-[400px]">{kalam.primary_title_roman}</span>
-        </div>
+        </nav>
 
         {/* Kalam Heading Panel */}
-        <div className="text-center mb-8 border-b border-emerald-500/10 pb-6">
+        <header className="text-center mb-8 border-b border-emerald-500/10 pb-6">
           <h1 
+            lang={lang === "urdu" ? "ur" : lang === "hindi" ? "hi" : lang === "bangla" ? "bn" : "en"}
             className={`text-2xl md:text-4xl font-bold text-gold-500 mb-3 tracking-wide leading-relaxed ${
               lang === "urdu" ? "font-urdu" : "font-sans"
             }`}
@@ -187,16 +188,16 @@ export default async function KalamPage({ params }: PageProps) {
               </Link>
             </p>
           )}
-        </div>
+        </header>
 
         {/* Translation Switcher Tabs with visual scroll indicator gradient */}
         <div className="relative w-full border-b border-emerald-500/10 mb-8">
           {/* Visual gradient overlays indicating scrollability on mobile */}
-          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#020806] to-transparent pointer-events-none md:hidden z-10"></div>
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#020806] to-transparent pointer-events-none md:hidden z-10"></div>
+          <div aria-hidden="true" className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#020806] to-transparent pointer-events-none md:hidden z-10"></div>
+          <div aria-hidden="true" className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#020806] to-transparent pointer-events-none md:hidden z-10"></div>
 
           <div className="flex justify-start md:justify-center overflow-x-auto py-2 px-6 scrollbar-none w-full max-w-full">
-            <div className="flex bg-emerald-950/60 p-1.5 rounded-xl border border-emerald-500/10 gap-1 shrink-0">
+            <div role="tablist" aria-label="Kalam language translation options" className="flex bg-emerald-950/60 p-1.5 rounded-xl border border-emerald-500/10 gap-1 shrink-0">
               {Object.entries(LANGUAGES_MAP).map(([key, config]) => {
                 const isSelected = key === lang;
                 const hasLanguageTranslation = translations.some((t) => t.language === config.code);
@@ -206,7 +207,11 @@ export default async function KalamPage({ params }: PageProps) {
                 return (
                   <Link
                     key={key}
+                    id={`tab-${key}`}
                     href={`/kalam/${slug}/${key}`}
+                    role="tab"
+                    aria-selected={isSelected}
+                    aria-controls="lyrics-panel"
                     className={`px-4 py-2 text-xs md:text-sm font-medium rounded-lg transition-all cursor-pointer whitespace-nowrap ${
                       isSelected
                         ? "bg-gold-500 text-black shadow-md font-semibold scale-[1.02]"
@@ -229,7 +234,7 @@ export default async function KalamPage({ params }: PageProps) {
           lang={lang} 
           dir={langConfig.dir} 
         />
-      </div>
+      </main>
     </>
   );
 }

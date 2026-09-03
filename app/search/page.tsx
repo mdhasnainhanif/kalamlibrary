@@ -1,18 +1,10 @@
 import Link from "next/link";
 import { Metadata } from "next";
-import { supabase } from "@/utils/supabase";
 import SearchBar from "@/components/SearchBar";
+import { searchKalams, SearchResultItem } from "@/utils/searchHelper";
 
 interface SearchPageProps {
   searchParams: Promise<{ q?: string }>;
-}
-
-function slugify(text: string) {
-  return text
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[-\s]+/g, "-");
 }
 
 export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
@@ -25,7 +17,7 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
     title,
     description,
     alternates: {
-      canonical: `https://kalamlibrary.com/search${q ? `?q=${encodeURIComponent(q)}` : ""}`,
+      canonical: `https://kalamlibrary.me/search${q ? `?q=${encodeURIComponent(q)}` : ""}`,
     },
   };
 }
@@ -34,52 +26,12 @@ export default async function SearchResultsPage({ searchParams }: SearchPageProp
   const { q = "" } = await searchParams;
   const query = q.trim();
 
-  let results: any[] = [];
+  let results: SearchResultItem[] = [];
   let errorMsg = "";
 
-  if (query.length >= 2) {
+  if (query.length >= 1) {
     try {
-      const { data, error } = await supabase
-        .from("kalam_translations")
-        .select("kalam_id, title, language, kalams(primary_title_roman, slug, authors(name_roman))")
-        .or(`title.ilike.%${query}%,lyrics.ilike.%${query}%`)
-        .limit(300);
-
-      if (error) throw error;
-
-      // Deduplicate results by kalam_id
-      const seen = new Set();
-      if (data) {
-        for (const item of data) {
-          const kalam = item.kalams as any;
-          const authorData = kalam?.authors;
-          const authorName = Array.isArray(authorData)
-            ? authorData[0]?.name_roman
-            : authorData?.name_roman;
-
-          if (
-            kalam &&
-            !seen.has(item.kalam_id) &&
-            kalam.primary_title_roman.toLowerCase().trim() !== "deegar" &&
-            item.title?.toLowerCase().trim() !== "deegar" &&
-            item.title?.trim() !== "دیگر" &&
-            !kalam.slug.startsWith("deegar") &&
-            !kalam.slug.startsWith("digar")
-          ) {
-            seen.add(item.kalam_id);
-            results.push({
-              kalam_id: item.kalam_id,
-              title: kalam.primary_title_roman,
-              matched_title: item.title,
-              language: item.language,
-              slug: kalam.slug,
-              author_name: authorName || "Unknown Poet",
-              author_slug: authorName ? slugify(authorName) : "",
-            });
-          }
-        }
-      }
-      results = results.slice(0, 40);
+      results = await searchKalams(query, 40);
     } catch (err) {
       console.error("Search query database error:", err);
       errorMsg = "Something went wrong while querying the database.";
@@ -87,7 +39,7 @@ export default async function SearchResultsPage({ searchParams }: SearchPageProp
   }
 
   return (
-    <main className="w-full max-w-4xl mx-auto px-4 py-8 md:py-16 flex-grow">
+    <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-16 flex-grow">
       {/* Header section */}
       <div className="text-center mb-10">
         <h1 className="text-3xl md:text-4xl font-bold text-gold-500 mb-4">
@@ -104,26 +56,29 @@ export default async function SearchResultsPage({ searchParams }: SearchPageProp
       {/* Results grid */}
       <div className="border-t border-emerald-500/10 pt-8 mt-8">
         {!query ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-gray-400">
             Please enter a search query above to browse the library.
           </div>
         ) : query.length < 2 ? (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-gray-400">
             Search term must be at least 2 characters long.
           </div>
         ) : errorMsg ? (
-          <div className="text-center py-12 text-red-400">
+          <div className="text-center py-12 text-rose-400 font-medium" role="alert">
             {errorMsg}
           </div>
         ) : results.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-400 text-lg font-medium mb-2">No results found</p>
-            <p className="text-sm text-gray-500">
-              We couldn't find any odes matching "{query}". Try checking the spelling or using different keywords.
+          <div className="text-center py-12" aria-live="polite">
+            <p className="text-gray-300 text-lg font-medium mb-2">No results found</p>
+            <p className="text-sm text-gray-400">
+              We could not find any odes matching &quot;{query}&quot;. Try checking the spelling or using different keywords.
             </p>
           </div>
         ) : (
           <div className="flex flex-col gap-4">
+            <div className="sr-only" aria-live="polite" aria-atomic="true">
+              {results.length} search results found for &quot;{query}&quot;
+            </div>
             <p className="text-xs text-gray-400 uppercase tracking-wider mb-2 font-semibold">
               Found {results.length} matching Kalam{results.length !== 1 ? "s" : ""}
             </p>
@@ -134,12 +89,13 @@ export default async function SearchResultsPage({ searchParams }: SearchPageProp
                   <Link
                     key={result.kalam_id}
                     href={`/kalam/${result.slug}/${langPath}`}
-                    className="p-5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex flex-col justify-between h-36"
+                    aria-label={`Read ${result.matched_title} lyrics by ${result.author_name} in ${result.language.replace("_", " ")}`}
+                    className="p-5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex flex-col justify-between h-36 group"
                   >
                     <div>
-                      <h3 className="font-bold text-gray-100 group-hover:text-gold-500 transition-colors line-clamp-1">
+                      <h2 className="font-bold text-gray-100 group-hover:text-gold-500 transition-colors line-clamp-1 text-base">
                         {result.matched_title}
-                      </h3>
+                      </h2>
                       {result.title !== result.matched_title && (
                         <p className="text-xs text-gray-400 mt-1">
                           Original: {result.title}
