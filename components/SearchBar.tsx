@@ -118,7 +118,7 @@ export default function SearchBar() {
           onChange={handleInputChange}
           onFocus={() => query.trim().length >= 2 && setIsOpen(true)}
           placeholder="Search Kalam (e.g. 'Mustafa Jane Rehmat', 'مصطفیٰ جانِ رحمت', 'मुस्तफ़ा जाने रहमत')..."
-          className="w-full px-5 py-4 pl-12 rounded-2xl bg-emerald-950/40 backdrop-blur-md border border-emerald-500/20 text-gray-100 placeholder-gray-400 focus:outline-none focus:border-gold-500/50 focus:ring-1 focus:ring-gold-500/50 shadow-lg text-sm md:text-base hover:border-emerald-500/30 transition-all"
+          className="w-full px-5 py-4 pl-12 pr-12 rounded-2xl bg-emerald-950/40 backdrop-blur-md border border-emerald-500/20 text-gray-100 placeholder-gray-400 focus:outline-none focus-visible:outline-none focus:border-gold-500/60 focus:ring-1 focus:ring-gold-500/40 shadow-lg text-sm md:text-base hover:border-emerald-500/30 transition-all [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
         />
         <button
           type="submit"
