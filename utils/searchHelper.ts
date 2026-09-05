@@ -103,10 +103,8 @@ export async function searchKalams(rawQuery: string, limit = 40): Promise<Search
     }
 
     // 5. Check lyrics line-by-line for full phrase or verse match
-    let lineMatched = false;
     if (lyricsNorm.includes(normQuery)) {
       score += 140;
-      lineMatched = true;
     }
 
     // 6. Word-by-word matching (words must co-occur in the SAME LINE or TITLE)
