@@ -10,12 +10,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title: "Contact Us - Support & Inquiries",
     description: "Get in touch with the Kalam Library team. Contact us on WhatsApp +92 317 4731957 or email md.hasnain.developer@gmail.com for corrections or requests.",
     alternates: {
-      canonical: "https://kalamlibrary.com/contact",
+      canonical: "https://kalamlibrary.me/contact",
     },
     openGraph: {
       title: "Contact Us - Support & Inquiries | Kalam Library",
       description: "Get in touch with the Kalam Library team. Contact us on WhatsApp +92 317 4731957 or email md.hasnain.developer@gmail.com.",
-      url: "https://kalamlibrary.com/contact",
+      url: "https://kalamlibrary.me/contact",
     },
   };
 }

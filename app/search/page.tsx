@@ -85,10 +85,11 @@ export default async function SearchResultsPage({ searchParams }: SearchPageProp
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {results.map((result) => {
                 const langPath = result.language.replace("_", "-");
+                const kalamHref = langPath === "roman-english" ? `/kalam/${result.slug}` : `/kalam/${result.slug}/${langPath}`;
                 return (
                   <Link
                     key={result.kalam_id}
-                    href={`/kalam/${result.slug}/${langPath}`}
+                    href={kalamHref}
                     aria-label={`Read ${result.matched_title} lyrics by ${result.author_name} in ${result.language.replace("_", " ")}`}
                     className="p-5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex flex-col justify-between h-36 group"
                   >

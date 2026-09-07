@@ -2,7 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/utils/supabase";
-import CopyShareButtons from "@/components/CopyShareButtons";
+import LyricsDisplay from "@/components/LyricsDisplay";
 
 interface PageProps {
   params: Promise<{
@@ -19,6 +19,13 @@ function slugify(text: string) {
     .replace(/[^\w\s-]/g, "")
     .replace(/[-\s]+/g, "-");
 }
+
+const LANGUAGES_MAP: Record<string, { code: string; label: string; dir: "ltr" | "rtl"; locale: string }> = {
+  "roman-english": { code: "roman_english", label: "Roman English", dir: "ltr", locale: "en-US" },
+  "urdu": { code: "urdu", label: "اردو (Urdu)", dir: "rtl", locale: "ur-PK" },
+  "hindi": { code: "hindi", label: "हिन्दी (Hindi)", dir: "ltr", locale: "hi-IN" },
+  "bangla": { code: "bangla", label: "বাংলা (Bangla)", dir: "ltr", locale: "bn-BD" },
+};
 
 async function getKalamData(slug: string) {
   const { data: kalam, error: kalamError } = await supabase
@@ -40,6 +47,26 @@ async function getKalamData(slug: string) {
     return null;
   }
 
+  // Fetch sibling kalams by this author for dense internal linking
+  let relatedKalams: Array<{ id: string; slug: string; primary_title_roman: string; primary_title_urdu: string | null }> = [];
+  if (kalam.author_id) {
+    const { data: siblings } = await supabase
+      .from("kalams")
+      .select("id, slug, primary_title_roman, primary_title_urdu")
+      .eq("author_id", kalam.author_id)
+      .neq("id", kalam.id)
+      .limit(6);
+    if (siblings) {
+      relatedKalams = siblings.filter(
+        (k) =>
+          k.primary_title_roman.toLowerCase().trim() !== "deegar" &&
+          k.primary_title_urdu?.trim() !== "دیگر" &&
+          !k.slug.startsWith("deegar") &&
+          !k.slug.startsWith("digar")
+      );
+    }
+  }
+
   const authorData = Array.isArray(kalam.authors) ? kalam.authors[0] : kalam.authors;
 
   // Pick primary translation (prefer Roman English or Urdu, fallback to first available)
@@ -53,6 +80,7 @@ async function getKalamData(slug: string) {
     author: authorData,
     translations,
     primaryTranslation,
+    relatedKalams,
   };
 }
 
@@ -61,7 +89,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const data = await getKalamData(slug);
   if (!data) return {};
 
-  const { kalam, author, primaryTranslation } = data;
+  const { kalam, author, primaryTranslation, translations } = data;
   const titleText = primaryTranslation?.title || kalam.primary_title_roman;
   const authorName = author ? author.name_roman : "Unknown Poet";
 
@@ -69,11 +97,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const seoDesc = `Read full lyrics of '${titleText}' written by ${authorName} on Kalam Library. Available in Roman English, Urdu, Hindi, and Bangla translations.`;
   const canonicalUrl = `https://kalamlibrary.me/kalam/${slug}`;
 
+  const alternates: Record<string, string> = {};
+  translations.forEach((t) => {
+    const langKey = Object.keys(LANGUAGES_MAP).find((k) => LANGUAGES_MAP[k].code === t.language);
+    if (langKey) {
+      alternates[LANGUAGES_MAP[langKey].locale] = `https://kalamlibrary.me/kalam/${slug}/${langKey}`;
+    }
+  });
+
   return {
     title: seoTitle,
     description: seoDesc,
     alternates: {
       canonical: canonicalUrl,
+      languages: alternates,
     },
     openGraph: {
       title: seoTitle,
@@ -85,6 +122,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   };
 }
 
+export async function generateStaticParams() {
+  try {
+    const { data: kalams } = await supabase
+      .from("kalams")
+      .select("slug")
+      .order("created_at", { ascending: false })
+      .limit(60);
+    if (!kalams) return [];
+    return kalams.map((k) => ({ slug: k.slug }));
+  } catch {
+    return [];
+  }
+}
+
 export default async function KalamSlugPage({ params }: PageProps) {
   const { slug } = await params;
   const data = await getKalamData(slug);
@@ -93,72 +144,159 @@ export default async function KalamSlugPage({ params }: PageProps) {
     notFound();
   }
 
-  const { kalam, author, translations, primaryTranslation } = data;
+  const { kalam, author, translations, primaryTranslation, relatedKalams } = data;
   const authorName = author ? author.name_roman : "Unknown Poet";
   const authorSlug = author ? slugify(author.name_roman) : "";
 
+  const isUrduPrimary = primaryTranslation.language === "urdu";
+  const currentLang = isUrduPrimary ? "urdu" : "roman-english";
+  const currentDir = isUrduPrimary ? "rtl" : "ltr";
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "MusicComposition",
+    "name": kalam.primary_title_roman,
+    "lyrics": {
+      "@type": "Lyrics",
+      "text": primaryTranslation.lyrics,
+    },
+    "lyricist": {
+      "@type": "Person",
+      "name": authorName,
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "Kalam Library",
+    },
+  };
+
   return (
-    <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-12 flex-1 flex flex-col">
-      {/* Breadcrumb Navigation */}
-      <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center gap-2">
-        <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
-        <span aria-hidden="true">/</span>
-        {author && (
-          <>
-            <Link href={`/author/${authorSlug}`} className="hover:text-gold-500 transition-colors">{authorName}</Link>
-            <span aria-hidden="true">/</span>
-          </>
-        )}
-        <span className="text-gray-400 font-medium truncate max-w-[200px] md:max-w-[400px]">{kalam.primary_title_roman}</span>
-      </nav>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
 
-      {/* Header section */}
-      <header className="text-center mb-8 border-b border-emerald-500/10 pb-6">
-        <h1 className="text-2xl md:text-4xl font-bold text-gold-500 mb-3 tracking-wide leading-relaxed">
-          {primaryTranslation.title}
-        </h1>
-        {author && (
-          <p className="text-sm md:text-base text-gray-400">
-            Written by{" "}
-            <Link
-              href={`/author/${authorSlug}`}
-              className="text-emerald-400 hover:text-gold-500 hover:underline transition-all font-semibold"
-            >
-              {authorName}
-            </Link>
-          </p>
-        )}
-      </header>
+      <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-12 flex-1 flex flex-col">
+        {/* Breadcrumb Navigation */}
+        <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center gap-2">
+          <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
+          <span aria-hidden="true">/</span>
+          <Link href="/authors" className="hover:text-gold-500 transition-colors">Authors</Link>
+          <span aria-hidden="true">/</span>
+          {author && (
+            <>
+              <Link href={`/author/${authorSlug}`} className="hover:text-gold-500 transition-colors">{authorName}</Link>
+              <span aria-hidden="true">/</span>
+            </>
+          )}
+          <span className="text-gray-400 font-medium truncate max-w-[200px] md:max-w-[400px]">{kalam.primary_title_roman}</span>
+        </nav>
 
-      {/* Translation Switcher Links */}
-      {translations.length > 1 && (
-        <div className="flex justify-center flex-wrap gap-2 mb-8" role="tablist" aria-label="Available language translations">
-          {translations.map((t) => {
-            const langPath = t.language.replace("_", "-");
-            return (
+        {/* Header section */}
+        <header className="text-center mb-8 border-b border-emerald-500/10 pb-6">
+          <h1
+            lang={isUrduPrimary ? "ur" : "en"}
+            className={`text-2xl md:text-4xl font-bold text-gold-500 mb-3 tracking-wide leading-relaxed ${
+              isUrduPrimary ? "font-urdu" : "font-sans"
+            }`}
+            dir={currentDir}
+          >
+            {primaryTranslation.title}
+          </h1>
+          {author && (
+            <p className="text-sm md:text-base text-gray-400">
+              Written by{" "}
               <Link
-                key={t.id}
-                href={`/kalam/${slug}/${langPath}`}
-                className="px-4 py-2 text-xs md:text-sm font-medium rounded-lg bg-emerald-950/60 border border-emerald-500/10 text-emerald-300 hover:text-white hover:bg-emerald-900/40 transition-all"
+                href={`/author/${authorSlug}`}
+                className="text-emerald-400 hover:text-gold-500 hover:underline transition-all font-semibold"
               >
-                {t.language.replace("_", " ").toUpperCase()}
+                {authorName}
               </Link>
-            );
-          })}
-        </div>
-      )}
+            </p>
+          )}
+        </header>
 
-      {/* Lyrics Content Display Panel - Server Rendered with whitespace-pre-wrap */}
-      <article
-        id="lyrics-panel"
-        aria-label="Lyrics text"
-        className="w-full bg-emerald-900/10 backdrop-blur-md border border-emerald-500/10 rounded-2xl p-6 md:p-12 shadow-inner text-center whitespace-pre-wrap select-text font-sans text-gray-200 tracking-wide leading-relaxed md:leading-loose text-base md:text-lg"
-      >
-        {primaryTranslation.lyrics}
-      </article>
+        {/* Translation Switcher Tabs */}
+        {translations.length > 1 && (
+          <div className="relative w-full border-b border-emerald-500/10 mb-8">
+            <div className="flex justify-start md:justify-center overflow-x-auto py-2 px-6 scrollbar-none w-full max-w-full">
+              <div role="tablist" aria-label="Available language translations" className="flex bg-emerald-950/60 p-1.5 rounded-xl border border-emerald-500/10 gap-1 shrink-0">
+                {Object.entries(LANGUAGES_MAP).map(([key, config]) => {
+                  const hasTranslation = translations.some((t) => t.language === config.code);
+                  if (!hasTranslation) return null;
 
-      {/* Copy and Share Utility Buttons */}
-      <CopyShareButtons lyrics={primaryTranslation.lyrics} title={primaryTranslation.title} author={authorName} />
-    </main>
+                  const isDefaultActive = primaryTranslation.language === config.code;
+
+                  return (
+                    <Link
+                      key={key}
+                      href={isDefaultActive ? `/kalam/${slug}` : `/kalam/${slug}/${key}`}
+                      role="tab"
+                      aria-selected={isDefaultActive}
+                      className={`px-4 py-2 text-xs md:text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
+                        isDefaultActive
+                          ? "bg-gold-500 text-black shadow-md font-semibold scale-[1.02]"
+                          : "text-gray-400 hover:text-white hover:bg-emerald-900/40"
+                      }`}
+                    >
+                      {config.label}
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Lyrics Content Display Panel with Font Controls (A+ / A-) & Utility Buttons */}
+        <LyricsDisplay
+          lyrics={primaryTranslation.lyrics}
+          title={primaryTranslation.title}
+          author={authorName}
+          lang={currentLang}
+          dir={currentDir}
+        />
+
+        {/* More Kalam by Poet Cross-Linking Section */}
+        {relatedKalams && relatedKalams.length > 0 && author && (
+          <section aria-label="More Kalam by Poet" className="mt-12 pt-8 border-t border-emerald-500/10 w-full text-left">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg md:text-xl font-bold text-gray-200 flex items-center gap-2">
+                <span>More Kalam by {authorName}</span>
+                <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
+              </h2>
+              <Link
+                href={`/author/${authorSlug}`}
+                className="text-xs text-emerald-400 hover:text-gold-500 transition-colors font-medium flex items-center gap-1"
+              >
+                <span>View all</span>
+                <svg aria-hidden="true" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {relatedKalams.map((sibling) => (
+                <Link
+                  key={sibling.id}
+                  href={`/kalam/${sibling.slug}`}
+                  className="p-4 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex flex-col justify-between group"
+                >
+                  <span className="text-sm font-semibold text-gray-200 group-hover:text-gold-500 transition-colors line-clamp-1">
+                    {sibling.primary_title_roman}
+                  </span>
+                  {sibling.primary_title_urdu && (
+                    <span lang="ur" className="text-xs text-emerald-400/80 font-urdu mt-1 truncate" dir="rtl">
+                      {sibling.primary_title_urdu}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+      </main>
+    </>
   );
 }

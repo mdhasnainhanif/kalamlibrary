@@ -57,6 +57,25 @@ async function getKalamData(slug: string) {
     return null;
   }
 
+  let relatedKalams: Array<{ id: string; slug: string; primary_title_roman: string; primary_title_urdu: string | null }> = [];
+  if (kalam.author_id) {
+    const { data: siblings } = await supabase
+      .from("kalams")
+      .select("id, slug, primary_title_roman, primary_title_urdu")
+      .eq("author_id", kalam.author_id)
+      .neq("id", kalam.id)
+      .limit(6);
+    if (siblings) {
+      relatedKalams = siblings.filter(
+        (k) =>
+          k.primary_title_roman.toLowerCase().trim() !== "deegar" &&
+          k.primary_title_urdu?.trim() !== "دیگر" &&
+          !k.slug.startsWith("deegar") &&
+          !k.slug.startsWith("digar")
+      );
+    }
+  }
+
   // Handle Supabase relation typing
   const authorData = Array.isArray(kalam.authors) ? kalam.authors[0] : kalam.authors;
 
@@ -64,6 +83,7 @@ async function getKalamData(slug: string) {
     kalam,
     author: authorData,
     translations,
+    relatedKalams,
   };
 }
 
@@ -85,20 +105,20 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const alternates: Record<string, string> = {};
   Object.keys(LANGUAGES_MAP).forEach((key) => {
-    alternates[LANGUAGES_MAP[key].locale] = `https://kalamlibrary.com/kalam/${slug}/${key}`;
+    alternates[LANGUAGES_MAP[key].locale] = `https://kalamlibrary.me/kalam/${slug}/${key}`;
   });
 
   return {
     title: seoTitle,
     description: seoDesc,
     alternates: {
-      canonical: `https://kalamlibrary.com/kalam/${slug}/${lang}`,
+      canonical: `https://kalamlibrary.me/kalam/${slug}/${lang}`,
       languages: alternates,
     },
     openGraph: {
       title: seoTitle,
       description: seoDesc,
-      url: `https://kalamlibrary.com/kalam/${slug}/${lang}`,
+      url: `https://kalamlibrary.me/kalam/${slug}/${lang}`,
       type: "music.song",
     },
   };
@@ -117,7 +137,7 @@ export default async function KalamPage({ params }: PageProps) {
     notFound();
   }
 
-  const { kalam, author, translations } = data;
+  const { kalam, author, translations, relatedKalams } = data;
   
   const activeTranslation = translations.find((t) => t.language === langConfig.code);
   if (!activeTranslation) {
@@ -234,6 +254,45 @@ export default async function KalamPage({ params }: PageProps) {
           lang={lang} 
           dir={langConfig.dir} 
         />
+
+        {/* More Kalam by Poet Cross-Linking Section */}
+        {relatedKalams && relatedKalams.length > 0 && author && (
+          <section aria-label="More Kalam by Poet" className="mt-12 pt-8 border-t border-emerald-500/10 w-full text-left">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg md:text-xl font-bold text-gray-200 flex items-center gap-2">
+                <span>More Kalam by {authorName}</span>
+                <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
+              </h2>
+              <Link
+                href={`/author/${authorSlug}`}
+                className="text-xs text-emerald-400 hover:text-gold-500 transition-colors font-medium flex items-center gap-1"
+              >
+                <span>View all</span>
+                <svg aria-hidden="true" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {relatedKalams.map((sibling) => (
+                <Link
+                  key={sibling.id}
+                  href={`/kalam/${sibling.slug}`}
+                  className="p-4 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex flex-col justify-between group"
+                >
+                  <span className="text-sm font-semibold text-gray-200 group-hover:text-gold-500 transition-colors line-clamp-1">
+                    {sibling.primary_title_roman}
+                  </span>
+                  {sibling.primary_title_urdu && (
+                    <span lang="ur" className="text-xs text-emerald-400/80 font-urdu mt-1 truncate" dir="rtl">
+                      {sibling.primary_title_urdu}
+                    </span>
+                  )}
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </main>
     </>
   );

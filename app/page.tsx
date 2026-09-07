@@ -145,10 +145,10 @@ export default async function Home() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "Kalam Library",
-    "url": "https://kalamlibrary.com",
+    "url": "https://kalamlibrary.me",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://kalamlibrary.com/search?q={search_term_string}",
+      "target": "https://kalamlibrary.me/search?q={search_term_string}",
       "query-input": "required name=search_term_string"
     }
   };
@@ -187,12 +187,12 @@ export default async function Home() {
 
           {/* Core CTAs */}
           <div className="flex flex-wrap justify-center gap-4 mt-8">
-            <a
-              href="#featured"
+            <Link
+              href="/kalams"
               className="px-6 py-3 rounded-xl bg-gold-500 text-black font-bold text-sm transition-all hover:bg-gold-600 shadow-lg shadow-gold-500/10"
             >
-              Browse Kalams
-            </a>
+              Browse All Kalams
+            </Link>
             <Link
               href="/about"
               className="px-6 py-3 rounded-xl bg-emerald-950/60 text-gray-200 border border-emerald-500/10 font-bold text-sm transition-all hover:bg-emerald-900/40 hover:text-white"
@@ -247,6 +247,15 @@ export default async function Home() {
                     </Link>
                   );
                 })}
+                <Link
+                  href="/authors"
+                  className="mt-1 p-3 text-center rounded-xl bg-emerald-950/40 border border-emerald-500/15 text-gold-500 hover:text-white hover:bg-emerald-900/40 font-semibold text-xs transition-all flex items-center justify-center gap-1.5"
+                >
+                  <span>View all poets</span>
+                  <svg aria-hidden="true" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
               </div>
             )}
           </section>
@@ -271,7 +280,7 @@ export default async function Home() {
                   return (
                     <Link
                       key={kalam.id}
-                      href={`/kalam/${kalam.slug}/roman-english`}
+                      href={`/kalam/${kalam.slug}`}
                       aria-label={`Read ${kalam.primary_title_roman} lyrics by ${authorName}`}
                       className="p-5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex flex-col justify-between h-36 text-left group"
                     >
@@ -298,6 +307,17 @@ export default async function Home() {
                     </Link>
                   );
                 })}
+                <div className="md:col-span-2 pt-2">
+                  <Link
+                    href="/kalams"
+                    className="p-3.5 text-center rounded-xl bg-emerald-950/40 border border-emerald-500/15 text-gold-500 hover:text-white hover:bg-emerald-900/40 font-semibold text-xs transition-all flex items-center justify-center gap-1.5 w-full"
+                  >
+                    <span>Explore all 700+ Kalams in Library</span>
+                    <svg aria-hidden="true" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                    </svg>
+                  </Link>
+                </div>
               </div>
             )}
           </section>

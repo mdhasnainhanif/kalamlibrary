@@ -4,12 +4,12 @@ export const metadata: Metadata = {
   title: "About Us - Our Mission & Story",
   description: "Learn about the mission of Kalam Library. We digitize, transcribe, and translate classic Sufi Kalam and Naat poetry using AI-assisted pipelines.",
   alternates: {
-    canonical: "https://kalamlibrary.com/about",
+    canonical: "https://kalamlibrary.me/about",
   },
   openGraph: {
     title: "About Us - Our Mission & Story | Kalam Library",
     description: "Learn about the mission of Kalam Library. We digitize, transcribe, and translate classic Sufi Kalam and Naat poetry.",
-    url: "https://kalamlibrary.com/about",
+    url: "https://kalamlibrary.me/about",
   },
 };
 

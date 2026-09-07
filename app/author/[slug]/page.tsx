@@ -72,14 +72,26 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: seoTitle,
     description: seoDesc,
     alternates: {
-      canonical: `https://kalamlibrary.com/author/${slug}`,
+      canonical: `https://kalamlibrary.me/author/${slug}`,
     },
     openGraph: {
       title: seoTitle,
       description: seoDesc,
-      url: `https://kalamlibrary.com/author/${slug}`,
+      url: `https://kalamlibrary.me/author/${slug}`,
     },
   };
+}
+
+export async function generateStaticParams() {
+  try {
+    const { data: authors } = await supabase.from("authors").select("name_roman");
+    if (!authors) return [];
+    return authors.map((author) => ({
+      slug: slugify(author.name_roman),
+    }));
+  } catch {
+    return [];
+  }
 }
 
 export default async function AuthorPage({ params }: PageProps) {
@@ -98,7 +110,7 @@ export default async function AuthorPage({ params }: PageProps) {
       <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center gap-2">
         <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
         <span aria-hidden="true">/</span>
-        <span className="text-gray-400 font-medium">Authors</span>
+        <Link href="/authors" className="hover:text-gold-500 transition-colors">Authors</Link>
         <span aria-hidden="true">/</span>
         <span className="text-gray-400 font-medium">{author.name_roman}</span>
       </nav>
@@ -132,7 +144,7 @@ export default async function AuthorPage({ params }: PageProps) {
         </div>
       </header>
 
-      {/* Naats / Kalam List */}
+      {/* Naats / Kalam Collection */}
       <section aria-label="Kalam Collection">
         <h2 className="text-xl font-bold text-gray-200 mb-4 flex items-center gap-2">
           <span>Kalam Collection</span>
@@ -148,7 +160,7 @@ export default async function AuthorPage({ params }: PageProps) {
             {kalams.map((kalam) => (
               <Link
                 key={kalam.id}
-                href={`/kalam/${kalam.slug}/roman-english`}
+                href={`/kalam/${kalam.slug}`}
                 aria-label={`Read ${kalam.primary_title_roman} lyrics by ${author.name_roman}`}
                 className="group p-5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex justify-between items-center"
               >

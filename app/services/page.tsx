@@ -5,12 +5,12 @@ export const metadata: Metadata = {
   title: "Services & Requests - Digitization & Corrections",
   description: "Learn about Kalam Library services. We offer Naat lyrics digitization, scanned book transcription, corrections, and translation services.",
   alternates: {
-    canonical: "https://kalamlibrary.com/services",
+    canonical: "https://kalamlibrary.me/services",
   },
   openGraph: {
     title: "Services & Requests - Digitization & Corrections | Kalam Library",
     description: "Learn about Kalam Library services. We offer Naat lyrics digitization, scanned book transcription, corrections, and translation services.",
-    url: "https://kalamlibrary.com/services",
+    url: "https://kalamlibrary.me/services",
   },
 };
 

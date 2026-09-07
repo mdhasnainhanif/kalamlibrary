@@ -20,6 +20,7 @@ const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://kalamlibrary.me"),
   title: {
     template: "%s | Kalam Library",
     default: "Kalam Library - Naat Lyrics in Urdu, Hindi, Roman English & Bangla",
