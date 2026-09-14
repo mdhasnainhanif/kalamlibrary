@@ -68,16 +68,33 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const seoTitle = `${author.name_roman} Naats List & Lyrics - Kalam Library`;
   const seoDesc = `Read all Naats, Hamd, and Sufi Kalam written by ${author.name_roman} on Kalam Library. Access full lyrics in Urdu, Hindi, Bangla, and Roman English.`;
 
+  const ogImageUrl = `/api/og?title=${encodeURIComponent(author.name_roman)}&sub=${encodeURIComponent("Author & Poet Profile – All Kalam & Naats")}`;
+
   return {
     title: seoTitle,
-    description: seoDesc,
+    description: seoDesc.slice(0, 155),
     alternates: {
       canonical: `https://kalamlibrary.me/author/${slug}`,
     },
     openGraph: {
       title: seoTitle,
-      description: seoDesc,
+      description: seoDesc.slice(0, 155),
       url: `https://kalamlibrary.me/author/${slug}`,
+      siteName: "Kalam Library",
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${author.name_roman} - Kalam Library`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: seoTitle,
+      description: seoDesc.slice(0, 155),
+      images: [ogImageUrl],
     },
   };
 }

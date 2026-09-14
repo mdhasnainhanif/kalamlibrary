@@ -93,8 +93,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const titleText = primaryTranslation?.title || kalam.primary_title_roman;
   const authorName = author ? author.name_roman : "Unknown Poet";
 
-  const seoTitle = `${titleText} Lyrics - ${authorName} | Kalam Library`;
-  const seoDesc = `Read full lyrics of '${titleText}' written by ${authorName} on Kalam Library. Available in Roman English, Urdu, Hindi, and Bangla translations.`;
+  const pageTitle = `${titleText} Lyrics – ${authorName}`;
+  const pageDescription = `Read full lyrics and translation of ${titleText} by ${authorName} in Urdu, Hindi, Bangla & Roman scripts at Kalam Library.`.slice(0, 155);
   const canonicalUrl = `https://kalamlibrary.me/kalam/${slug}`;
 
   const alternates: Record<string, string> = {};
@@ -105,19 +105,35 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
   });
 
+  const ogImageUrl = `/api/og?title=${encodeURIComponent(titleText)}&poet=${encodeURIComponent(authorName)}`;
+
   return {
-    title: seoTitle,
-    description: seoDesc,
+    title: pageTitle,
+    description: pageDescription,
     alternates: {
       canonical: canonicalUrl,
       languages: alternates,
     },
     openGraph: {
-      title: seoTitle,
-      description: seoDesc,
+      title: `${pageTitle} | Kalam Library`,
+      description: pageDescription,
       url: canonicalUrl,
       type: "music.song",
       siteName: "Kalam Library",
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${titleText} Lyrics`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${pageTitle} | Kalam Library`,
+      description: pageDescription,
+      images: [ogImageUrl],
     },
   };
 }

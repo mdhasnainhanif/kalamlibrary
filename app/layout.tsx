@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Outfit, Noto_Nastaliq_Urdu } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
@@ -19,14 +19,84 @@ const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#0f172a",
+};
+
 export const metadata: Metadata = {
   metadataBase: new URL("https://kalamlibrary.me"),
   title: {
+    default: "Kalam Library | Complete Islamic Poetry, Hamd & Naat Lyrics",
     template: "%s | Kalam Library",
-    default: "Kalam Library - Naat Lyrics in Urdu, Hindi, Roman English & Bangla",
   },
-  description: "Explore a vast collection of Islamic Naats, Hamd, and Sufi Kalam in multiple languages including Roman English, Urdu (Nastaliq), Hindi (Devanagari), and Bangla.",
-  keywords: ["naats lyrics", "kalam library", "urdu naat", "hindi naat", "roman english lyrics", "hadaiq e bakhshish lyrics", "wasail e bakhshish lyrics", "sufi poetry"],
+  description:
+    "Explore authentic Islamic Naat, Hamd, and Sufi Kalam lyrics in Urdu, Hindi, Bangla, and Roman English. Read, search, and verify classic poetry.",
+  keywords: [
+    "naat lyrics",
+    "kalam library",
+    "urdu naat lyrics",
+    "hindi naat lyrics",
+    "roman english naat",
+    "hadaiq e bakhshish lyrics",
+    "wasail e bakhshish lyrics",
+    "sufi poetry",
+    "islamic poetry",
+    "hamd lyrics",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    nocache: false,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    alternateLocale: ["ur_PK"],
+    url: "https://kalamlibrary.me",
+    siteName: "Kalam Library",
+    title: "Kalam Library | Complete Islamic Poetry, Hamd & Naat Lyrics",
+    description:
+      "Explore authentic Islamic Naat, Hamd, and Sufi Kalam lyrics in Urdu, Hindi, Bangla, and Roman English. Read, search, and verify classic poetry.",
+    images: [
+      {
+        url: "/og-default.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Kalam Library - Islamic Poetry & Naat Lyrics Archive",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Kalam Library | Complete Islamic Poetry, Hamd & Naat Lyrics",
+    description:
+      "Explore authentic Islamic Naat, Hamd, and Sufi Kalam lyrics in Urdu, Hindi, Bangla, and Roman English. Read, search, and verify classic poetry.",
+    images: ["/og-default.jpg"],
+  },
+};
+
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Kalam Library",
+  url: "https://kalamlibrary.me/",
+  potentialAction: {
+    "@type": "SearchAction",
+    target: "https://kalamlibrary.me/search?q={search_term_string}",
+    "query-input": "required name=search_term_string",
+  },
 };
 
 export default function RootLayout({
@@ -37,9 +107,16 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      dir="ltr"
       className={`${outfit.variable} ${notoNastaliqUrdu.variable} h-full antialiased`}
     >
       <head>
+        {/* Structured Data: WebSite & SearchAction for Google Sitelinks Search */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+        />
+
         {/* Google Analytics (gtag.js) - Defer with lazyOnload to prevent blocking critical path and avoid forced reflow */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-Z7H5JF3KB9"

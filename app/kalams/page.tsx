@@ -33,6 +33,12 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
       title,
       description,
       url: canonicalUrl,
+      siteName: "Kalam Library",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
     },
   };
 }

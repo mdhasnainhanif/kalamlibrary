@@ -108,18 +108,35 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     alternates[LANGUAGES_MAP[key].locale] = `https://kalamlibrary.me/kalam/${slug}/${key}`;
   });
 
+  const ogImageUrl = `/api/og?title=${encodeURIComponent(titleText)}&poet=${encodeURIComponent(authorName)}&sub=${encodeURIComponent(`Lyrics in ${langConfig.label}`)}`;
+
   return {
     title: seoTitle,
-    description: seoDesc,
+    description: seoDesc.slice(0, 155),
     alternates: {
       canonical: `https://kalamlibrary.me/kalam/${slug}/${lang}`,
       languages: alternates,
     },
     openGraph: {
-      title: seoTitle,
-      description: seoDesc,
+      title: `${seoTitle} | Kalam Library`,
+      description: seoDesc.slice(0, 155),
       url: `https://kalamlibrary.me/kalam/${slug}/${lang}`,
       type: "music.song",
+      siteName: "Kalam Library",
+      images: [
+        {
+          url: ogImageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${titleText} Lyrics in ${langConfig.label}`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${seoTitle} | Kalam Library`,
+      description: seoDesc.slice(0, 155),
+      images: [ogImageUrl],
     },
   };
 }

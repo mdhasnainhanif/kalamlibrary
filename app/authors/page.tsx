@@ -14,6 +14,12 @@ export const metadata: Metadata = {
     title: "All Poets & Authors | Kalam Library",
     description: "Browse the complete directory of classic Sufi poets, scholars, and ode writers featured on Kalam Library.",
     url: "https://kalamlibrary.me/authors",
+    siteName: "Kalam Library",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "All Poets & Authors | Kalam Library",
+    description: "Browse the complete directory of classic Sufi poets, scholars, and ode writers featured on Kalam Library.",
   },
 };
 
