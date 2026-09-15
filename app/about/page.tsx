@@ -1,15 +1,32 @@
 import { Metadata } from "next";
+import Link from "next/link";
+import { SITE_CONFIG, buildBreadcrumbJsonLd, buildCanonicalUrl } from "@/utils/seoConfig";
 
 export const metadata: Metadata = {
   title: "About Us - Our Mission & Story",
   description: "Learn about the mission of Kalam Library. We digitize, transcribe, and translate classic Sufi Kalam and Naat poetry using AI-assisted pipelines.",
   alternates: {
-    canonical: "https://kalamlibrary.me/about",
+    canonical: buildCanonicalUrl("/about"),
   },
   openGraph: {
-    title: "About Us - Our Mission & Story | Kalam Library",
+    title: `About Us - Our Mission & Story | ${SITE_CONFIG.name}`,
     description: "Learn about the mission of Kalam Library. We digitize, transcribe, and translate classic Sufi Kalam and Naat poetry.",
-    url: "https://kalamlibrary.me/about",
+    url: `${SITE_CONFIG.url}/about`,
+    siteName: SITE_CONFIG.name,
+    images: [
+      {
+        url: SITE_CONFIG.defaultOgImage,
+        width: 1200,
+        height: 630,
+        alt: "About Kalam Library - Islamic Poetry Digitization",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `About Us - Our Mission & Story | ${SITE_CONFIG.name}`,
+    description: "Learn about the mission of Kalam Library. We digitize, transcribe, and translate classic Sufi Kalam and Naat poetry.",
+    images: [SITE_CONFIG.defaultOgImage],
   },
 };
 
@@ -31,9 +48,27 @@ const GeometricPattern = () => (
 );
 
 export default function AboutPage() {
+  const breadcrumbSchema = buildBreadcrumbJsonLd([
+    { name: "Home", url: "/" },
+    { name: "About Us", url: "/about" },
+  ]);
+
   return (
-    <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-16 flex-grow relative text-left">
-      <GeometricPattern />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
+      <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-16 flex-grow relative text-left">
+        <GeometricPattern />
+
+        {/* Breadcrumb */}
+        <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center gap-2">
+          <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
+          <span aria-hidden="true">/</span>
+          <span className="text-gray-400 font-medium">About Us</span>
+        </nav>
 
       {/* Header */}
       <div className="text-center mb-12 border-b border-emerald-500/10 pb-6">
@@ -53,7 +88,7 @@ export default function AboutPage() {
             Devotional poetry—specifically Hamd, Naat, and Manqabat—holds a sacred place in Islamic culture, literature, and spiritual expression. However, many historical odes remain locked inside out-of-print books, handwritten manuscripts, or poorly scanned documents.
           </p>
           <p className="text-sm md:text-base text-gray-300 leading-relaxed">
-            **Kalam Library** bridges this gap by digitizing these texts, correcting transcription anomalies, and making them easily accessible online in multiple scripts and formats.
+            <strong className="text-gray-100 font-semibold">Kalam Library</strong> bridges this gap by digitizing these texts, correcting transcription anomalies, and making them easily accessible online in multiple scripts and formats.
           </p>
         </section>
 
@@ -78,10 +113,10 @@ export default function AboutPage() {
         <section className="bg-emerald-900/5 border border-emerald-500/10 rounded-2xl p-6 md:p-8">
           <h2 className="text-xl md:text-2xl font-bold text-gold-500 mb-4">AI-Assisted Digitation Ingestion</h2>
           <p className="text-sm md:text-base text-gray-300 leading-relaxed mb-4">
-            Instead of manually typing thousands of pages of old scanned books (which often introduces human errors), we developed a custom **Stateful AI OCR Parsing Pipeline**.
+            Instead of manually typing thousands of pages of old scanned books (which often introduces human errors), we developed a custom <strong className="text-gray-100 font-semibold">Stateful AI OCR Parsing Pipeline</strong>.
           </p>
           <p className="text-sm md:text-base text-gray-300 leading-relaxed mb-4">
-            Our ingestion tools render high-resolution page buffers and process them in state-tracked batches using **Gemini 3.1 Flash Lite** API.
+            Our ingestion tools render high-resolution page buffers and process them in state-tracked batches using <strong className="text-gray-100 font-semibold">Gemini 3.1 Flash Lite</strong> API.
           </p>
           <p className="text-sm md:text-base text-gray-300 leading-relaxed">
             The model reads the printed pages, transcribes the lyrics line-by-line, and translates them into matching stanzas in all target scripts, which are then synchronized to our PostgreSQL database.
@@ -116,5 +151,6 @@ export default function AboutPage() {
 
       </div>
     </main>
+    </>
   );
 }

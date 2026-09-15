@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit, Noto_Nastaliq_Urdu } from "next/font/google";
+import { Outfit, Noto_Nastaliq_Urdu, Noto_Sans_Devanagari, Noto_Sans_Bengali } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
@@ -19,34 +19,50 @@ const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
   display: "swap",
 });
 
+const notoSansDevanagari = Noto_Sans_Devanagari({
+  variable: "--font-devanagari",
+  subsets: ["devanagari"],
+  display: "swap",
+});
+
+const notoSansBengali = Noto_Sans_Bengali({
+  variable: "--font-bengali",
+  subsets: ["bengali"],
+  display: "swap",
+});
+
+import { SITE_CONFIG, buildWebSiteSchema } from "@/utils/seoConfig";
+
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0f172a",
+  themeColor: "#020806",
 };
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://kalamlibrary.me"),
+  metadataBase: new URL(SITE_CONFIG.siteUrl),
   title: {
-    default: "Kalam Library | Complete Islamic Poetry, Hamd & Naat Lyrics",
+    default: "Naats & Kalams | Islamic Naats, Kalams & Recitations | Kalam Library",
     template: "%s | Kalam Library",
   },
-  description:
-    "Explore authentic Islamic Naat, Hamd, and Sufi Kalam lyrics in Urdu, Hindi, Bangla, and Roman English. Read, search, and verify classic poetry.",
-  keywords: [
-    "naat lyrics",
-    "kalam library",
-    "urdu naat lyrics",
-    "hindi naat lyrics",
-    "roman english naat",
-    "hadaiq e bakhshish lyrics",
-    "wasail e bakhshish lyrics",
-    "sufi poetry",
-    "islamic poetry",
-    "hamd lyrics",
-  ],
+  description: SITE_CONFIG.description,
+  keywords: SITE_CONFIG.keywords,
+  authors: [{ name: SITE_CONFIG.name, url: SITE_CONFIG.url }],
+  creator: SITE_CONFIG.creator,
+  publisher: SITE_CONFIG.publisher,
+  applicationName: SITE_CONFIG.name,
+  category: SITE_CONFIG.category,
   alternates: {
     canonical: "/",
+  },
+  manifest: "/manifest.webmanifest",
+  icons: {
+    icon: "/icon.png",
+    apple: "/icon.png",
+  },
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+    yandex: process.env.NEXT_PUBLIC_YANDEX_VERIFICATION || undefined,
   },
   robots: {
     index: true,
@@ -63,15 +79,14 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "en_US",
-    alternateLocale: ["ur_PK"],
-    url: "https://kalamlibrary.me",
-    siteName: "Kalam Library",
-    title: "Kalam Library | Complete Islamic Poetry, Hamd & Naat Lyrics",
-    description:
-      "Explore authentic Islamic Naat, Hamd, and Sufi Kalam lyrics in Urdu, Hindi, Bangla, and Roman English. Read, search, and verify classic poetry.",
+    alternateLocale: ["ur_PK", "hi_IN", "bn_BD"],
+    url: SITE_CONFIG.url,
+    siteName: SITE_CONFIG.name,
+    title: "Naats & Kalams | Islamic Naats, Kalams & Recitations | Kalam Library",
+    description: SITE_CONFIG.description,
     images: [
       {
-        url: "/og-default.jpg",
+        url: SITE_CONFIG.defaultOgImage,
         width: 1200,
         height: 630,
         alt: "Kalam Library - Islamic Poetry & Naat Lyrics Archive",
@@ -80,24 +95,13 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kalam Library | Complete Islamic Poetry, Hamd & Naat Lyrics",
-    description:
-      "Explore authentic Islamic Naat, Hamd, and Sufi Kalam lyrics in Urdu, Hindi, Bangla, and Roman English. Read, search, and verify classic poetry.",
-    images: ["/og-default.jpg"],
+    title: "Naats & Kalams | Islamic Naats, Kalams & Recitations | Kalam Library",
+    description: SITE_CONFIG.description,
+    images: [SITE_CONFIG.defaultOgImage],
   },
 };
 
-const websiteSchema = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  name: "Kalam Library",
-  url: "https://kalamlibrary.me/",
-  potentialAction: {
-    "@type": "SearchAction",
-    target: "https://kalamlibrary.me/search?q={search_term_string}",
-    "query-input": "required name=search_term_string",
-  },
-};
+const websiteSchema = buildWebSiteSchema();
 
 export default function RootLayout({
   children,
@@ -108,7 +112,7 @@ export default function RootLayout({
     <html
       lang="en"
       dir="ltr"
-      className={`${outfit.variable} ${notoNastaliqUrdu.variable} h-full antialiased`}
+      className={`${outfit.variable} ${notoNastaliqUrdu.variable} ${notoSansDevanagari.variable} ${notoSansBengali.variable} h-full antialiased`}
     >
       <head>
         {/* Structured Data: WebSite & SearchAction for Google Sitelinks Search */}

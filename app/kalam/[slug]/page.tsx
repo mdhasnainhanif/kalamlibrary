@@ -3,6 +3,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/utils/supabase";
 import LyricsDisplay from "@/components/LyricsDisplay";
+import {
+  SITE_CONFIG,
+  buildCanonicalUrl,
+  buildOgImageUrl,
+  buildKalamJsonLd,
+  buildBreadcrumbJsonLd,
+} from "@/utils/seoConfig";
 
 interface PageProps {
   params: Promise<{
@@ -93,19 +100,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const titleText = primaryTranslation?.title || kalam.primary_title_roman;
   const authorName = author ? author.name_roman : "Unknown Poet";
 
-  const pageTitle = `${titleText} Lyrics – ${authorName}`;
-  const pageDescription = `Read full lyrics and translation of ${titleText} by ${authorName} in Urdu, Hindi, Bangla & Roman scripts at Kalam Library.`.slice(0, 155);
-  const canonicalUrl = `https://kalamlibrary.me/kalam/${slug}`;
+  const pageTitle = `${titleText} Lyrics | ${authorName}`;
+  const pageDescription = `Read authentic lyrics and multi-language translations of '${titleText}' composed by ${authorName} in Urdu Nastaliq, Hindi, Bangla, and Roman English on Kalam Library.`.slice(0, 155);
+  const canonicalUrl = buildCanonicalUrl(`/kalam/${slug}`);
 
   const alternates: Record<string, string> = {};
   translations.forEach((t) => {
     const langKey = Object.keys(LANGUAGES_MAP).find((k) => LANGUAGES_MAP[k].code === t.language);
     if (langKey) {
-      alternates[LANGUAGES_MAP[langKey].locale] = `https://kalamlibrary.me/kalam/${slug}/${langKey}`;
+      alternates[LANGUAGES_MAP[langKey].locale] = buildCanonicalUrl(`/kalam/${slug}/${langKey}`);
     }
   });
 
-  const ogImageUrl = `/api/og?title=${encodeURIComponent(titleText)}&poet=${encodeURIComponent(authorName)}`;
+  const ogImageUrl = buildOgImageUrl({
+    title: titleText,
+    poet: authorName,
+    sub: "Islamic Devotional Poetry & Naat Lyrics",
+  });
 
   return {
     title: pageTitle,
@@ -115,23 +126,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       languages: alternates,
     },
     openGraph: {
-      title: `${pageTitle} | Kalam Library`,
+      title: `${pageTitle} | ${SITE_CONFIG.name}`,
       description: pageDescription,
       url: canonicalUrl,
-      type: "music.song",
-      siteName: "Kalam Library",
+      type: "article",
+      siteName: SITE_CONFIG.name,
       images: [
         {
           url: ogImageUrl,
           width: 1200,
           height: 630,
-          alt: `${titleText} Lyrics`,
+          alt: `${titleText} Lyrics - Kalam Library`,
         },
       ],
     },
     twitter: {
       card: "summary_large_image",
-      title: `${pageTitle} | Kalam Library`,
+      title: `${pageTitle} | ${SITE_CONFIG.name}`,
       description: pageDescription,
       images: [ogImageUrl],
     },
@@ -167,30 +178,35 @@ export default async function KalamSlugPage({ params }: PageProps) {
   const isUrduPrimary = primaryTranslation.language === "urdu";
   const currentLang = isUrduPrimary ? "urdu" : "roman-english";
   const currentDir = isUrduPrimary ? "rtl" : "ltr";
+  const kalamUrl = buildCanonicalUrl(`/kalam/${slug}`);
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "MusicComposition",
-    "name": kalam.primary_title_roman,
-    "lyrics": {
-      "@type": "Lyrics",
-      "text": primaryTranslation.lyrics,
-    },
-    "lyricist": {
-      "@type": "Person",
-      "name": authorName,
-    },
-    "publisher": {
-      "@type": "Organization",
-      "name": "Kalam Library",
-    },
-  };
+  const kalamSchema = buildKalamJsonLd({
+    title: primaryTranslation?.title || kalam.primary_title_roman,
+    url: kalamUrl,
+    lyrics: primaryTranslation.lyrics,
+    authorName: authorName,
+    authorUrl: authorSlug ? buildCanonicalUrl(`/author/${authorSlug}`) : undefined,
+    language: primaryTranslation.language,
+    inLanguageLocale: isUrduPrimary ? "ur" : "en",
+    dateCreated: kalam.created_at || undefined,
+  });
+
+  const breadcrumbSchema = buildBreadcrumbJsonLd([
+    { name: "Home", url: "/" },
+    { name: "Poets", url: "/authors" },
+    ...(authorSlug ? [{ name: authorName, url: `/author/${authorSlug}` }] : []),
+    { name: kalam.primary_title_roman, url: `/kalam/${slug}` },
+  ]);
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(kalamSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
       <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-12 flex-1 flex flex-col">
@@ -198,7 +214,7 @@ export default async function KalamSlugPage({ params }: PageProps) {
         <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center gap-2">
           <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
           <span aria-hidden="true">/</span>
-          <Link href="/authors" className="hover:text-gold-500 transition-colors">Authors</Link>
+          <Link href="/authors" className="hover:text-gold-500 transition-colors">Poets</Link>
           <span aria-hidden="true">/</span>
           {author && (
             <>
@@ -244,21 +260,25 @@ export default async function KalamSlugPage({ params }: PageProps) {
 
                   const isDefaultActive = primaryTranslation.language === config.code;
 
-                  return (
-                    <Link
-                      key={key}
-                      href={isDefaultActive ? `/kalam/${slug}` : `/kalam/${slug}/${key}`}
-                      role="tab"
-                      aria-selected={isDefaultActive}
-                      className={`px-4 py-2 text-xs md:text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
-                        isDefaultActive
-                          ? "bg-gold-500 text-black shadow-md font-semibold scale-[1.02]"
-                          : "text-gray-400 hover:text-white hover:bg-emerald-900/40"
-                      }`}
-                    >
-                      {config.label}
-                    </Link>
-                  );
+                    return (
+                      <Link
+                        key={key}
+                        href={isDefaultActive ? `/kalam/${slug}` : `/kalam/${slug}/${key}`}
+                        role="tab"
+                        lang={config.locale.split("-")[0]}
+                        dir={config.dir}
+                        aria-selected={isDefaultActive}
+                        className={`px-4 py-2 text-xs md:text-sm font-medium rounded-lg transition-all whitespace-nowrap ${
+                          key === "urdu" ? "font-urdu" : key === "hindi" ? "font-devanagari" : key === "bangla" ? "font-bengali" : "font-sans"
+                        } ${
+                          isDefaultActive
+                            ? "bg-gold-500 text-black shadow-md font-semibold scale-[1.02]"
+                            : "text-gray-400 hover:text-white hover:bg-emerald-900/40"
+                        }`}
+                      >
+                        {config.label}
+                      </Link>
+                    );
                 })}
               </div>
             </div>

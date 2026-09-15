@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { supabase } from "@/utils/supabase";
+import { SITE_CONFIG, buildCanonicalUrl, buildBreadcrumbJsonLd } from "@/utils/seoConfig";
 
 interface PageProps {
   searchParams: Promise<{
@@ -17,11 +18,17 @@ const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
   const { page, letter } = await searchParams;
   const currentPage = Math.max(1, parseInt(page || "1", 10) || 1);
-  const filterDesc = letter ? ` starting with letter '${letter}'` : "";
+  const activeLetter = letter ? letter.toUpperCase() : undefined;
+  const filterDesc = activeLetter ? ` starting with letter '${activeLetter}'` : "";
 
-  const title = `All Kalam & Naat Lyrics Directory (Page ${currentPage}) - Kalam Library`;
-  const description = `Explore the full index of over 700+ Islamic Naats, Hamd, and Sufi Kalam lyrics${filterDesc}. Read in Roman English, Urdu Nastaliq, Hindi, and Bangla.`;
-  const canonicalUrl = `https://kalamlibrary.me/kalams${currentPage > 1 ? `?page=${currentPage}` : ""}${letter ? `&letter=${letter}` : ""}`;
+  const title = `All Kalam & Naat Lyrics Directory${currentPage > 1 ? ` (Page ${currentPage})` : ""}${filterDesc} - Kalam Library`;
+  const description = `Explore the complete alphabetical index of over 700+ authentic Islamic Naats, Hamd, and Sufi Kalam lyrics${filterDesc}. Read in Roman English, Urdu Nastaliq, Hindi, and Bangla.`;
+
+  const queryParams: Record<string, string | number> = {};
+  if (currentPage > 1) queryParams.page = currentPage;
+  if (activeLetter) queryParams.letter = activeLetter;
+
+  const canonicalUrl = buildCanonicalUrl("/kalams", Object.keys(queryParams).length > 0 ? queryParams : undefined);
 
   return {
     title,
@@ -33,12 +40,21 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
       title,
       description,
       url: canonicalUrl,
-      siteName: "Kalam Library",
+      siteName: SITE_CONFIG.name,
+      images: [
+        {
+          url: SITE_CONFIG.defaultOgImage,
+          width: 1200,
+          height: 630,
+          alt: "All Kalam & Naat Lyrics Directory - Kalam Library",
+        },
+      ],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
+      images: [SITE_CONFIG.defaultOgImage],
     },
   };
 }
@@ -79,7 +95,7 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
     "@type": "CollectionPage",
     "name": "Kalam Library - All Naat Lyrics Directory",
     "description": "Complete alphabetical directory of digitized Islamic Naats, Hamd, and devotional Sufi poetry.",
-    "url": `https://kalamlibrary.me/kalams?page=${currentPage}`,
+    "url": buildCanonicalUrl("/kalams", { page: currentPage > 1 ? currentPage : undefined, letter: activeLetter || undefined }),
     "mainEntity": {
       "@type": "ItemList",
       "numberOfItems": kalams.length,
@@ -87,16 +103,25 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
         "@type": "ListItem",
         "position": from + index + 1,
         "name": k.primary_title_roman,
-        "url": `https://kalamlibrary.me/kalam/${k.slug}`,
+        "url": `${SITE_CONFIG.url}/kalam/${k.slug}`,
       })),
     },
   };
+
+  const breadcrumbSchema = buildBreadcrumbJsonLd([
+    { name: "Home", url: "/" },
+    { name: "All Kalams", url: "/kalams" },
+  ]);
 
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
       <main id="main-content" className="w-full max-w-6xl mx-auto px-4 py-8 md:py-12 flex-1">

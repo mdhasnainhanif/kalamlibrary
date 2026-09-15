@@ -1,9 +1,41 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { supabase } from "@/utils/supabase";
+import { getAuthorUrduName } from "@/utils/authorHelper";
 import SearchBar from "@/components/SearchBar";
 import FAQAccordion from "@/components/FAQAccordion";
+import { SITE_CONFIG, buildCanonicalUrl } from "@/utils/seoConfig";
 
 export const revalidate = 3600; // Cache for 1 hour
+
+export const metadata: Metadata = {
+  title: "Naats & Kalams | Islamic Naats, Kalams & Recitations | Kalam Library",
+  description: SITE_CONFIG.description,
+  alternates: {
+    canonical: buildCanonicalUrl("/"),
+  },
+  openGraph: {
+    title: "Naats & Kalams | Islamic Naats, Kalams & Recitations | Kalam Library",
+    description: SITE_CONFIG.description,
+    url: SITE_CONFIG.url,
+    type: "website",
+    siteName: SITE_CONFIG.name,
+    images: [
+      {
+        url: SITE_CONFIG.defaultOgImage,
+        width: 1200,
+        height: 630,
+        alt: "Kalam Library - Islamic Poetry & Naat Lyrics Archive",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Naats & Kalams | Islamic Naats, Kalams & Recitations | Kalam Library",
+    description: SITE_CONFIG.description,
+    images: [SITE_CONFIG.defaultOgImage],
+  },
+};
 
 function slugify(text: string) {
   return text
@@ -219,6 +251,7 @@ export default async function Home() {
                 {authors.map((author) => {
                   const authorSlug = slugify(author.name_roman);
                   const kalamCount = authorKalamCounts[author.id] || 0;
+                  const urduName = getAuthorUrduName(author);
                   return (
                     <Link
                       key={author.id}
@@ -234,9 +267,9 @@ export default async function Home() {
                           {author.name_roman}
                         </h3>
                         <div className="flex justify-between items-center mt-0.5">
-                          {author.name_urdu && (
+                          {urduName && (
                              <span lang="ur" className="text-xs text-emerald-400 font-urdu block py-0.5" dir="rtl">
-                               {author.name_urdu}
+                               {urduName}
                              </span>
                            )}
                           <span className="text-[10px] text-gray-400 font-sans ml-auto">
@@ -334,10 +367,10 @@ export default async function Home() {
           <h2 className="text-xl font-bold text-gray-200 mb-6 font-sans">Browse lyrics by Language</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: "Roman English", sub: "English Transliteration", href: "/search?q=roman", badge: "Roman" },
-              { label: "Urdu (Nastaliq)", sub: "اردو رسم الخط", href: "/search?q=urdu", badge: "Urdu" },
-              { label: "Hindi (Devanagari)", sub: "हिन्दी लिपि", href: "/search?q=hindi", badge: "Hindi" },
-              { label: "Bangla (Bengali)", sub: "বাংলা লিপি", href: "/search?q=bangla", badge: "Bangla" }
+              { label: "Roman English", sub: "English Transliteration", href: "/search?q=roman", badge: "Roman", langCode: "en", dir: "ltr", fontClass: "" },
+              { label: "Urdu (Nastaliq)", sub: "اردو رسم الخط", href: "/search?q=urdu", badge: "Urdu", langCode: "ur", dir: "rtl", fontClass: "font-urdu text-sm" },
+              { label: "Hindi (Devanagari)", sub: "हिन्दी लिपि", href: "/search?q=hindi", badge: "Hindi", langCode: "hi", dir: "ltr", fontClass: "font-devanagari" },
+              { label: "Bangla (Bengali)", sub: "বাংলা লিপি", href: "/search?q=bangla", badge: "Bangla", langCode: "bn", dir: "ltr", fontClass: "font-bengali" }
             ].map((lang) => (
               <Link
                 key={lang.label}
@@ -353,7 +386,13 @@ export default async function Home() {
                     {lang.label}
                   </h3>
                 </div>
-                <p className="text-xs text-gray-400 mt-1.5">{lang.sub}</p>
+                <p 
+                  lang={lang.langCode} 
+                  dir={lang.dir as "ltr" | "rtl"} 
+                  className={`text-xs text-gray-400 mt-1.5 ${lang.fontClass}`}
+                >
+                  {lang.sub}
+                </p>
               </Link>
             ))}
           </div>

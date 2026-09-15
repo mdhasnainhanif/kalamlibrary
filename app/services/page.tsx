@@ -1,16 +1,32 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { SITE_CONFIG, buildBreadcrumbJsonLd, buildCanonicalUrl } from "@/utils/seoConfig";
 
 export const metadata: Metadata = {
   title: "Services & Requests - Digitization & Corrections",
   description: "Learn about Kalam Library services. We offer Naat lyrics digitization, scanned book transcription, corrections, and translation services.",
   alternates: {
-    canonical: "https://kalamlibrary.me/services",
+    canonical: buildCanonicalUrl("/services"),
   },
   openGraph: {
-    title: "Services & Requests - Digitization & Corrections | Kalam Library",
+    title: `Services & Requests - Digitization & Corrections | ${SITE_CONFIG.name}`,
     description: "Learn about Kalam Library services. We offer Naat lyrics digitization, scanned book transcription, corrections, and translation services.",
-    url: "https://kalamlibrary.me/services",
+    url: `${SITE_CONFIG.url}/services`,
+    siteName: SITE_CONFIG.name,
+    images: [
+      {
+        url: SITE_CONFIG.defaultOgImage,
+        width: 1200,
+        height: 630,
+        alt: "Services & Requests - Kalam Library",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `Services & Requests - Digitization & Corrections | ${SITE_CONFIG.name}`,
+    description: "Learn about Kalam Library services. We offer Naat lyrics digitization, scanned book transcription, corrections, and translation services.",
+    images: [SITE_CONFIG.defaultOgImage],
   },
 };
 
@@ -32,9 +48,27 @@ const GeometricPattern = () => (
 );
 
 export default function ServicesPage() {
+  const breadcrumbSchema = buildBreadcrumbJsonLd([
+    { name: "Home", url: "/" },
+    { name: "Services", url: "/services" },
+  ]);
+
   return (
-    <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-16 flex-grow relative text-left">
-      <GeometricPattern />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
+      <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-16 flex-grow relative text-left">
+        <GeometricPattern />
+
+        {/* Breadcrumb */}
+        <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center gap-2">
+          <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
+          <span aria-hidden="true">/</span>
+          <span className="text-gray-400 font-medium">Services &amp; Requests</span>
+        </nav>
 
       {/* Header */}
       <div className="text-center mb-12 border-b border-emerald-500/10 pb-6">
@@ -148,5 +182,6 @@ export default function ServicesPage() {
 
       </div>
     </main>
+    </>
   );
 }

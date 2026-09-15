@@ -1,6 +1,8 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { supabase } from "@/utils/supabase";
+import { getAuthorUrduName } from "@/utils/authorHelper";
+import { SITE_CONFIG, buildBreadcrumbJsonLd, buildCanonicalUrl } from "@/utils/seoConfig";
 
 export const revalidate = 3600; // Cache for 1 hour
 
@@ -8,18 +10,27 @@ export const metadata: Metadata = {
   title: "All Poets & Authors - Devotional Kalam Directory",
   description: "Browse the complete directory of classic Sufi poets, scholars, and ode writers featured on Kalam Library. Read lyrics in Urdu, Roman English, Hindi, and Bangla.",
   alternates: {
-    canonical: "https://kalamlibrary.me/authors",
+    canonical: buildCanonicalUrl("/authors"),
   },
   openGraph: {
     title: "All Poets & Authors | Kalam Library",
     description: "Browse the complete directory of classic Sufi poets, scholars, and ode writers featured on Kalam Library.",
-    url: "https://kalamlibrary.me/authors",
-    siteName: "Kalam Library",
+    url: `${SITE_CONFIG.url}/authors`,
+    siteName: SITE_CONFIG.name,
+    images: [
+      {
+        url: SITE_CONFIG.defaultOgImage,
+        width: 1200,
+        height: 630,
+        alt: "Poets & Authors Directory - Kalam Library",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "All Poets & Authors | Kalam Library",
     description: "Browse the complete directory of classic Sufi poets, scholars, and ode writers featured on Kalam Library.",
+    images: [SITE_CONFIG.defaultOgImage],
   },
 };
 
@@ -53,13 +64,18 @@ export default async function AuthorsPage() {
     "@type": "CollectionPage",
     "name": "Poets & Authors Directory - Kalam Library",
     "description": "Complete collection of Sufi poetry authors and lyricists digitized in Kalam Library.",
-    "url": "https://kalamlibrary.me/authors",
+    "url": `${SITE_CONFIG.url}/authors`,
     "hasPart": (authors || []).map((author) => ({
       "@type": "Person",
       "name": author.name_roman,
-      "url": `https://kalamlibrary.me/author/${slugify(author.name_roman)}`,
+      "url": `${SITE_CONFIG.url}/author/${slugify(author.name_roman)}`,
     })),
   };
+
+  const breadcrumbSchema = buildBreadcrumbJsonLd([
+    { name: "Home", url: "/" },
+    { name: "Poets", url: "/authors" },
+  ]);
 
   return (
     <>
@@ -67,19 +83,23 @@ export default async function AuthorsPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
 
       <main id="main-content" className="w-full max-w-5xl mx-auto px-4 py-8 md:py-12 flex-1">
         {/* Breadcrumb Navigation */}
         <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center gap-2">
           <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
           <span aria-hidden="true">/</span>
-          <span className="text-gray-400 font-medium">Poets Directory</span>
+          <span className="text-gray-400 font-medium">Poets</span>
         </nav>
 
         {/* Directory Header */}
         <header className="text-center mb-10">
           <h1 className="text-3xl md:text-5xl font-extrabold text-gold-500 mb-4 tracking-tight">
-            Poets &amp; Authors Directory
+            Poets Directory
           </h1>
           <p className="text-sm md:text-base text-gray-300 max-w-2xl mx-auto leading-relaxed">
             Explore the revered Islamic scholars, Sufi saints, and poets whose timeless verses and devotional hymns are preserved in our digital library.
@@ -99,6 +119,7 @@ export default async function AuthorsPage() {
             {authors.map((author) => {
               const authorSlug = slugify(author.name_roman);
               const kalamCount = authorKalamCounts[author.id] || 0;
+              const urduName = getAuthorUrduName(author);
 
               return (
                 <Link
@@ -116,9 +137,9 @@ export default async function AuthorsPage() {
                         <h2 className="font-bold text-gray-100 group-hover:text-gold-500 transition-colors text-base truncate">
                           {author.name_roman}
                         </h2>
-                        {author.name_urdu && (
-                          <span lang="ur" className="text-sm text-emerald-400 font-urdu block truncate" dir="rtl">
-                            {author.name_urdu}
+                        {urduName && (
+                          <span lang="ur" className="text-xs md:text-sm text-emerald-400 font-urdu block leading-relaxed mt-0.5" dir="rtl">
+                            {urduName}
                           </span>
                         )}
                       </div>

@@ -2,6 +2,14 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/utils/supabase";
+import { getAuthorUrduName } from "@/utils/authorHelper";
+import {
+  SITE_CONFIG,
+  buildCanonicalUrl,
+  buildOgImageUrl,
+  buildAuthorJsonLd,
+  buildBreadcrumbJsonLd,
+} from "@/utils/seoConfig";
 
 interface PageProps {
   params: Promise<{
@@ -65,22 +73,27 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!data) return {};
 
   const { author } = data;
-  const seoTitle = `${author.name_roman} Naats List & Lyrics - Kalam Library`;
-  const seoDesc = `Read all Naats, Hamd, and Sufi Kalam written by ${author.name_roman} on Kalam Library. Access full lyrics in Urdu, Hindi, Bangla, and Roman English.`;
+  const seoTitle = `${author.name_roman} Naats & Kalams Lyrics`;
+  const seoDesc = `Read authentic Naats, Hamd, and Sufi Kalam lyrics composed by ${author.name_roman} on Kalam Library. Available in Roman English, Urdu Nastaliq, Hindi, and Bangla translations.`;
+  const canonicalUrl = buildCanonicalUrl(`/author/${slug}`);
 
-  const ogImageUrl = `/api/og?title=${encodeURIComponent(author.name_roman)}&sub=${encodeURIComponent("Author & Poet Profile – All Kalam & Naats")}`;
+  const ogImageUrl = buildOgImageUrl({
+    title: author.name_roman,
+    sub: "Poet & Scholar Profile – All Kalam & Naats",
+  });
 
   return {
     title: seoTitle,
     description: seoDesc.slice(0, 155),
     alternates: {
-      canonical: `https://kalamlibrary.me/author/${slug}`,
+      canonical: canonicalUrl,
     },
     openGraph: {
-      title: seoTitle,
+      title: `${seoTitle} | ${SITE_CONFIG.name}`,
       description: seoDesc.slice(0, 155),
-      url: `https://kalamlibrary.me/author/${slug}`,
-      siteName: "Kalam Library",
+      url: canonicalUrl,
+      type: "profile",
+      siteName: SITE_CONFIG.name,
       images: [
         {
           url: ogImageUrl,
@@ -92,7 +105,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     },
     twitter: {
       card: "summary_large_image",
-      title: seoTitle,
+      title: `${seoTitle} | ${SITE_CONFIG.name}`,
       description: seoDesc.slice(0, 155),
       images: [ogImageUrl],
     },
@@ -120,17 +133,46 @@ export default async function AuthorPage({ params }: PageProps) {
   }
 
   const { author, kalams } = data;
+  const urduName = getAuthorUrduName(author);
+  const authorUrl = buildCanonicalUrl(`/author/${slug}`);
+
+  const authorSchema = buildAuthorJsonLd({
+    name: author.name_roman,
+    url: authorUrl,
+    bio: author.bio || undefined,
+    kalamCount: kalams.length,
+    featuredWorks: kalams.slice(0, 10).map((k) => ({
+      title: k.primary_title_roman,
+      url: buildCanonicalUrl(`/kalam/${k.slug}`),
+    })),
+  });
+
+  const breadcrumbSchema = buildBreadcrumbJsonLd([
+    { name: "Home", url: "/" },
+    { name: "Poets", url: "/authors" },
+    { name: author.name_roman, url: `/author/${slug}` },
+  ]);
 
   return (
-    <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-12 flex-1">
-      {/* Breadcrumb */}
-      <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center gap-2">
-        <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
-        <span aria-hidden="true">/</span>
-        <Link href="/authors" className="hover:text-gold-500 transition-colors">Authors</Link>
-        <span aria-hidden="true">/</span>
-        <span className="text-gray-400 font-medium">{author.name_roman}</span>
-      </nav>
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(authorSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+
+      <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-12 flex-1">
+        {/* Breadcrumb */}
+        <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center gap-2">
+          <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
+          <span aria-hidden="true">/</span>
+          <Link href="/authors" className="hover:text-gold-500 transition-colors">Poets</Link>
+          <span aria-hidden="true">/</span>
+          <span className="text-gray-400 font-medium">{author.name_roman}</span>
+        </nav>
 
       {/* Poet Profile Header */}
       <header className="bg-emerald-900/10 border border-emerald-500/10 rounded-2xl p-6 md:p-8 mb-8 shadow-md">
@@ -142,9 +184,9 @@ export default async function AuthorPage({ params }: PageProps) {
           <div className="text-center md:text-left flex-1">
             <div className="flex flex-col md:flex-row md:items-baseline md:gap-3 justify-center md:justify-start">
               <h1 className="text-2xl md:text-3xl font-bold text-gold-500 mb-1">{author.name_roman}</h1>
-              {author.name_urdu && (
+              {urduName && (
                 <span lang="ur" className="text-lg md:text-xl text-emerald-300/85 font-urdu" dir="rtl">
-                  ({author.name_urdu})
+                  ({urduName})
                 </span>
               )}
             </div>
@@ -202,5 +244,6 @@ export default async function AuthorPage({ params }: PageProps) {
         )}
       </section>
     </main>
+    </>
   );
 }

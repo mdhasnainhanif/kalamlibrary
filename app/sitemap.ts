@@ -1,5 +1,6 @@
-import { MetadataRoute } from "next";
+import type { MetadataRoute } from "next";
 import { supabase } from "@/utils/supabase";
+import { SITE_CONFIG } from "@/utils/seoConfig";
 
 function slugify(text: string) {
   return text
@@ -9,10 +10,12 @@ function slugify(text: string) {
     .replace(/[-\s]+/g, "-");
 }
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = "https://kalamlibrary.me";
+const SUPPORTED_LANGUAGES = ["urdu", "hindi", "bangla", "roman-english"];
 
-  // 1. Static base & site routes
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  const baseUrl = SITE_CONFIG.url;
+
+  // 1. Static high-value landing and directory routes
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -21,64 +24,85 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 1.0,
     },
     {
+      url: `${baseUrl}/kalams`,
+      lastModified: new Date(),
+      changeFrequency: "daily",
+      priority: 0.95,
+    },
+    {
       url: `${baseUrl}/authors`,
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.9,
     },
     {
-      url: `${baseUrl}/kalams`,
-      lastModified: new Date(),
-      changeFrequency: "daily",
-      priority: 0.9,
-    },
-    {
       url: `${baseUrl}/about`,
       lastModified: new Date(),
       changeFrequency: "monthly",
-      priority: 0.8,
+      priority: 0.7,
     },
     {
       url: `${baseUrl}/services`,
       lastModified: new Date(),
       changeFrequency: "monthly",
-      priority: 0.8,
+      priority: 0.7,
     },
     {
       url: `${baseUrl}/contact`,
       lastModified: new Date(),
       changeFrequency: "monthly",
-      priority: 0.8,
+      priority: 0.7,
     },
   ];
 
-  // 2. Author routes
+  // 2. Author / Poet profile routes
   let authorRoutes: MetadataRoute.Sitemap = [];
   try {
-    const { data: authors } = await supabase.from("authors").select("name_roman, created_at");
+    const { data: authors } = await supabase
+      .from("authors")
+      .select("name_roman, created_at");
     if (authors) {
       authorRoutes = authors.map((author) => ({
         url: `${baseUrl}/author/${slugify(author.name_roman)}`,
         lastModified: author.created_at ? new Date(author.created_at) : new Date(),
         changeFrequency: "weekly",
-        priority: 0.8,
+        priority: 0.85,
       }));
     }
   } catch (err) {
     console.error("Sitemap author fetch error:", err);
   }
 
-  // 3. Dynamic Kalam routes (Async fetch query mapping over all kalam records)
-  let kalamRoutes: MetadataRoute.Sitemap = [];
+  // 3. Kalam canonical reader and language-specific routes
+  const kalamRoutes: MetadataRoute.Sitemap = [];
   try {
-    const { data: kalams } = await supabase.from("kalams").select("slug, created_at");
+    const { data: kalams } = await supabase
+      .from("kalams")
+      .select("slug, created_at")
+      .order("created_at", { ascending: false });
+
     if (kalams) {
-      kalamRoutes = kalams.map((kalam) => ({
-        url: `${baseUrl}/kalam/${kalam.slug}`,
-        lastModified: kalam.created_at ? new Date(kalam.created_at) : new Date(),
-        changeFrequency: "weekly",
-        priority: 0.9,
-      }));
+      kalams.forEach((kalam) => {
+        const lastMod = kalam.created_at ? new Date(kalam.created_at) : new Date();
+
+        // Canonical primary kalam page
+        kalamRoutes.push({
+          url: `${baseUrl}/kalam/${kalam.slug}`,
+          lastModified: lastMod,
+          changeFrequency: "weekly",
+          priority: 0.9,
+        });
+
+        // Language script routes
+        SUPPORTED_LANGUAGES.forEach((lang) => {
+          kalamRoutes.push({
+            url: `${baseUrl}/kalam/${kalam.slug}/${lang}`,
+            lastModified: lastMod,
+            changeFrequency: "monthly",
+            priority: 0.8,
+          });
+        });
+      });
     }
   } catch (err) {
     console.error("Sitemap kalam fetch error:", err);

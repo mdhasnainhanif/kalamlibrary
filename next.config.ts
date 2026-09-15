@@ -19,6 +19,18 @@ const nextConfig: NextConfig = {
     };
     return config;
   },
+  async rewrites() {
+    return [
+      {
+        source: "/poets",
+        destination: "/authors",
+      },
+      {
+        source: "/poet/:slug*",
+        destination: "/author/:slug*",
+      },
+    ];
+  },
 };
 
 export default nextConfig;

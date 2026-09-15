@@ -1,5 +1,7 @@
 import { Metadata } from "next";
+import Link from "next/link";
 import ContactForm from "@/components/ContactForm";
+import { SITE_CONFIG, buildBreadcrumbJsonLd, buildCanonicalUrl } from "@/utils/seoConfig";
 
 interface PageProps {
   searchParams: Promise<{ subject?: string }>;
@@ -10,12 +12,27 @@ export async function generateMetadata(): Promise<Metadata> {
     title: "Contact Us - Support & Inquiries",
     description: "Get in touch with the Kalam Library team. Contact us on WhatsApp +92 317 4731957 or email md.hasnain.developer@gmail.com for corrections or requests.",
     alternates: {
-      canonical: "https://kalamlibrary.me/contact",
+      canonical: buildCanonicalUrl("/contact"),
     },
     openGraph: {
-      title: "Contact Us - Support & Inquiries | Kalam Library",
+      title: `Contact Us - Support & Inquiries | ${SITE_CONFIG.name}`,
       description: "Get in touch with the Kalam Library team. Contact us on WhatsApp +92 317 4731957 or email md.hasnain.developer@gmail.com.",
-      url: "https://kalamlibrary.me/contact",
+      url: `${SITE_CONFIG.url}/contact`,
+      siteName: SITE_CONFIG.name,
+      images: [
+        {
+          url: SITE_CONFIG.defaultOgImage,
+          width: 1200,
+          height: 630,
+          alt: "Contact Kalam Library - Devotional Poetry Support",
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `Contact Us - Support & Inquiries | ${SITE_CONFIG.name}`,
+      description: "Get in touch with the Kalam Library team. Contact us on WhatsApp +92 317 4731957 or email md.hasnain.developer@gmail.com.",
+      images: [SITE_CONFIG.defaultOgImage],
     },
   };
 }
@@ -53,15 +70,31 @@ export default async function ContactPage({ searchParams }: PageProps) {
     }
   };
 
+  const breadcrumbSchema = buildBreadcrumbJsonLd([
+    { name: "Home", url: "/" },
+    { name: "Contact Us", url: "/contact" },
+  ]);
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(contactSchema) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
 
-      <main id="main-content" className="w-full max-w-6xl mx-auto px-4 py-8 md:py-16 flex-grow relative text-left">
+      <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-16 flex-grow relative text-left">
         <GeometricPattern />
+
+        {/* Breadcrumb */}
+        <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center gap-2">
+          <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
+          <span aria-hidden="true">/</span>
+          <span className="text-gray-400 font-medium">Contact Us</span>
+        </nav>
 
         {/* Header */}
         <div className="text-center mb-12 border-b border-emerald-500/10 pb-6">
