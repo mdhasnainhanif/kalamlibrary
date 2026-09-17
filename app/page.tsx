@@ -235,7 +235,7 @@ export default async function Home() {
         </div>
 
         {/* Main Grid Content */}
-        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-3 gap-12 mt-4" id="featured">
+        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-3 gap-12 mt-4 content-auto" id="featured">
           
           {/* Left Side: Popular Poets list (1 column) */}
           <section className="lg:col-span-1 flex flex-col gap-6" aria-label="Browse by Poet">
@@ -363,7 +363,7 @@ export default async function Home() {
         </div>
 
         {/* Browse by Language Quick Links */}
-        <section className="w-full max-w-6xl py-8 text-center" aria-label="Browse lyrics by Language">
+        <section className="w-full max-w-6xl py-8 text-center content-auto" aria-label="Browse lyrics by Language">
           <h2 className="text-xl font-bold text-gray-200 mb-6 font-sans">Browse lyrics by Language</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
@@ -399,7 +399,7 @@ export default async function Home() {
         </section>
 
         {/* Teaser block linking to About/Services */}
-        <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-8 py-10">
+        <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-8 py-10 content-auto">
           <div className="p-6 rounded-2xl bg-emerald-900/10 border border-emerald-500/10 flex flex-col justify-between text-left">
             <div>
               <h2 className="text-lg font-bold text-gold-500 mb-2">Our Digital Mission</h2>
@@ -438,7 +438,7 @@ export default async function Home() {
         </div>
 
         {/* Spiritual Couplet Showcase */}
-        <section aria-label="Spiritual Couplet Showcase" className="w-full max-w-6xl p-8 md:p-12 rounded-3xl bg-gradient-to-br from-emerald-950/40 via-emerald-900/10 to-emerald-950/40 border border-emerald-500/10 text-center relative overflow-hidden mt-8 shadow-2xl">
+        <section aria-label="Spiritual Couplet Showcase" className="w-full max-w-6xl p-8 md:p-12 rounded-3xl bg-gradient-to-br from-emerald-950/40 via-emerald-900/10 to-emerald-950/40 border border-emerald-500/10 text-center relative overflow-hidden mt-8 shadow-2xl content-auto">
           <div aria-hidden="true" className="absolute top-0 right-0 w-32 h-32 bg-gold-500/5 rounded-full blur-2xl pointer-events-none"></div>
           <div aria-hidden="true" className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
           
@@ -458,7 +458,7 @@ export default async function Home() {
         </section>
 
         {/* FAQ Section */}
-        <section aria-label="Frequently Asked Questions" className="w-full max-w-3xl py-12 text-left">
+        <section aria-label="Frequently Asked Questions" className="w-full max-w-3xl py-12 text-left content-auto">
           <h2 className="text-2xl font-bold text-gold-500 mb-2 text-center font-sans">Frequently Asked Questions</h2>
           <p className="text-xs text-gray-400 text-center mb-8">Got questions? We have answers.</p>
           

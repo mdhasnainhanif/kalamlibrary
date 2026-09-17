@@ -86,11 +86,11 @@ export default async function ContactPage({ searchParams }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-16 flex-grow relative text-left">
+      <main id="main-content" className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 flex-grow relative text-left">
         <GeometricPattern />
 
         {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center gap-2">
+        <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center justify-center gap-2">
           <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
           <span aria-hidden="true">/</span>
           <span className="text-gray-400 font-medium">Contact Us</span>
@@ -122,8 +122,8 @@ export default async function ContactPage({ searchParams }: PageProps) {
                 className="p-4 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow flex items-center gap-4 transition-all group cursor-pointer"
               >
                 <div className="w-10 h-10 rounded-full bg-emerald-950 flex items-center justify-center border border-emerald-400/20 text-emerald-400 shrink-0">
-                  <svg aria-hidden="true" className="w-5 h-5 fill-current" viewBox="0 0 24 24">
-                    <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.62.962 3.21 1.46 4.887 1.461 5.436-.001 9.861-4.43 9.864-9.869.003-2.636-1.018-5.114-2.875-6.974C16.602 1.95 14.135.928 11.5.927c-5.439 0-9.867 4.431-9.87 9.871-.001 1.765.467 3.49 1.357 5.018l-.989 3.607 3.659-.97zm11.755-7.25c-.322-.162-1.905-.94-2.2-.1.047-.297-.156-.454-.234-.57l-.375-.544c-.218-.328-.5-.331-.765-.112l-.24.2c-.22.18-.35.32-.5.53-.15.2-.28.45-.44.62-.31.33-.6.3-.92.12-.32-.18-.62-.38-.91-.6-.24-.18-.46-.38-.68-.6-.23-.23-.42-.48-.6-.74-.18-.26-.17-.4-.05-.55.12-.15.24-.31.36-.47.12-.16.16-.27.24-.45.08-.18.04-.33-.02-.49-.06-.16-.54-1.32-.74-1.81-.19-.48-.38-.41-.53-.42-.14-.01-.3-.01-.46-.01-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.03 0 1.2.88 2.37 1 2.53.12.16 1.73 2.637 4.19 3.7c.584.253 1.04.404 1.396.517.588.187 1.123.161 1.546.098.472-.07 1.464-.599 1.67-1.177.206-.577.206-1.072.144-1.176-.06-.104-.22-.167-.54-.33z" />
+                  <svg aria-hidden="true" className="w-5 h-5 fill-current" viewBox="0 0 448 512">
+                    <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" />
                   </svg>
                 </div>
                 <div className="text-left">

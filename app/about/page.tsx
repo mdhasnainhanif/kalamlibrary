@@ -60,11 +60,11 @@ export default function AboutPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-16 flex-grow relative text-left">
+      <main id="main-content" className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 flex-grow relative text-left">
         <GeometricPattern />
 
         {/* Breadcrumb */}
-        <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center gap-2">
+        <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center justify-center gap-2">
           <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
           <span aria-hidden="true">/</span>
           <span className="text-gray-400 font-medium">About Us</span>

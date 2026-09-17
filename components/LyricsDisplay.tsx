@@ -67,14 +67,14 @@ export default function LyricsDisplay({
 
         {/* Font Control Buttons */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center bg-emerald-900/60 p-1 rounded-lg border border-emerald-500/20 shadow-inner">
+          <div className="flex items-center bg-emerald-100/70 dark:bg-emerald-900/60 p-1 rounded-lg border border-emerald-500/30 dark:border-emerald-500/20 shadow-inner">
             <button
               type="button"
               onClick={handleZoomOut}
               disabled={fontScale <= 0.75}
               aria-label="Decrease font size"
               title="Decrease font size (A-)"
-              className="px-3 py-1 text-xs md:text-sm font-extrabold text-emerald-300 hover:text-gold-500 hover:bg-emerald-800/60 rounded transition-all disabled:opacity-30 disabled:hover:text-emerald-300 cursor-pointer flex items-center gap-0.5"
+              className="px-3 py-1 text-xs md:text-sm font-black text-emerald-800 dark:text-emerald-300 hover:text-gold-600 dark:hover:text-gold-500 hover:bg-emerald-200/60 dark:hover:bg-emerald-800/60 rounded transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-0.5"
             >
               <span>A</span>
               <span className="text-xs font-black">-</span>
@@ -86,7 +86,7 @@ export default function LyricsDisplay({
                 onClick={handleReset}
                 aria-label="Reset font size to default"
                 title="Reset font size"
-                className="px-2 py-1 text-[11px] font-semibold text-gray-400 hover:text-gold-400 hover:bg-emerald-800/60 rounded transition-all cursor-pointer"
+                className="px-2 py-1 text-[11px] font-semibold text-gray-600 dark:text-gray-400 hover:text-gold-600 dark:hover:text-gold-400 hover:bg-emerald-200/50 dark:hover:bg-emerald-800/60 rounded transition-all cursor-pointer"
               >
                 Reset
               </button>
@@ -98,7 +98,7 @@ export default function LyricsDisplay({
               disabled={fontScale >= 2.0}
               aria-label="Increase font size"
               title="Increase font size (A+)"
-              className="px-3 py-1 text-xs md:text-sm font-extrabold text-emerald-300 hover:text-gold-500 hover:bg-emerald-800/60 rounded transition-all disabled:opacity-30 disabled:hover:text-emerald-300 cursor-pointer flex items-center gap-0.5"
+              className="px-3 py-1 text-xs md:text-sm font-black text-emerald-800 dark:text-emerald-300 hover:text-gold-600 dark:hover:text-gold-500 hover:bg-emerald-200/60 dark:hover:bg-emerald-800/60 rounded transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-0.5"
             >
               <span className="text-base font-black">A</span>
               <span className="text-xs font-black">+</span>

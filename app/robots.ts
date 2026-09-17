@@ -31,7 +31,13 @@ export default function robots(): MetadataRoute.Robots {
           "/about",
           "/services",
           "/contact",
+          "/favicon.ico",
+          "/favicon.webp",
           "/icon.png",
+          "/icon-192.png",
+          "/icon-512.png",
+          "/apple-icon.png",
+          "/manifest.webmanifest",
           "/og-default.jpg",
         ],
         disallow: [

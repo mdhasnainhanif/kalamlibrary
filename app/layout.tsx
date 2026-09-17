@@ -5,11 +5,16 @@ import "./globals.css";
 
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const outfit = Outfit({
   variable: "--font-outfit",
   subsets: ["latin"],
   display: "swap",
+  preload: true,
+  fallback: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+  adjustFontFallback: true,
 });
 
 const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
@@ -17,18 +22,21 @@ const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
   subsets: ["arabic"],
   weight: ["400", "700"],
   display: "swap",
+  preload: false,
 });
 
 const notoSansDevanagari = Noto_Sans_Devanagari({
   variable: "--font-devanagari",
   subsets: ["devanagari"],
   display: "swap",
+  preload: false,
 });
 
 const notoSansBengali = Noto_Sans_Bengali({
   variable: "--font-bengali",
   subsets: ["bengali"],
   display: "swap",
+  preload: false,
 });
 
 import { SITE_CONFIG, buildWebSiteSchema } from "@/utils/seoConfig";
@@ -57,8 +65,15 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: "/icon.png",
-    apple: "/icon.png",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "192x192" },
+      { url: "/favicon.webp", type: "image/webp" },
+    ],
+    shortcut: "/favicon.ico",
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
@@ -112,6 +127,7 @@ export default function RootLayout({
     <html
       lang="en"
       dir="ltr"
+      suppressHydrationWarning
       className={`${outfit.variable} ${notoNastaliqUrdu.variable} ${notoSansDevanagari.variable} ${notoSansBengali.variable} h-full antialiased`}
     >
       <head>
@@ -121,7 +137,37 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
 
-        {/* Google Analytics (gtag.js) - Defer with lazyOnload to prevent blocking critical path and avoid forced reflow */}
+      </head>
+      <body className="min-h-full flex flex-col relative overflow-x-hidden transition-colors duration-300">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="dark"
+          enableSystem={false}
+          disableTransitionOnChange={false}
+        >
+          {/* Keyboard Accessibility: Skip to Main Content Link */}
+          <a
+            href="#main-content"
+            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-gold-500 focus:text-black focus:font-bold focus:rounded-xl focus:shadow-xl focus:outline-none"
+          >
+            Skip to main content
+          </a>
+
+          {/* Global Glowing Background Elements - Hardware accelerated with transform-gpu */}
+          <div aria-hidden="true" className="fixed top-20 left-1/2 -translate-x-1/2 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] -z-10 pointer-events-none transform-gpu"></div>
+          <div aria-hidden="true" className="fixed bottom-10 left-10 w-70 h-70 bg-gold-500/5 rounded-full blur-[100px] -z-10 pointer-events-none transform-gpu"></div>
+
+          <Navbar />
+          <div className="flex-1 flex flex-col w-full">
+            {children}
+          </div>
+          <Footer />
+
+          {/* Floating Theme Toggle (Light / Dark) */}
+          <ThemeToggle />
+        </ThemeProvider>
+
+        {/* Google Analytics (gtag.js) - Loaded after page is interactive */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-Z7H5JF3KB9"
           strategy="lazyOnload"
@@ -135,25 +181,6 @@ export default function RootLayout({
             gtag('config', 'G-Z7H5JF3KB9');
           `}
         </Script>
-      </head>
-      <body className="min-h-full flex flex-col relative overflow-x-hidden">
-        {/* Keyboard Accessibility: Skip to Main Content Link */}
-        <a
-          href="#main-content"
-          className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-gold-500 focus:text-black focus:font-bold focus:rounded-xl focus:shadow-xl focus:outline-none"
-        >
-          Skip to main content
-        </a>
-
-        {/* Global Glowing Background Elements - Hardware accelerated with transform-gpu to prevent layout invalidation */}
-        <div aria-hidden="true" className="fixed top-20 left-1/2 -translate-x-1/2 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] -z-10 animate-pulse pointer-events-none transform-gpu will-change-transform"></div>
-        <div aria-hidden="true" className="fixed bottom-10 left-10 w-70 h-70 bg-gold-500/5 rounded-full blur-[100px] -z-10 pointer-events-none transform-gpu"></div>
-
-        <Navbar />
-        <div className="flex-1 flex flex-col w-full">
-          {children}
-        </div>
-        <Footer />
       </body>
     </html>
   );

@@ -43,7 +43,7 @@ export default async function SearchResultsPage({ searchParams }: SearchPageProp
   }
 
   return (
-    <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-16 flex-grow">
+    <main id="main-content" className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 flex-grow">
       {/* Header section */}
       <div className="text-center mb-10">
         <h1 className="text-3xl md:text-4xl font-bold text-gold-500 mb-4">

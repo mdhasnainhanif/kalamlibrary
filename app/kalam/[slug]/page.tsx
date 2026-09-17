@@ -34,14 +34,46 @@ const LANGUAGES_MAP: Record<string, { code: string; label: string; dir: "ltr" | 
   "bangla": { code: "bangla", label: "বাংলা (Bangla)", dir: "ltr", locale: "bn-BD" },
 };
 
-async function getKalamData(slug: string) {
-  const { data: kalam, error: kalamError } = await supabase
+async function getKalamData(rawSlug: string) {
+  let decodedSlug = rawSlug;
+  try {
+    decodedSlug = decodeURIComponent(rawSlug);
+  } catch {
+    decodedSlug = rawSlug;
+  }
+
+  // 1. Query with decoded slug
+  let { data: kalam } = await supabase
     .from("kalams")
     .select("*, authors(*)")
-    .eq("slug", slug)
-    .single();
+    .eq("slug", decodedSlug)
+    .maybeSingle();
 
-  if (kalamError || !kalam) {
+  // 2. Fallback to raw slug if different
+  if (!kalam && rawSlug !== decodedSlug) {
+    const res = await supabase
+      .from("kalams")
+      .select("*, authors(*)")
+      .eq("slug", rawSlug)
+      .maybeSingle();
+    kalam = res.data;
+  }
+
+  // 3. Fallback without trailing unicode symbols (e.g. ﷺ)
+  if (!kalam) {
+    const normalized = decodedSlug.replace(/[^\w\s-]/g, "").trim();
+    if (normalized) {
+      const res = await supabase
+        .from("kalams")
+        .select("*, authors(*)")
+        .ilike("slug", `${normalized}%`)
+        .limit(1)
+        .maybeSingle();
+      kalam = res.data;
+    }
+  }
+
+  if (!kalam) {
     return null;
   }
 
@@ -209,9 +241,9 @@ export default async function KalamSlugPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <main id="main-content" className="w-full max-w-4xl mx-auto px-4 py-8 md:py-12 flex-1 flex flex-col">
+      <main id="main-content" className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex-1 flex flex-col">
         {/* Breadcrumb Navigation */}
-        <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center gap-2">
+        <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center justify-center flex-wrap gap-2">
           <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
           <span aria-hidden="true">/</span>
           <Link href="/authors" className="hover:text-gold-500 transition-colors">Poets</Link>
