@@ -131,12 +131,18 @@ export default function RootLayout({
       className={`${outfit.variable} ${notoNastaliqUrdu.variable} ${notoSansDevanagari.variable} ${notoSansBengali.variable} h-full antialiased`}
     >
       <head>
+        {/* Google AdSense */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7173654343893692"
+          crossOrigin="anonymous"
+        />
+
         {/* Structured Data: WebSite & SearchAction for Google Sitelinks Search */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
-
       </head>
       <body className="min-h-full flex flex-col relative overflow-x-hidden transition-colors duration-300">
         <ThemeProvider
