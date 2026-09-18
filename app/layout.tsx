@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit, Noto_Nastaliq_Urdu, Noto_Sans_Devanagari, Noto_Sans_Bengali } from "next/font/google";
+import { Outfit, Noto_Nastaliq_Urdu } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
+import { SITE_CONFIG, buildWebSiteSchema } from "@/utils/seoConfig";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -18,28 +19,14 @@ const outfit = Outfit({
 });
 
 const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
-  variable: "--font-urdu",
+  variable: "--font-noto-nastaliq",
   subsets: ["arabic"],
   weight: ["400", "700"],
   display: "swap",
   preload: false,
+  adjustFontFallback: true,
+  fallback: ["Noto Naskh Arabic", "serif"],
 });
-
-const notoSansDevanagari = Noto_Sans_Devanagari({
-  variable: "--font-devanagari",
-  subsets: ["devanagari"],
-  display: "swap",
-  preload: false,
-});
-
-const notoSansBengali = Noto_Sans_Bengali({
-  variable: "--font-bengali",
-  subsets: ["bengali"],
-  display: "swap",
-  preload: false,
-});
-
-import { SITE_CONFIG, buildWebSiteSchema } from "@/utils/seoConfig";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -128,28 +115,21 @@ export default function RootLayout({
       lang="en"
       dir="ltr"
       suppressHydrationWarning
-      className={`${outfit.variable} ${notoNastaliqUrdu.variable} ${notoSansDevanagari.variable} ${notoSansBengali.variable} h-full antialiased`}
+      className={`${outfit.variable} ${notoNastaliqUrdu.variable} min-h-full antialiased`}
     >
       <head>
-        {/* Google AdSense */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7173654343893692"
-          crossOrigin="anonymous"
-        />
-
         {/* Structured Data: WebSite & SearchAction for Google Sitelinks Search */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
       </head>
-      <body className="min-h-full flex flex-col relative overflow-x-hidden transition-colors duration-300">
+      <body className="min-h-full flex flex-col relative overflow-x-hidden">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
           enableSystem={false}
-          disableTransitionOnChange={false}
+          disableTransitionOnChange
         >
           {/* Keyboard Accessibility: Skip to Main Content Link */}
           <a
@@ -159,12 +139,12 @@ export default function RootLayout({
             Skip to main content
           </a>
 
-          {/* Global Glowing Background Elements - Hardware accelerated with transform-gpu */}
-          <div aria-hidden="true" className="fixed top-20 left-1/2 -translate-x-1/2 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] -z-10 pointer-events-none transform-gpu"></div>
-          <div aria-hidden="true" className="fixed bottom-10 left-10 w-70 h-70 bg-gold-500/5 rounded-full blur-[100px] -z-10 pointer-events-none transform-gpu"></div>
+          {/* Decorative blurs are desktop-only — they stall mobile paint */}
+          <div aria-hidden="true" className="hidden md:block fixed top-20 left-1/2 -translate-x-1/2 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
+          <div aria-hidden="true" className="hidden md:block fixed bottom-10 left-10 w-70 h-70 bg-gold-500/5 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
 
           <Navbar />
-          <div className="flex-1 flex flex-col w-full">
+          <div className="flex-1 flex flex-col w-full min-h-[100dvh]">
             {children}
           </div>
           <Footer />
@@ -173,7 +153,12 @@ export default function RootLayout({
           <ThemeToggle />
         </ThemeProvider>
 
-        {/* Google Analytics (gtag.js) - Loaded after page is interactive */}
+        {/* Ads + analytics after first paint so they cannot delay LCP or shove the footer */}
+        <Script
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7173654343893692"
+          strategy="lazyOnload"
+          crossOrigin="anonymous"
+        />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-Z7H5JF3KB9"
           strategy="lazyOnload"

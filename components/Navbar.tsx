@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Toaster } from "react-hot-toast";
+
+const AppToaster = dynamic(() => import("./AppToaster"), { ssr: false });
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -37,21 +39,21 @@ export default function Navbar() {
   }, [isOpen]);
 
   return (
-    <nav aria-label="Main navigation" className="w-full bg-emerald-950/95 backdrop-blur-md border-b border-emerald-500/10 sticky top-0 z-50 transition-all">
+    <nav aria-label="Main navigation" className="w-full bg-emerald-950 border-b border-emerald-500/10 sticky top-0 z-50">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 md:h-20">
           
           {/* Logo Section */}
           <div className="flex-shrink-0 flex items-center">
             <Link href="/" aria-label="Kalam Library Home" className="flex items-center group">
-              <span lang="ur" className="text-xl md:text-2xl font-urdu text-gold-500 font-bold tracking-wide transition-colors group-hover:text-gold-100 relative -top-[2px] md:-top-[3px]" dir="rtl">
+              <span lang="ur" className="text-xl md:text-2xl font-urdu text-gold-500 font-bold tracking-wide transition-colors group-hover:text-gold-100 relative -top-[2px] md:-top-[3px] inline-block min-h-[1.75rem] leading-none" dir="rtl">
                 کلام لائبریری
               </span>
             </Link>
           </div>
 
           {/* Desktop Nav Links */}
-          <div className="hidden md:block">
+          <div className="hidden lg:block">
             <div className="ml-10 flex items-center space-x-1">
               {navLinks.map((link) => {
                 const active = isActive(link.href);
@@ -74,7 +76,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Menu Button */}
-          <div className="flex md:hidden">
+          <div className="flex lg:hidden">
             <button
               onClick={() => setIsOpen(!isOpen)}
               type="button"
@@ -100,7 +102,7 @@ export default function Navbar() {
 
       {/* Mobile Menu Dropdown */}
       {isOpen && (
-        <div className="md:hidden bg-emerald-950 border-b border-emerald-500/10" id="mobile-menu">
+        <div className="lg:hidden bg-emerald-950 border-b border-emerald-500/10" id="mobile-menu">
           <div className="px-2 pt-2 pb-4 space-y-1 sm:px-3">
             {navLinks.map((link) => {
               const active = isActive(link.href);
@@ -123,31 +125,7 @@ export default function Navbar() {
           </div>
         </div>
       )}
-      <Toaster 
-        position="top-right" 
-        toastOptions={{
-          duration: 2000,
-          style: {
-            background: "#061410",
-            color: "#f3f4f6",
-            border: "1px solid rgba(16, 185, 129, 0.15)",
-            fontSize: "14px",
-            fontFamily: "var(--font-sans), sans-serif",
-          },
-          success: {
-            iconTheme: {
-              primary: "#eab308", // gold success icon matching the logo
-              secondary: "#061410",
-            },
-          },
-          error: {
-            iconTheme: {
-              primary: "#f43f5e",
-              secondary: "#061410",
-            },
-          },
-        }}
-      />
+      <AppToaster />
     </nav>
   );
 }

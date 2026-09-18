@@ -12,9 +12,9 @@
   --color-emerald-950: hsl(160, 50%, 4%);
   
   --font-sans: var(--font-outfit), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-urdu: var(--font-urdu), 'Jameel Noori Nastaleeq', 'Noto Naskh Arabic', serif;
-  --font-devanagari: var(--font-devanagari), 'Noto Sans Devanagari', 'Mangal', 'Nirmala UI', sans-serif;
-  --font-bengali: var(--font-bengali), 'Noto Sans Bengali', 'Shonar Bangla', 'Vrinda', 'Nirmala UI', sans-serif;
+  --font-urdu: var(--font-noto-nastaliq), "Noto Naskh Arabic", "Noto Sans Arabic", serif;
+  --font-devanagari: var(--font-noto-devanagari), "Nirmala UI", "Mangal", sans-serif;
+  --font-bengali: var(--font-noto-bengali), "Nirmala UI", "Vrinda", sans-serif;
 }
 
 @custom-variant dark (&:where(.dark, .dark *));
@@ -56,7 +56,6 @@ body {
   min-height: 100vh;
   overflow-x: hidden;
   position: relative;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* GPU-accelerated fixed background gradient without mobile repainting penalties */
@@ -70,7 +69,6 @@ body::before {
   pointer-events: none;
   z-index: -20;
   transform: translateZ(0);
-  transition: background-image 0.3s ease;
 }
 
 /* -------------------------------------------------------------
@@ -275,9 +273,11 @@ body::before {
   color: #64748b;
 }
 
-/* Subtler background blur orbs in light mode */
-.light .blur-\[100px\] {
-  opacity: 0.15;
+.light .theme-toggle {
+  background-color: rgba(255, 255, 255, 0.95);
+  color: #f59e0b;
+  border-color: rgba(16, 185, 129, 0.3);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
 }
 
 /* Scrollbar in Light Mode */
@@ -312,9 +312,14 @@ body::before {
   border-color: rgba(217, 119, 6, 0.4);
 }
 
+.font-urdu,
 .kalam-urdu-lyrics {
   font-family: var(--font-urdu);
+  /* Nastaliq is taller than Latin fallbacks — reserve space to stop CLS */
   line-height: 1.8;
+}
+
+.kalam-urdu-lyrics {
   word-spacing: 2px;
 }
 
@@ -371,10 +376,13 @@ input[type="search"]::-webkit-search-results-decoration {
   }
 }
 
-/* Mobile Performance: Defer off-screen rendering */
-.content-auto {
-  content-visibility: auto;
-  contain-intrinsic-size: 0 400px;
+/* Off-screen sections can skip paint, but intrinsic size must match real height
+   or the footer jumps (CLS). Only use this below the fold with a realistic size. */
+@media (min-width: 768px) {
+  .content-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 720px;
+  }
 }
 
 

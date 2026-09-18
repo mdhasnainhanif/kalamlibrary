@@ -13,7 +13,7 @@ export default function Footer() {
         {/* About & Social Media Section */}
         <div className="md:col-span-2 flex flex-col gap-5 text-left">
           <div className="flex flex-col">
-            <span lang="ur" className="text-2xl font-urdu text-gold-500 font-bold mb-1.5" dir="rtl">
+            <span lang="ur" className="text-2xl font-urdu text-gold-500 font-bold mb-1.5 inline-block min-h-[2.25rem] leading-none" dir="rtl">
               کلام لائبریری
             </span>
             {/* <span className="text-xs text-emerald-600 dark:text-emerald-400/80 font-medium tracking-wide">
