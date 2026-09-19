@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { supabase } from "@/utils/supabase";
 import { getAuthorUrduName } from "@/utils/authorHelper";
+import { filterIndexableKalams } from "@/utils/kalam";
 import { SITE_CONFIG, buildBreadcrumbJsonLd, buildCanonicalUrl } from "@/utils/seoConfig";
 
 export const revalidate = 3600; // Cache for 1 hour
@@ -48,16 +49,16 @@ export default async function AuthorsPage() {
     .select("*")
     .order("name_roman", { ascending: true });
 
-  const { data: allKalams } = await supabase.from("kalams").select("id, author_id");
+  const { data: allKalams } = await supabase
+    .from("kalams")
+    .select("id, author_id, slug, primary_title_roman, primary_title_urdu");
 
   const authorKalamCounts: Record<string, number> = {};
-  if (allKalams) {
-    allKalams.forEach((k) => {
-      if (k.author_id) {
-        authorKalamCounts[k.author_id] = (authorKalamCounts[k.author_id] || 0) + 1;
-      }
-    });
-  }
+  filterIndexableKalams(allKalams).forEach((k) => {
+    if (k.author_id) {
+      authorKalamCounts[k.author_id] = (authorKalamCounts[k.author_id] || 0) + 1;
+    }
+  });
 
   const collectionSchema = {
     "@context": "https://schema.org",
@@ -88,7 +89,7 @@ export default async function AuthorsPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <main id="main-content" className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex-1">
+      <main id="main-content" className="container py-8 md:py-12 flex-1">
         {/* Breadcrumb Navigation */}
         <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center justify-center gap-2">
           <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>

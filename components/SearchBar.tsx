@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { SEARCH_SUGGESTIONS, kalamHref } from "@/utils/kalam";
 
 interface SearchResult {
   kalam_id: string;
@@ -14,7 +15,26 @@ interface SearchResult {
   author_slug: string;
 }
 
-export default function SearchBar() {
+function TrendingIcon() {
+  return (
+    <svg
+      aria-hidden="true"
+      className="w-4 h-4 text-gold-500 shrink-0"
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      strokeWidth={2}
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+    </svg>
+  );
+}
+
+interface SearchBarProps {
+  className?: string;
+}
+
+export default function SearchBar({ className = "" }: SearchBarProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -23,7 +43,9 @@ export default function SearchBar() {
   const containerRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
-  // Close dropdown on click outside or Escape key
+  const showSuggestions = isOpen && query.trim().length < 2;
+  const showResults = isOpen && query.trim().length >= 2;
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
@@ -43,7 +65,6 @@ export default function SearchBar() {
     };
   }, []);
 
-  // Debounced API Search
   useEffect(() => {
     const trimmedQuery = query.trim();
     if (trimmedQuery.length < 2) {
@@ -76,18 +97,23 @@ export default function SearchBar() {
     return () => clearTimeout(timer);
   }, [query]);
 
-  // Handle query input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setQuery(val);
     if (val.trim().length < 2) {
       setResults([]);
-      setIsOpen(false);
+      setIsOpen(true);
       setAnnouncement("");
     }
   };
 
-  // Map database language code to path
+  const handleFocus = () => {
+    setIsOpen(true);
+    if (query.trim().length < 2) {
+      setAnnouncement(`${SEARCH_SUGGESTIONS.length} popular Naats suggested`);
+    }
+  };
+
   const getLanguagePath = (dbLang: string) => {
     return dbLang.replace("_", "-");
   };
@@ -101,8 +127,10 @@ export default function SearchBar() {
   };
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-xl mx-auto z-30">
-      {/* Dynamic Screen Reader Live Region */}
+    <div
+      ref={containerRef}
+      className={`relative w-full z-50 max-w-xl mx-auto ${className}`}
+    >
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {announcement}
       </div>
@@ -116,17 +144,21 @@ export default function SearchBar() {
           type="search"
           value={query}
           onChange={handleInputChange}
-          onFocus={() => query.trim().length >= 2 && setIsOpen(true)}
-          placeholder="Search Kalam, poet, or title..."
-          className="w-full px-5 py-4 pl-12 pr-12 rounded-2xl bg-emerald-950/80 border border-emerald-500/20 text-gray-100 placeholder-gray-400 focus:outline-none focus-visible:outline-none focus:border-gold-500/60 focus:ring-1 focus:ring-gold-500/40 shadow-lg text-sm md:text-base hover:border-emerald-500/30 transition-colors [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden"
+          onFocus={handleFocus}
+          placeholder="Type a Naat title, poet name, or opening line..."
+          autoComplete="off"
+          aria-expanded={isOpen}
+          aria-controls="search-dropdown"
+          aria-autocomplete="list"
+          className="w-full bg-emerald-950/80 border border-emerald-500/20 text-gray-100 placeholder-gray-400 focus:outline-none focus-visible:outline-none focus:border-gold-500/60 focus:ring-1 focus:ring-gold-500/40 hover:border-emerald-500/30 transition-colors [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden px-5 py-4 pl-12 pr-12 rounded-2xl shadow-lg text-sm md:text-base"
         />
         <button
           type="submit"
           aria-label="Submit search"
-          className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gold-500 transition-colors cursor-pointer"
+          className="absolute top-1/2 -translate-y-1/2 left-4 text-gray-400 hover:text-gold-500 transition-colors cursor-pointer"
         >
           {loading ? (
-            <svg aria-hidden="true" className="animate-spin h-5 w-5 text-gold-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <svg aria-hidden="true" className="animate-spin text-gold-500 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
@@ -143,10 +175,10 @@ export default function SearchBar() {
             onClick={() => {
               setQuery("");
               setResults([]);
-              setIsOpen(false);
-              setAnnouncement("Search cleared.");
+              setIsOpen(true);
+              setAnnouncement(`${SEARCH_SUGGESTIONS.length} popular Naats suggested`);
             }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200 cursor-pointer"
+            className="absolute top-1/2 -translate-y-1/2 right-4 text-gray-400 hover:text-gray-200 cursor-pointer"
           >
             <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -155,10 +187,49 @@ export default function SearchBar() {
         )}
       </form>
 
-      {/* Results Dropdown */}
-      {isOpen && (
-        <div className="absolute w-full mt-2 rounded-2xl bg-emerald-950 border border-emerald-500/20 shadow-2xl overflow-hidden backdrop-blur-lg z-40 max-h-80 overflow-y-auto">
-          {results.length === 0 ? (
+      {showSuggestions && (
+        <div
+          id="search-dropdown"
+          role="listbox"
+          aria-label="Popular Naat suggestions"
+          className="absolute left-0 right-0 w-full mt-2 rounded-2xl bg-emerald-950 border border-emerald-500/20 shadow-2xl overflow-hidden z-[100] max-h-80 overflow-y-auto"
+        >
+          <p className="px-5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-emerald-400/80">
+            Popular Naats
+          </p>
+          <div className="py-1">
+            {SEARCH_SUGGESTIONS.map((item) => (
+              <Link
+                key={item.slug}
+                href={kalamHref(item.slug)}
+                role="option"
+                onClick={() => setIsOpen(false)}
+                className="flex items-start gap-3 px-5 py-3 hover:bg-emerald-900/50 border-b border-emerald-500/5 last:border-0 group transition-colors"
+                aria-label={`Read ${item.title}${item.poet ? ` by ${item.poet}` : ""}`}
+              >
+                <TrendingIcon />
+                <div className="min-w-0 flex-1 text-left">
+                  <span className="block text-sm font-medium text-gray-100 group-hover:text-gold-500 transition-colors leading-snug">
+                    {item.title}
+                  </span>
+                  {item.poet && (
+                    <span className="block text-[11px] text-gray-400 mt-0.5 truncate">
+                      {item.poet}
+                    </span>
+                  )}
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {showResults && (
+        <div
+          id="search-dropdown"
+          className="absolute left-0 right-0 w-full mt-2 rounded-2xl bg-emerald-950 border border-emerald-500/20 shadow-2xl overflow-hidden z-[100] max-h-80 overflow-y-auto"
+        >
+          {results.length === 0 && !loading ? (
             <div className="px-5 py-4 text-sm text-gray-400 text-center">
               No Naats found matching &quot;{query}&quot;
             </div>

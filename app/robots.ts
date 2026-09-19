@@ -29,6 +29,8 @@ export default function robots(): MetadataRoute.Robots {
           "/author/",
           "/poet/",
           "/about",
+          "/lyrics",
+          "/lyrics/",
           "/services",
           "/contact",
           "/favicon.ico",
@@ -39,6 +41,7 @@ export default function robots(): MetadataRoute.Robots {
           "/apple-icon.png",
           "/manifest.webmanifest",
           "/og-default.jpg",
+          "/ads.txt",
         ],
         disallow: [
           "/api/",

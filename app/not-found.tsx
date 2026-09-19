@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 
 export default function NotFound() {
   return (
-    <main id="main-content" className="min-h-[75vh] flex items-center justify-center px-4 py-16">
+    <main id="main-content" className="container min-h-[75vh] flex items-center justify-center py-16">
       <div className="max-w-2xl w-full text-center">
         {/* Decorative Badge */}
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-100/80 dark:bg-emerald-950/60 border border-emerald-500/30 dark:border-emerald-800/40 text-emerald-800 dark:text-emerald-400 text-xs font-bold tracking-widest uppercase mb-6 shadow-sm">
@@ -31,7 +31,6 @@ export default function NotFound() {
           The Naat, Kalam, or poet profile you are looking for does not exist or may have been moved. Search our complete archive below:
         </p>
 
-        {/* Live Search Component */}
         <div className="mb-10 max-w-md mx-auto relative z-30">
           <SearchBar />
         </div>

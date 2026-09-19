@@ -65,7 +65,7 @@ export default function PrivacyPolicyPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <main id="main-content" className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 flex-grow relative text-left">
+      <main id="main-content" className="container py-8 md:py-16 flex-grow relative text-left">
         <GeometricPattern />
 
         {/* Breadcrumb */}

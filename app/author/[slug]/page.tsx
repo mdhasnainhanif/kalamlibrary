@@ -2,7 +2,8 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { supabase } from "@/utils/supabase";
-import { getAuthorUrduName } from "@/utils/authorHelper";
+import { getAuthorBio, getAuthorUrduName } from "@/utils/authorHelper";
+import { displayAuthorName, filterIndexableKalams, kalamHref, truncateAtWord } from "@/utils/kalam";
 import {
   SITE_CONFIG,
   buildCanonicalUrl,
@@ -53,13 +54,7 @@ async function getAuthorData(slug: string) {
     return null;
   }
 
-  const kalams = rawKalams?.filter(
-    (k) =>
-      k.primary_title_roman.toLowerCase().trim() !== "deegar" &&
-      k.primary_title_urdu?.trim() !== "دیگر" &&
-      !k.slug.startsWith("deegar") &&
-      !k.slug.startsWith("digar")
-  ) || [];
+  const kalams = filterIndexableKalams(rawKalams);
 
   return {
     author,
@@ -73,8 +68,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   if (!data) return {};
 
   const { author } = data;
-  const seoTitle = `${author.name_roman} Naats & Kalams Lyrics`;
-  const seoDesc = `Read authentic Naats, Hamd, and Sufi Kalam lyrics composed by ${author.name_roman} on Kalam Library. Available in Roman English, Urdu Nastaliq, Hindi, and Bangla translations.`;
+  const displayName = displayAuthorName(author.name_roman);
+  const seoTitle = `${displayName} – Naat Lyrics`;
+  const seoDesc = truncateAtWord(
+    `Read Naat, Hamd, and Kalam lyrics by ${displayName} in Urdu Nastaliq, Hindi, Bangla, and Roman English.`
+  );
   const canonicalUrl = buildCanonicalUrl(`/author/${slug}`);
 
   const ogImageUrl = buildOgImageUrl({
@@ -84,13 +82,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   return {
     title: seoTitle,
-    description: seoDesc.slice(0, 155),
+    description: seoDesc,
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
       title: `${seoTitle} | ${SITE_CONFIG.name}`,
-      description: seoDesc.slice(0, 155),
+      description: seoDesc,
       url: canonicalUrl,
       type: "profile",
       siteName: SITE_CONFIG.name,
@@ -106,7 +104,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     twitter: {
       card: "summary_large_image",
       title: `${seoTitle} | ${SITE_CONFIG.name}`,
-      description: seoDesc.slice(0, 155),
+      description: seoDesc,
       images: [ogImageUrl],
     },
   };
@@ -139,11 +137,11 @@ export default async function AuthorPage({ params }: PageProps) {
   const authorSchema = buildAuthorJsonLd({
     name: author.name_roman,
     url: authorUrl,
-    bio: author.bio || undefined,
+    bio: getAuthorBio(author),
     kalamCount: kalams.length,
     featuredWorks: kalams.slice(0, 10).map((k) => ({
       title: k.primary_title_roman,
-      url: buildCanonicalUrl(`/kalam/${k.slug}`),
+      url: buildCanonicalUrl(kalamHref(k.slug)),
     })),
   });
 
@@ -164,7 +162,7 @@ export default async function AuthorPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <main id="main-content" className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex-1">
+      <main id="main-content" className="container py-8 md:py-12 flex-1 min-w-0 overflow-x-clip">
         {/* Breadcrumb */}
         <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center justify-center flex-wrap gap-2">
           <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
@@ -183,7 +181,7 @@ export default async function AuthorPage({ params }: PageProps) {
           </div>
           <div className="text-center md:text-left flex-1">
             <div className="flex flex-col md:flex-row md:items-baseline md:gap-3 justify-center md:justify-start">
-              <h1 className="text-2xl md:text-3xl font-bold text-gold-500 mb-1">{author.name_roman}</h1>
+              <h1 className="text-2xl md:text-3xl font-bold text-gold-500 mb-1">{displayAuthorName(author.name_roman)}</h1>
               {urduName && (
                 <span lang="ur" className="text-lg md:text-xl text-emerald-300/85 font-urdu" dir="rtl">
                   ({urduName})
@@ -191,7 +189,7 @@ export default async function AuthorPage({ params }: PageProps) {
               )}
             </div>
             <p className="text-sm text-gray-400 leading-relaxed max-w-2xl mb-4 mt-2">
-              {author.bio || "Classic poet of devotional Sufi Naats and Islamic literature."}
+              {getAuthorBio(author)}
             </p>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-950/80 border border-emerald-500/10 text-xs font-semibold text-emerald-300">
               <svg aria-hidden="true" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -215,20 +213,20 @@ export default async function AuthorPage({ params }: PageProps) {
             <p className="text-gray-400">No Naats uploaded yet for this author.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
             {kalams.map((kalam) => (
               <Link
                 key={kalam.id}
-                href={`/kalam/${kalam.slug}`}
+                href={kalamHref(kalam.slug)}
                 aria-label={`Read ${kalam.primary_title_roman} lyrics by ${author.name_roman}`}
-                className="group p-5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex justify-between items-center"
+                className="kalam-list-card group p-5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex justify-between items-center gap-3"
               >
-                <div>
-                  <h3 className="font-semibold text-gray-100 group-hover:text-gold-500 transition-colors">
+                <div className="kalam-list-card__body">
+                  <h3 className="kalam-list-title font-semibold text-gray-100 group-hover:text-gold-500 transition-colors">
                     {kalam.primary_title_roman}
                   </h3>
                   {kalam.primary_title_urdu && (
-                    <span lang="ur" className="text-base text-emerald-400/70 font-urdu block mt-1 py-0.5 truncate" dir="rtl">
+                    <span lang="ur" className="kalam-list-urdu text-base text-emerald-400/70 font-urdu mt-1 py-0.5" dir="rtl">
                       {kalam.primary_title_urdu}
                     </span>
                   )}

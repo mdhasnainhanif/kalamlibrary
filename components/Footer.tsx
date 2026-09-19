@@ -4,11 +4,11 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
   const whatsappUrl = "https://wa.me/923174731957";
   const instagramUrl = "https://www.instagram.com/kalamlibrary.me";
-  const tiktokUrl = "https://www.tiktok.com/@kalam.library?_r=1&_t=ZS-99niVscfcDy";
+  const tiktokUrl = "https://www.tiktok.com/@kalam.library";
 
   return (
-    <footer className="w-full bg-emerald-950/40 border-t border-emerald-500/10 py-12 px-4 mt-auto">
-      <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="w-full bg-emerald-950/40 border-t border-emerald-500/10 py-12 mt-auto">
+      <div className="container grid grid-cols-1 md:grid-cols-4 gap-8">
 
         {/* About & Social Media Section */}
         <div className="md:col-span-2 flex flex-col gap-5 text-left">
@@ -16,12 +16,9 @@ export default function Footer() {
             <span lang="ur" className="text-2xl font-urdu text-gold-500 font-bold mb-1.5 inline-block min-h-[2.25rem] leading-none" dir="rtl">
               کلام لائبریری
             </span>
-            {/* <span className="text-xs text-emerald-600 dark:text-emerald-400/80 font-medium tracking-wide">
-              Kalam Library — Islamic Poetry & Lyrics Archive
-            </span> */}
           </div>
           <p className="text-xs md:text-sm text-gray-400 leading-relaxed max-w-sm">
-            A curated, dynamic repository dedicated to transcribing and sharing classic Sufi Kalam, Hamd, and Naat poetry in Roman English, Urdu Nastaliq, Hindi, and Bangla translations.
+            A Naat lyrics archive for Islamic Hamd, Naat, and Sufi Kalam in Roman English, Urdu Nastaliq, Hindi, and Bangla.
           </p>
 
           {/* Social Media Links */}
@@ -134,52 +131,8 @@ export default function Footer() {
 
       </div>
 
-      {/* Software & Web Development CTA Banner */}
-      <div className="max-w-6xl mx-auto mt-10">
-        <div className="p-4 md:p-5 rounded-2xl bg-gradient-to-r from-emerald-950/60 via-emerald-900/20 to-emerald-950/60 border border-emerald-500/15 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gold-500/10 border border-gold-500/20 flex items-center justify-center text-gold-500 shrink-0">
-              <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-              </svg>
-            </div>
-            <p className="text-xs md:text-sm text-gray-300">
-              If you need any custom software or web development services, feel free to contact on{" "}
-              <a
-                href={whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 font-semibold text-emerald-400 hover:text-emerald-300 underline underline-offset-2 transition-colors ml-0.5"
-              >
-                <span>WhatsApp</span>
-                <svg
-                  className="w-3.5 h-3.5 fill-current shrink-0 inline-block"
-                  viewBox="0 0 448 512"
-                  aria-hidden="true"
-                >
-                  <path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z" />
-                </svg>
-                <span className="sr-only">(opens WhatsApp in a new tab)</span>
-              </a>
-              .
-            </p>
-          </div>
-          <a
-            href={whatsappUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 rounded-xl bg-emerald-500/15 hover:bg-emerald-500/25 border border-emerald-500/30 text-emerald-300 hover:text-emerald-200 text-xs font-semibold transition-all inline-flex items-center gap-1.5 shrink-0 shadow-sm"
-          >
-            <span>Message on WhatsApp</span>
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-            </svg>
-          </a>
-        </div>
-      </div>
-
       {/* Copyright & Legal Links */}
-      <div className="max-w-6xl mx-auto border-t border-emerald-500/10 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left text-xs text-gray-400">
+      <div className="container border-t border-emerald-500/10 mt-8 pt-6 flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left text-xs text-gray-400">
         <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-4">
           <p>&copy; {currentYear} Kalam Library. All rights reserved.</p>
           <span className="hidden sm:inline text-emerald-500/30">|</span>
@@ -193,7 +146,12 @@ export default function Footer() {
             </Link>
           </div>
         </div>
-        <p>Built with love for Islamic poetry, spiritual odes, and literature digitization.</p>
+        <p>
+          Built for Naat readers.{" "}
+          <Link href="/services" className="hover:text-gold-500 transition-colors">
+            Digitization &amp; web services
+          </Link>
+        </p>
       </div>
     </footer>
   );

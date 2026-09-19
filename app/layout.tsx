@@ -4,6 +4,7 @@ import Script from "next/script";
 import "./globals.css";
 
 import Navbar from "@/components/Navbar";
+import SearchHeroBanner from "@/components/SearchHeroBanner";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -37,11 +38,10 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_CONFIG.siteUrl),
   title: {
-    default: "Naats & Kalams | Islamic Naats, Kalams & Recitations | Kalam Library",
+    default: "Naat Lyrics in Urdu, Hindi, Roman & Bangla",
     template: "%s | Kalam Library",
   },
   description: SITE_CONFIG.description,
-  keywords: SITE_CONFIG.keywords,
   authors: [{ name: SITE_CONFIG.name, url: SITE_CONFIG.url }],
   creator: SITE_CONFIG.creator,
   publisher: SITE_CONFIG.publisher,
@@ -84,7 +84,7 @@ export const metadata: Metadata = {
     alternateLocale: ["ur_PK", "hi_IN", "bn_BD"],
     url: SITE_CONFIG.url,
     siteName: SITE_CONFIG.name,
-    title: "Naats & Kalams | Islamic Naats, Kalams & Recitations | Kalam Library",
+    title: "Naat Lyrics in Urdu, Hindi, Roman & Bangla | Kalam Library",
     description: SITE_CONFIG.description,
     images: [
       {
@@ -97,7 +97,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Naats & Kalams | Islamic Naats, Kalams & Recitations | Kalam Library",
+    title: "Naat Lyrics in Urdu, Hindi, Roman & Bangla | Kalam Library",
     description: SITE_CONFIG.description,
     images: [SITE_CONFIG.defaultOgImage],
   },
@@ -144,6 +144,7 @@ export default function RootLayout({
           <div aria-hidden="true" className="hidden md:block fixed bottom-10 left-10 w-70 h-70 bg-gold-500/5 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
 
           <Navbar />
+          <SearchHeroBanner />
           <div className="flex-1 flex flex-col w-full min-h-[100dvh]">
             {children}
           </div>

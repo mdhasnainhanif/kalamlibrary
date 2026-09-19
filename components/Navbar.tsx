@@ -40,7 +40,7 @@ export default function Navbar() {
 
   return (
     <nav aria-label="Main navigation" className="w-full bg-emerald-950 border-b border-emerald-500/10 sticky top-0 z-50">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="container">
         <div className="flex items-center justify-between h-16 md:h-20">
           
           {/* Logo Section */}
@@ -103,7 +103,7 @@ export default function Navbar() {
       {/* Mobile Menu Dropdown */}
       {isOpen && (
         <div className="lg:hidden bg-emerald-950 border-b border-emerald-500/10" id="mobile-menu">
-          <div className="px-2 pt-2 pb-4 space-y-1 sm:px-3">
+          <div className="container pt-2 pb-4 space-y-1">
             {navLinks.map((link) => {
               const active = isActive(link.href);
               return (

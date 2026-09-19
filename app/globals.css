@@ -58,6 +58,112 @@ body {
   position: relative;
 }
 
+/* Long kalam titles must not blow out mobile width */
+#main-content {
+  overflow-x: clip;
+  min-width: 0;
+}
+
+/* Bootstrap-like fixed container (not container-fluid) */
+.container {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 576px) {
+  .container {
+    max-width: 540px;
+    padding-inline: 1.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 720px;
+  }
+}
+
+@media (min-width: 992px) {
+  .container {
+    max-width: 960px;
+    padding-inline: 1.5rem;
+  }
+}
+
+@media (min-width: 1200px) {
+  .container {
+    max-width: 1140px;
+  }
+}
+
+/* Narrow reading column for kalam lyrics pages */
+.container-narrow {
+  width: 100%;
+  margin-inline: auto;
+  padding-inline: 1rem;
+}
+
+@media (min-width: 576px) {
+  .container-narrow {
+    max-width: 540px;
+    padding-inline: 1.25rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-narrow {
+    max-width: 680px;
+  }
+}
+
+@media (min-width: 992px) {
+  .container-narrow {
+    max-width: 768px;
+    padding-inline: 1.5rem;
+  }
+}
+
+.kalam-list-card {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.kalam-list-card__body {
+  min-width: 0;
+  flex: 1 1 0%;
+  overflow: hidden;
+}
+
+.kalam-list-title {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.kalam-list-title--1 {
+  -webkit-line-clamp: 1;
+}
+
+.kalam-list-urdu {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.kalam-page-title {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  hyphens: auto;
+}
+
 /* GPU-accelerated fixed background gradient without mobile repainting penalties */
 body::before {
   content: "";

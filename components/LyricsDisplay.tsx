@@ -34,7 +34,7 @@ export default function LyricsDisplay({
   };
 
   // Base font size in px based on language
-  const baseSizePx = lang === "urdu" ? 24 : 17;
+  const baseSizePx = lang === "urdu" ? 22 : 16;
   const currentFontSizePx = Math.round(baseSizePx * fontScale);
   const percentage = Math.round(fontScale * 100);
 
@@ -48,12 +48,12 @@ export default function LyricsDisplay({
   const htmlLang = langIsoMap[lang] || "en";
 
   return (
-    <div className="w-full flex flex-col items-center">
+    <div className="w-full max-w-2xl mx-auto flex flex-col items-center">
       {/* Control Bar for Font Size Adjustment (A- / Reset / A+) */}
       <div
         role="toolbar"
         aria-label="Font size adjustment controls"
-        className="w-full flex items-center justify-between gap-4 mb-4 px-3 py-2 rounded-xl bg-emerald-950/50 border border-emerald-500/15 backdrop-blur-md shadow-sm"
+        className="w-full flex items-center justify-between gap-3 mb-3 px-3 py-1.5 rounded-xl bg-emerald-950/50 border border-emerald-500/15 shadow-sm"
       >
         <div className="text-xs text-gray-300 font-sans flex items-center gap-1.5 pl-1">
           <svg aria-hidden="true" className="w-4 h-4 text-gold-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -113,7 +113,7 @@ export default function LyricsDisplay({
         aria-label="Lyrics text"
         lang={htmlLang}
         dir={dir}
-        className={`w-full bg-emerald-900/10 backdrop-blur-md border border-emerald-500/10 rounded-2xl p-6 md:p-12 shadow-inner text-center whitespace-pre-line select-text transition-all duration-150 ${
+        className={`w-full bg-emerald-900/10 border border-emerald-500/10 rounded-xl p-4 md:p-6 shadow-inner text-center whitespace-pre-line select-text transition-all duration-150 ${
           lang === "urdu"
             ? "kalam-urdu-lyrics text-emerald-100/90"
             : "font-sans text-gray-200 tracking-wide leading-relaxed md:leading-loose"

@@ -4,18 +4,21 @@ import { supabase } from "@/utils/supabase";
 import { getAuthorUrduName } from "@/utils/authorHelper";
 import SearchBar from "@/components/SearchBar";
 import FAQAccordion from "@/components/FAQAccordion";
-import { SITE_CONFIG, buildCanonicalUrl } from "@/utils/seoConfig";
+import { SITE_CONFIG, buildCanonicalUrl, buildWebSiteSchema } from "@/utils/seoConfig";
+import { FEATURED_KALAM_SLUGS, filterIndexableKalams, kalamHref } from "@/utils/kalam";
 
 export const revalidate = 3600; // Cache for 1 hour
 
 export const metadata: Metadata = {
-  title: "Naats & Kalams | Islamic Naats, Kalams & Recitations | Kalam Library",
+  title: {
+    absolute: "Naat Lyrics in Urdu, Hindi, Roman & Bangla | Kalam Library",
+  },
   description: SITE_CONFIG.description,
   alternates: {
     canonical: buildCanonicalUrl("/"),
   },
   openGraph: {
-    title: "Naats & Kalams | Islamic Naats, Kalams & Recitations | Kalam Library",
+    title: "Naat Lyrics in Urdu, Hindi, Roman & Bangla | Kalam Library",
     description: SITE_CONFIG.description,
     url: SITE_CONFIG.url,
     type: "website",
@@ -31,7 +34,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Naats & Kalams | Islamic Naats, Kalams & Recitations | Kalam Library",
+    title: "Naat Lyrics in Urdu, Hindi, Roman & Bangla | Kalam Library",
     description: SITE_CONFIG.description,
     images: [SITE_CONFIG.defaultOgImage],
   },
@@ -111,33 +114,26 @@ export default async function Home() {
     .select("*")
     .limit(8);
 
-  // Fetch recent/featured Kalams
-  const { data: rawKalams, error: kalamsError } = await supabase
+  const { data: featuredRows, error: kalamsError } = await supabase
     .from("kalams")
     .select("*, authors(*)")
-    .order("created_at", { ascending: false })
-    .limit(30);
+    .in("slug", [...FEATURED_KALAM_SLUGS]);
 
-  const kalams = rawKalams
-    ?.filter(
-      (k) =>
-        k.primary_title_roman.toLowerCase().trim() !== "deegar" &&
-        k.primary_title_urdu?.trim() !== "دیگر" &&
-        !k.slug.startsWith("deegar") &&
-        !k.slug.startsWith("digar")
-    )
-    .slice(0, 8);
+  const featuredBySlug = new Map((featuredRows || []).map((row) => [row.slug, row]));
+  const kalams = FEATURED_KALAM_SLUGS.map((slug) => featuredBySlug.get(slug)).filter(
+    (row): row is NonNullable<typeof row> => Boolean(row)
+  );
 
-  // Fetch kalam translation counts to show on author cards
-  const { data: allKalams } = await supabase.from("kalams").select("id, author_id");
+  const { data: allKalams } = await supabase
+    .from("kalams")
+    .select("id, author_id, slug, primary_title_roman, primary_title_urdu");
+  const indexableKalams = filterIndexableKalams(allKalams);
   const authorKalamCounts: Record<string, number> = {};
-  if (allKalams) {
-    allKalams.forEach((k) => {
-      if (k.author_id) {
-        authorKalamCounts[k.author_id] = (authorKalamCounts[k.author_id] || 0) + 1;
-      }
-    });
-  }
+  indexableKalams.forEach((k) => {
+    if (k.author_id) {
+      authorKalamCounts[k.author_id] = (authorKalamCounts[k.author_id] || 0) + 1;
+    }
+  });
 
   // FAQ Items
   const faqItems = [
@@ -150,8 +146,8 @@ export default async function Home() {
       a: "Our archive focuses on prominent scholars and poets of spiritual odes, including <strong>Ala Hazrat Imam Ahmad Raza Khan Qadri</strong>, <strong>Allama Hasan Raza Khan</strong>, <strong>Mufti-e-Azam Hind Mustafa Raza Khan Qadri</strong>, and <strong>Maulana Muhammad Ilyas Attar Qadri</strong>."
     },
     {
-      q: "Are these lyric transcriptions authenticated?",
-      a: "Yes. Every poem is scanned and verified directly from printed publications (like Hadaiq-e-Bakhshish, Saman-e-Bakhshish, and Wasail-e-Bakhshish) utilizing advanced multimodal AI parsing engines, ensuring high accuracy line-by-line."
+      q: "How accurate are these lyric transcriptions?",
+      a: "Poems are digitized from printed books such as Hadaiq-e-Bakhshish, Saman-e-Bakhshish, and Wasail-e-Bakhshish using an AI-assisted OCR pipeline, then formatted into Roman English, Urdu, Hindi, and Bangla. The archive is a reading aid, not a certified critical edition. Please use the Report an error link on any kalam page if you spot a mistake."
     },
     {
       q: "Can I request a Naat or Kalam to be digitized?",
@@ -173,17 +169,7 @@ export default async function Home() {
     }))
   };
 
-  const orgSchema = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    "name": "Kalam Library",
-    "url": "https://kalamlibrary.me",
-    "potentialAction": {
-      "@type": "SearchAction",
-      "target": "https://kalamlibrary.me/search?q={search_term_string}",
-      "query-input": "required name=search_term_string"
-    }
-  };
+  const orgSchema = buildWebSiteSchema();
 
   return (
     <>
@@ -196,7 +182,7 @@ export default async function Home() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
       />
 
-      <main id="main-content" className="w-full flex-grow relative py-12 md:py-20 px-4 flex flex-col items-center">
+      <main id="main-content" className="container flex-grow relative py-12 md:py-20 flex flex-col items-center">
         {/* Subtle repeating background */}
         <GeometricPattern />
 
@@ -208,10 +194,13 @@ export default async function Home() {
               کلام لائبریری
             </span>
             <span className="font-sans">Kalam Library</span>
+            <span className="text-base md:text-2xl font-semibold text-gray-200 tracking-normal">
+              Naat Lyrics in Urdu, Hindi, Roman &amp; Bangla
+            </span>
           </h1>
           
           <p className="text-sm md:text-lg text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed font-sans">
-            The ultimate multi-language Naat lyrics repository. Discover, read, and share classic Sufi poetry in Roman English, Urdu, Hindi, and Bangla.
+            A digital archive of Islamic Naat, Hamd, and Sufi Kalam lyrics. Read classic and contemporary poems in Roman English, Urdu Nastaliq, Hindi, and Bangla.
           </p>
 
           {/* Search Box */}
@@ -235,7 +224,7 @@ export default async function Home() {
         </div>
 
         {/* Main Grid Content */}
-        <div className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-3 gap-12 mt-4" id="featured">
+        <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-12 mt-4" id="featured">
           
           {/* Left Side: Popular Poets list (1 column) */}
           <section className="lg:col-span-1 flex flex-col gap-6" aria-label="Browse by Poet">
@@ -294,9 +283,9 @@ export default async function Home() {
           </section>
 
           {/* Right Side: Featured Kalam list (2 columns) */}
-          <section className="lg:col-span-2 flex flex-col gap-6" aria-label="Recently Added Kalam">
+          <section className="lg:col-span-2 flex flex-col gap-6" aria-label="Popular Naats">
             <div className="flex items-center gap-2 border-b border-emerald-500/15 pb-3">
-              <h2 className="text-lg font-bold text-gray-200 uppercase tracking-wider font-sans">Recently Added Kalam</h2>
+              <h2 className="text-lg font-bold text-gray-200 uppercase tracking-wider font-sans">Popular Naats</h2>
               <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
             </div>
 
@@ -313,16 +302,16 @@ export default async function Home() {
                   return (
                     <Link
                       key={kalam.id}
-                      href={`/kalam/${kalam.slug}`}
+                      href={kalamHref(kalam.slug)}
                       aria-label={`Read ${kalam.primary_title_roman} lyrics by ${authorName}`}
-                      className="p-5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex flex-col justify-between h-36 text-left group"
+                      className="kalam-list-card p-5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex flex-col justify-between min-h-36 text-left group"
                     >
-                      <div>
-                        <h3 className="font-bold text-gray-100 group-hover:text-gold-500 transition-colors line-clamp-1">
+                      <div className="kalam-list-card__body">
+                        <h3 className="kalam-list-title kalam-list-title--1 font-bold text-gray-100 group-hover:text-gold-500 transition-colors">
                           {kalam.primary_title_roman}
                         </h3>
                         {kalam.primary_title_urdu && (
-                          <p lang="ur" className="text-lg text-emerald-400/80 font-urdu mt-1.5 truncate py-1" dir="rtl">
+                          <p lang="ur" className="kalam-list-urdu text-lg text-emerald-400/80 font-urdu mt-1.5 py-1" dir="rtl">
                             {kalam.primary_title_urdu}
                           </p>
                         )}
@@ -358,19 +347,19 @@ export default async function Home() {
         </div>
 
         {/* Ornamental Divider */}
-        <div className="w-full max-w-6xl">
+        <div className="w-full">
           <OrnamentalDivider />
         </div>
 
         {/* Browse by Language Quick Links */}
-        <section className="w-full max-w-6xl py-8 text-center" aria-label="Browse lyrics by Language">
+        <section className="w-full py-8 text-center" aria-label="Browse lyrics by Language">
           <h2 className="text-xl font-bold text-gray-200 mb-6 font-sans">Browse lyrics by Language</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: "Roman English", sub: "English Transliteration", href: "/search?q=roman", badge: "Roman", langCode: "en", dir: "ltr", fontClass: "" },
-              { label: "Urdu (Nastaliq)", sub: "اردو رسم الخط", href: "/search?q=urdu", badge: "Urdu", langCode: "ur", dir: "rtl", fontClass: "font-urdu text-sm" },
-              { label: "Hindi (Devanagari)", sub: "हिन्दी लिपि", href: "/search?q=hindi", badge: "Hindi", langCode: "hi", dir: "ltr", fontClass: "" },
-              { label: "Bangla (Bengali)", sub: "বাংলা লিপি", href: "/search?q=bangla", badge: "Bangla", langCode: "bn", dir: "ltr", fontClass: "" }
+              { label: "Roman English", sub: "English Transliteration", href: "/lyrics/roman-english", badge: "Roman", langCode: "en", dir: "ltr", fontClass: "" },
+              { label: "Urdu (Nastaliq)", sub: "اردو رسم الخط", href: "/lyrics/urdu", badge: "Urdu", langCode: "ur", dir: "rtl", fontClass: "font-urdu text-sm" },
+              { label: "Hindi (Devanagari)", sub: "हिन्दी लिपि", href: "/lyrics/hindi", badge: "Hindi", langCode: "hi", dir: "ltr", fontClass: "" },
+              { label: "Bangla (Bengali)", sub: "বাংলা লিপি", href: "/lyrics/bangla", badge: "Bangla", langCode: "bn", dir: "ltr", fontClass: "" }
             ].map((lang) => (
               <Link
                 key={lang.label}
@@ -399,12 +388,12 @@ export default async function Home() {
         </section>
 
         {/* Teaser block linking to About/Services */}
-        <div className="w-full max-w-6xl grid grid-cols-1 md:grid-cols-2 gap-8 py-10">
+        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8 py-10">
           <div className="p-6 rounded-2xl bg-emerald-900/10 border border-emerald-500/10 flex flex-col justify-between text-left">
             <div>
               <h2 className="text-lg font-bold text-gold-500 mb-2">Our Digital Mission</h2>
               <p className="text-xs md:text-sm text-gray-400 leading-relaxed mb-4">
-                We are archiving and preserving spiritual poetry. Utilizing advanced AI OCR models, we digitize text exactly from historical collections like Hadaiq-e-Bakhshish and Wasail-e-Bakhshish, translating odes into multiple languages for readers globally.
+                We digitize printed Hamd, Naat, and Kalam collections such as Hadaiq-e-Bakhshish and Wasail-e-Bakhshish, then present the lyrics in Urdu, Hindi, Bangla, and Roman English. The archive is a reading aid produced with an AI-assisted pipeline, and we welcome corrections.
               </p>
             </div>
             <Link
@@ -438,7 +427,7 @@ export default async function Home() {
         </div>
 
         {/* Spiritual Couplet Showcase */}
-        <section aria-label="Spiritual Couplet Showcase" className="w-full max-w-6xl p-8 md:p-12 rounded-3xl bg-gradient-to-br from-emerald-950/40 via-emerald-900/10 to-emerald-950/40 border border-emerald-500/10 text-center relative overflow-hidden mt-8 shadow-2xl">
+        <section aria-label="Spiritual Couplet Showcase" className="w-full p-8 md:p-12 rounded-3xl bg-gradient-to-br from-emerald-950/40 via-emerald-900/10 to-emerald-950/40 border border-emerald-500/10 text-center relative overflow-hidden mt-8 shadow-2xl">
           <div aria-hidden="true" className="absolute top-0 right-0 w-32 h-32 bg-gold-500/5 rounded-full blur-2xl pointer-events-none"></div>
           <div aria-hidden="true" className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-2xl pointer-events-none"></div>
           

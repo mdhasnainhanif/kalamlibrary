@@ -65,7 +65,7 @@ export default function TermsAndConditionsPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <main id="main-content" className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 flex-grow relative text-left">
+      <main id="main-content" className="container py-8 md:py-16 flex-grow relative text-left">
         <GeometricPattern />
 
         {/* Breadcrumb */}
@@ -172,7 +172,7 @@ export default function TermsAndConditionsPage() {
               Textual Accuracy &amp; Poetic Variants
             </h2>
             <p className="mb-3">
-              Historical Islamic poetry has been transcribed and passed down through generations across diwans, manuscripts, and oral recitations. As a natural result, different published editions may contain subtle variations in wording, stanza sequencing, or diacritical marks (A'raab).
+              Historical Islamic poetry has been transcribed and passed down through generations across diwans, manuscripts, and oral recitations. As a natural result, different published editions may contain subtle variations in wording, stanza sequencing, or diacritical marks (A&apos;raab).
             </p>
             <p className="mb-3">
               Our team takes meticulous care to cross-reference multiple authentic sources and verify translations. However, all content is provided on an <em className="text-gray-200 font-medium">“as is”</em> educational basis.

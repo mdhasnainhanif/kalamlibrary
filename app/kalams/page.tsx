@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { supabase } from "@/utils/supabase";
 import { SITE_CONFIG, buildCanonicalUrl, buildBreadcrumbJsonLd } from "@/utils/seoConfig";
+import { kalamHref } from "@/utils/kalam";
 
 interface PageProps {
   searchParams: Promise<{
@@ -21,18 +22,18 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
   const activeLetter = letter ? letter.toUpperCase() : undefined;
   const filterDesc = activeLetter ? ` starting with letter '${activeLetter}'` : "";
 
-  const title = `All Kalam & Naat Lyrics Directory${currentPage > 1 ? ` (Page ${currentPage})` : ""}${filterDesc} - Kalam Library`;
-  const description = `Explore the complete alphabetical index of over 700+ authentic Islamic Naats, Hamd, and Sufi Kalam lyrics${filterDesc}. Read in Roman English, Urdu Nastaliq, Hindi, and Bangla.`;
+  const title = `Naat & Kalam Lyrics Directory${currentPage > 1 ? ` (Page ${currentPage})` : ""}`;
+  const description = `Alphabetical directory of Islamic Naat, Hamd, and Sufi Kalam lyrics${filterDesc}. Read each poem in Roman English, Urdu Nastaliq, Hindi, and Bangla.`;
 
   const queryParams: Record<string, string | number> = {};
   if (currentPage > 1) queryParams.page = currentPage;
-  if (activeLetter) queryParams.letter = activeLetter;
 
   const canonicalUrl = buildCanonicalUrl("/kalams", Object.keys(queryParams).length > 0 ? queryParams : undefined);
 
   return {
     title,
     description,
+    robots: activeLetter ? { index: false, follow: true } : undefined,
     alternates: {
       canonical: canonicalUrl,
     },
@@ -68,7 +69,11 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
   let query = supabase
     .from("kalams")
     .select("*, authors(*)", { count: "exact" })
-    .order("primary_title_roman", { ascending: true });
+    .order("primary_title_roman", { ascending: true })
+    .not("primary_title_roman", "in", "(Ayzan,Deegar,Qata,Rubai,Test Title XYZ,Hadaiq-e-Bakhshish Hissa Dom)")
+    .not("primary_title_roman", "ilike", "Radeef%")
+    .not("primary_title_roman", "ilike", "Tareekh-e-Tab%")
+    .not("slug", "ilike", "deegar%");
 
   if (activeLetter) {
     query = query.ilike("primary_title_roman", `${activeLetter}%`);
@@ -78,14 +83,7 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
   const to = from + PAGE_SIZE - 1;
 
   const { data: rawKalams, count, error } = await query.range(from, to);
-
-  const kalams = (rawKalams || []).filter(
-    (k) =>
-      k.primary_title_roman.toLowerCase().trim() !== "deegar" &&
-      k.primary_title_urdu?.trim() !== "دیگر" &&
-      !k.slug.startsWith("deegar") &&
-      !k.slug.startsWith("digar")
-  );
+  const kalams = rawKalams || [];
 
   const totalCount = count || 0;
   const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
@@ -124,7 +122,7 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <main id="main-content" className="w-full max-w-6xl mx-auto px-4 py-8 md:py-12 flex-1">
+      <main id="main-content" className="container py-8 md:py-12 flex-1">
         {/* Breadcrumb Navigation */}
         <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center justify-center gap-2">
           <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
@@ -141,7 +139,10 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
             Browse through our complete digital archive of devotional Naats, Manqabats, and Hamd. Select a poem to read full lyrics in multiple scripts.
           </p>
           <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/15 text-xs text-emerald-300 font-medium">
-            <span>{totalCount} Total Kalams Archived</span>
+            <span>
+              {totalCount} Naats &amp; Kalams
+              {totalPages > 1 ? ` · Page ${currentPage} of ${totalPages} ` : ""}
+            </span>
           </div>
         </header>
 
@@ -192,7 +193,7 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
             )}
           </div>
         ) : (
-          <section aria-label="Kalam List" className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <section aria-label="Kalam List" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {kalams.map((kalam) => {
               const authorData = Array.isArray(kalam.authors) ? kalam.authors[0] : kalam.authors;
               const authorName = authorData ? authorData.name_roman : "Unknown Poet";
@@ -200,16 +201,16 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
               return (
                 <Link
                   key={kalam.id}
-                  href={`/kalam/${kalam.slug}`}
+                  href={kalamHref(kalam.slug)}
                   aria-label={`Read ${kalam.primary_title_roman} lyrics by ${authorName}`}
-                  className="p-4 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex flex-col justify-between h-32 text-left group"
+                  className="kalam-list-card p-4 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex flex-col justify-between min-h-32 text-left group"
                 >
-                  <div>
-                    <h2 className="font-semibold text-gray-100 group-hover:text-gold-500 transition-colors text-sm line-clamp-2">
+                  <div className="kalam-list-card__body">
+                    <h2 className="kalam-list-title font-semibold text-gray-100 group-hover:text-gold-500 transition-colors text-sm">
                       {kalam.primary_title_roman}
                     </h2>
                     {kalam.primary_title_urdu && (
-                      <span lang="ur" className="text-sm text-emerald-400/80 font-urdu mt-1 block truncate" dir="rtl">
+                      <span lang="ur" className="kalam-list-urdu text-sm text-emerald-400/80 font-urdu mt-1" dir="rtl">
                         {kalam.primary_title_urdu}
                       </span>
                     )}

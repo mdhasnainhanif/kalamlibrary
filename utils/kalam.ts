@@ -1,0 +1,235 @@
+/** Shared kalam listing, slug, and SEO helpers. */
+
+export const FEATURED_KALAM_SLUGS = [
+  "mustafa-jaan-e-rehmat-pe-lakhon-salaam",
+  "sair-e-gulshan-kaun-dekhe-dasht-e-taiba-chhor-kar",
+  "noor-wala-aaya-hai-hoor-le-kar-aaya-hai",
+  "aamad-e-mustafa-marhaba-marhaba",
+  "anbiya-ke-sarwar-o-sardar-par-lakhon-salam",
+  "ae-shahanshah-e-madina-assalatu-wassalam",
+  "ya-nabi-mujh-ko-madeene-mein-bulana-baar-baar",
+  "tajdar-e-haram-ae-shehanshah-e-deen-tum-pe-har-dam-karoron-durood-o-salam",
+] as const;
+
+/** Popular naats shown when the search box is focused with no query. */
+export const SEARCH_SUGGESTIONS: ReadonlyArray<{
+  title: string;
+  slug: string;
+  poet?: string;
+}> = [
+  {
+    title: "Mustafa Jaan-e-Rehmat Pe Lakhon Salaam",
+    slug: "mustafa-jaan-e-rehmat-pe-lakhon-salaam",
+    poet: "Ala Hazrat Imam Ahmad Raza Khan",
+  },
+  {
+    title: "Sair-e-Gulshan Kaun Dekhe Dasht-e-Taiba Chhor Kar",
+    slug: "sair-e-gulshan-kaun-dekhe-dasht-e-taiba-chhor-kar",
+    poet: "Ala Hazrat Imam Ahmad Raza Khan",
+  },
+  {
+    title: "Noor Wala Aaya Hai Hoor Le Kar Aaya Hai",
+    slug: "noor-wala-aaya-hai-hoor-le-kar-aaya-hai",
+    poet: "Maulana Ilyas Attar Qadri",
+  },
+  {
+    title: "Aamad-e-Mustafa Marhaba Marhaba",
+    slug: "aamad-e-mustafa-marhaba-marhaba",
+    poet: "Ala Hazrat Imam Ahmad Raza Khan",
+  },
+  {
+    title: "Anbiya Ke Sarwar o Sardar Par Lakhon Salam",
+    slug: "anbiya-ke-sarwar-o-sardar-par-lakhon-salam",
+    poet: "Ala Hazrat Imam Ahmad Raza Khan",
+  },
+  {
+    title: "Ae Shahanshah-e-Madina Assalatu Wassalam",
+    slug: "ae-shahanshah-e-madina-assalatu-wassalam",
+    poet: "Ala Hazrat Imam Ahmad Raza Khan",
+  },
+  {
+    title: "Ya Nabi Mujh Ko Madine Mein Bulana Baar Baar",
+    slug: "ya-nabi-mujh-ko-madeene-mein-bulana-baar-baar",
+    poet: "Ala Hazrat Imam Ahmad Raza Khan",
+  },
+  {
+    title: "Tajdar-e-Haram Ae Shehanshah-e-Deen",
+    slug: "tajdar-e-haram-ae-shehanshah-e-deen-tum-pe-har-dam-karoron-durood-o-salam",
+    poet: "Ala Hazrat Imam Ahmad Raza Khan",
+  },
+  {
+    title: "Peer-o-Murshid Mere Janab-e-Raza",
+    slug: "peer-o-murshid-mere-janab-e-raza",
+    poet: "Ala Hazrat Imam Ahmad Raza Khan",
+  },
+  {
+    title: "Momin o Waqt-e-Adab Hai Aamad-e-Mehboob-e-Rab Hai",
+    slug: "momin-o-waqt-e-adab-hai-aamad-e-mehboob-e-rab-hai",
+    poet: "Ala Hazrat Imam Ahmad Raza Khan",
+  },
+];
+
+const EXACT_JUNK_TITLES = new Set([
+  "ayzan",
+  "deegar",
+  "digar",
+  "qata",
+  "qatah",
+  "qitah",
+  "rubai",
+  "rubaiyat",
+  "hadaiq-e-bakhshish hissa dom",
+  "hadaiq e bakhshish hissa dom",
+  "test title xyz",
+]);
+
+const JUNK_TITLE_PREFIXES = [
+  "radeef ",
+  "radeef-",
+  "radeef-ul",
+  "radeef-us",
+  "radeef-ush",
+  "radeef-ad",
+  "radeef-al",
+  "radeef-ar",
+  "radeef-az",
+  "tareekh-e-tab",
+  "tareekh e tab",
+];
+
+const JUNK_SLUG_PREFIXES = [
+  "deegar",
+  "digar",
+  "ayzan",
+  "radeef-",
+  "test-title",
+  "hadaiq-e-bakhshish-hissa",
+  "tareekh-e-tab-",
+];
+
+export type KalamLike = {
+  slug?: string | null;
+  primary_title_roman?: string | null;
+  primary_title_urdu?: string | null;
+};
+
+export function isIndexableKalam(kalam: KalamLike): boolean {
+  const title = (kalam.primary_title_roman || "").toLowerCase().trim();
+  const slug = (kalam.slug || "").toLowerCase();
+
+  if (!title || !slug) return false;
+  if (EXACT_JUNK_TITLES.has(title)) return false;
+  if (title.includes("test title")) return false;
+  if (JUNK_TITLE_PREFIXES.some((prefix) => title.startsWith(prefix))) return false;
+  if (JUNK_SLUG_PREFIXES.some((prefix) => slug === prefix || slug.startsWith(prefix))) return false;
+  return true;
+}
+
+export function filterIndexableKalams<T extends KalamLike>(kalams: T[] | null | undefined): T[] {
+  return (kalams || []).filter(isIndexableKalam);
+}
+
+/** Strip honorifics and unsafe characters; cap extreme OCR slugs. */
+export function cleanKalamSlug(rawSlug: string): string {
+  let slug = rawSlug;
+  try {
+    slug = decodeURIComponent(rawSlug);
+  } catch {
+    slug = rawSlug;
+  }
+
+  slug = slug
+    .replace(/[\uFDFA\uFDFB\uFDFDﷺ]/g, "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/[-\s]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+  if (slug.length > 90) {
+    const trimmed = slug.slice(0, 90);
+    const lastHyphen = trimmed.lastIndexOf("-");
+    slug = lastHyphen > 40 ? trimmed.slice(0, lastHyphen) : trimmed;
+  }
+
+  return slug;
+}
+
+export function kalamHref(slug: string, lang?: string): string {
+  const cleaned = cleanKalamSlug(slug);
+  return lang ? `/kalam/${cleaned}/${lang}` : `/kalam/${cleaned}`;
+}
+
+export function truncateAtWord(text: string, max = 155): string {
+  const normalized = text.replace(/\s+/g, " ").trim();
+  if (normalized.length <= max) return normalized;
+  const slice = normalized.slice(0, max);
+  const lastSpace = slice.lastIndexOf(" ");
+  const clipped = (lastSpace > Math.floor(max * 0.6) ? slice.slice(0, lastSpace) : slice).replace(/[,\s;:.]+$/, "");
+  return `${clipped}…`;
+}
+
+export function firstCouplet(lyrics: string | null | undefined): string {
+  if (!lyrics) return "";
+  return lyrics
+    .split(/\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .slice(0, 2)
+    .join(" / ");
+}
+
+export function displayAuthorName(name: string): string {
+  if (/imam ahmad raza/i.test(name) && !/ala hazrat/i.test(name)) {
+    return `Ala Hazrat ${name}`;
+  }
+  return name;
+}
+
+export function inferredSourceCollection(authorName?: string | null): string | null {
+  if (!authorName) return null;
+  const name = authorName.toLowerCase();
+  if (name.includes("ahmad raza")) return "Hadaiq-e-Bakhshish";
+  if (name.includes("hasan raza")) return "Zauq-e-Naat / classical naat collections";
+  if (name.includes("mustafa raza")) return "Saman-e-Bakhshish";
+  if (name.includes("ilyas") || name.includes("attar")) return "Wasail-e-Bakhshish";
+  if (name.includes("ahmad yar")) return "classical naat collections";
+  return null;
+}
+
+export const LYRIC_LANGUAGES = {
+  "roman-english": {
+    code: "roman_english",
+    label: "Roman English",
+    dir: "ltr" as const,
+    locale: "en-US",
+    htmlLang: "en",
+    path: "roman-english",
+  },
+  urdu: {
+    code: "urdu",
+    label: "Urdu (Nastaliq)",
+    dir: "rtl" as const,
+    locale: "ur-PK",
+    htmlLang: "ur",
+    path: "urdu",
+  },
+  hindi: {
+    code: "hindi",
+    label: "Hindi (Devanagari)",
+    dir: "ltr" as const,
+    locale: "hi-IN",
+    htmlLang: "hi",
+    path: "hindi",
+  },
+  bangla: {
+    code: "bangla",
+    label: "Bangla (Bengali)",
+    dir: "ltr" as const,
+    locale: "bn-BD",
+    htmlLang: "bn",
+    path: "bangla",
+  },
+} as const;
+
+export type LyricLangKey = keyof typeof LYRIC_LANGUAGES;

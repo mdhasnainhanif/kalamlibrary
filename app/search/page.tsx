@@ -43,7 +43,7 @@ export default async function SearchResultsPage({ searchParams }: SearchPageProp
   }
 
   return (
-    <main id="main-content" className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 flex-grow">
+    <main id="main-content" className="container py-8 md:py-16 flex-grow">
       {/* Header section */}
       <div className="text-center mb-10">
         <h1 className="text-3xl md:text-4xl font-bold text-gold-500 mb-4">
@@ -95,14 +95,14 @@ export default async function SearchResultsPage({ searchParams }: SearchPageProp
                     key={result.kalam_id}
                     href={kalamHref}
                     aria-label={`Read ${result.matched_title} lyrics by ${result.author_name} in ${result.language.replace("_", " ")}`}
-                    className="p-5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex flex-col justify-between h-36 group"
+                    className="kalam-list-card p-5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex flex-col justify-between min-h-36 group"
                   >
-                    <div>
-                      <h2 className="font-bold text-gray-100 group-hover:text-gold-500 transition-colors line-clamp-1 text-base">
+                    <div className="kalam-list-card__body">
+                      <h2 className="kalam-list-title kalam-list-title--1 font-bold text-gray-100 group-hover:text-gold-500 transition-colors text-base">
                         {result.matched_title}
                       </h2>
                       {result.title !== result.matched_title && (
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-gray-400 mt-1 truncate">
                           Original: {result.title}
                         </p>
                       )}

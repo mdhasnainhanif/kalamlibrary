@@ -60,7 +60,7 @@ export default function AboutPage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <main id="main-content" className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 flex-grow relative text-left">
+      <main id="main-content" className="container py-8 md:py-16 flex-grow relative text-left">
         <GeometricPattern />
 
         {/* Breadcrumb */}
@@ -111,15 +111,15 @@ export default function AboutPage() {
 
         {/* Ingestion Engine / Technology */}
         <section className="bg-emerald-900/5 border border-emerald-500/10 rounded-2xl p-6 md:p-8">
-          <h2 className="text-xl md:text-2xl font-bold text-gold-500 mb-4">AI-Assisted Digitation Ingestion</h2>
+          <h2 className="text-xl md:text-2xl font-bold text-gold-500 mb-4">AI-Assisted Digitization</h2>
           <p className="text-sm md:text-base text-gray-300 leading-relaxed mb-4">
-            Instead of manually typing thousands of pages of old scanned books (which often introduces human errors), we developed a custom <strong className="text-gray-100 font-semibold">Stateful AI OCR Parsing Pipeline</strong>.
+            Instead of typing thousands of pages by hand, we scan printed editions and run an AI-assisted OCR pipeline that transcribes each line and produces matching Roman English, Hindi, and Bangla readings.
           </p>
           <p className="text-sm md:text-base text-gray-300 leading-relaxed mb-4">
-            Our ingestion tools render high-resolution page buffers and process them in state-tracked batches using <strong className="text-gray-100 font-semibold">Gemini 3.1 Flash Lite</strong> API.
+            This is a reading archive, not a certified critical edition. OCR and machine translation of religious poetry can introduce errors. Please use <Link href="/contact?subject=Report%20an%20error" className="text-emerald-400 hover:text-gold-500 underline underline-offset-2">Report an error</Link> if you find a mistake.
           </p>
           <p className="text-sm md:text-base text-gray-300 leading-relaxed">
-            The model reads the printed pages, transcribes the lyrics line-by-line, and translates them into matching stanzas in all target scripts, which are then synchronized to our PostgreSQL database.
+            Human review is welcome. Contemporary collections remain the copyright of their authors and publishers; we transcribe printed copies for study and will remove material on a valid request.
           </p>
         </section>
 
@@ -131,8 +131,8 @@ export default function AboutPage() {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/5">
-              <h3 className="font-bold text-gold-500 text-sm md:text-base mb-1">Imam Ahmad Raza Khan</h3>
-              <p className="text-xs text-gray-400">Author of the classic 12-volume collection <em>Hadaiq-e-Bakhshish</em>, a masterpiece of devotional poetry.</p>
+              <h3 className="font-bold text-gold-500 text-sm md:text-base mb-1">Ala Hazrat Imam Ahmad Raza Khan</h3>
+              <p className="text-xs text-gray-400">Author of <em>Hadaiq-e-Bakhshish</em>, a multi-part Hamd and Naat collection commonly published in two or three parts (hissas), not a 12-volume set.</p>
             </div>
             <div className="p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/5">
               <h3 className="font-bold text-gold-500 text-sm md:text-base mb-1">Maulana Ilyas Attar Qadri</h3>

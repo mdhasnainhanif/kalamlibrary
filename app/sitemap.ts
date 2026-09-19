@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 import { supabase } from "@/utils/supabase";
 import { SITE_CONFIG } from "@/utils/seoConfig";
+import { cleanKalamSlug, filterIndexableKalams, LYRIC_LANGUAGES } from "@/utils/kalam";
 
 function slugify(text: string) {
   return text
@@ -9,8 +10,6 @@ function slugify(text: string) {
     .replace(/[^\w\s-]/g, "")
     .replace(/[-\s]+/g, "-");
 }
-
-const SUPPORTED_LANGUAGES = ["urdu", "hindi", "bangla", "roman-english"];
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_CONFIG.url;
@@ -34,6 +33,30 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: new Date(),
       changeFrequency: "weekly",
       priority: 0.9,
+    },
+    {
+      url: `${baseUrl}/lyrics/roman-english`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/lyrics/urdu`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/lyrics/hindi`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.85,
+    },
+    {
+      url: `${baseUrl}/lyrics/bangla`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.85,
     },
     {
       url: `${baseUrl}/about`,
@@ -94,21 +117,31 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .order("created_at", { ascending: false });
 
     if (kalams) {
-      kalams.forEach((kalam) => {
-        const lastMod = kalam.created_at ? new Date(kalam.created_at) : new Date();
-
-        // Canonical primary kalam page
+      const indexable = filterIndexableKalams(kalams);
+      const directoryPages = Math.ceil(indexable.length / 48) || 1;
+      for (let page = 2; page <= directoryPages; page += 1) {
         kalamRoutes.push({
-          url: `${baseUrl}/kalam/${kalam.slug}`,
+          url: `${baseUrl}/kalams?page=${page}`,
+          lastModified: new Date(),
+          changeFrequency: "weekly",
+          priority: 0.7,
+        });
+      }
+
+      indexable.forEach((kalam) => {
+        const lastMod = kalam.created_at ? new Date(kalam.created_at) : new Date();
+        const slug = cleanKalamSlug(kalam.slug);
+
+        kalamRoutes.push({
+          url: `${baseUrl}/kalam/${slug}`,
           lastModified: lastMod,
           changeFrequency: "weekly",
           priority: 0.9,
         });
 
-        // Language script routes
-        SUPPORTED_LANGUAGES.forEach((lang) => {
+        Object.keys(LYRIC_LANGUAGES).forEach((lang) => {
           kalamRoutes.push({
-            url: `${baseUrl}/kalam/${kalam.slug}/${lang}`,
+            url: `${baseUrl}/kalam/${slug}/${lang}`,
             lastModified: lastMod,
             changeFrequency: "monthly",
             priority: 0.8,

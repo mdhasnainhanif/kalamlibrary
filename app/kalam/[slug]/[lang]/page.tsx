@@ -1,8 +1,18 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { supabase } from "@/utils/supabase";
+import { notFound, redirect } from "next/navigation";
+import KalamTranslationsIndex from "@/components/KalamTranslationsIndex";
 import LyricsDisplay from "@/components/LyricsDisplay";
+import ReportErrorLink from "@/components/ReportErrorLink";
+import { getKalamPageData } from "@/utils/kalamData";
+import {
+  cleanKalamSlug,
+  displayAuthorName,
+  firstCouplet,
+  inferredSourceCollection,
+  kalamHref,
+  truncateAtWord,
+} from "@/utils/kalam";
 import {
   SITE_CONFIG,
   buildCanonicalUrl,
@@ -45,85 +55,7 @@ interface PageProps {
 export const revalidate = 3600; // Cache for 1 hour
 
 async function getKalamData(rawSlug: string) {
-  let decodedSlug = rawSlug;
-  try {
-    decodedSlug = decodeURIComponent(rawSlug);
-  } catch {
-    decodedSlug = rawSlug;
-  }
-
-  // 1. Query with decoded slug
-  let { data: kalam } = await supabase
-    .from("kalams")
-    .select("*, authors(*)")
-    .eq("slug", decodedSlug)
-    .maybeSingle();
-
-  // 2. Fallback to raw slug if different
-  if (!kalam && rawSlug !== decodedSlug) {
-    const res = await supabase
-      .from("kalams")
-      .select("*, authors(*)")
-      .eq("slug", rawSlug)
-      .maybeSingle();
-    kalam = res.data;
-  }
-
-  // 3. Fallback without trailing unicode symbols (e.g. ﷺ)
-  if (!kalam) {
-    const normalized = decodedSlug.replace(/[^\w\s-]/g, "").trim();
-    if (normalized) {
-      const res = await supabase
-        .from("kalams")
-        .select("*, authors(*)")
-        .ilike("slug", `${normalized}%`)
-        .limit(1)
-        .maybeSingle();
-      kalam = res.data;
-    }
-  }
-
-  if (!kalam) {
-    return null;
-  }
-
-  const { data: translations, error: transError } = await supabase
-    .from("kalam_translations")
-    .select("*")
-    .eq("kalam_id", kalam.id);
-
-  if (transError || !translations) {
-    return null;
-  }
-
-  let relatedKalams: Array<{ id: string; slug: string; primary_title_roman: string; primary_title_urdu: string | null }> = [];
-  if (kalam.author_id) {
-    const { data: siblings } = await supabase
-      .from("kalams")
-      .select("id, slug, primary_title_roman, primary_title_urdu")
-      .eq("author_id", kalam.author_id)
-      .neq("id", kalam.id)
-      .limit(6);
-    if (siblings) {
-      relatedKalams = siblings.filter(
-        (k) =>
-          k.primary_title_roman.toLowerCase().trim() !== "deegar" &&
-          k.primary_title_urdu?.trim() !== "دیگر" &&
-          !k.slug.startsWith("deegar") &&
-          !k.slug.startsWith("digar")
-      );
-    }
-  }
-
-  // Handle Supabase relation typing
-  const authorData = Array.isArray(kalam.authors) ? kalam.authors[0] : kalam.authors;
-
-  return {
-    kalam,
-    author: authorData,
-    translations,
-    relatedKalams,
-  };
+  return getKalamPageData(rawSlug);
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -134,18 +66,22 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const data = await getKalamData(slug);
   if (!data) return {};
 
-  const { kalam, author, translations } = data;
+  const { kalam, author, translations, shouldNoindex, cleanSlug } = data;
   const currentTranslation = translations.find((t) => t.language === langConfig.code);
   const titleText = currentTranslation ? currentTranslation.title : kalam.primary_title_roman;
-  const authorName = author ? author.name_roman : "Unknown Poet";
-
-  const seoTitle = `${titleText} Lyrics in ${langConfig.label} | ${authorName}`;
-  const seoDesc = `Read authentic lyrics and translations of '${titleText}' composed by ${authorName} in ${langConfig.label} script on Kalam Library. Available in Roman English, Urdu, Hindi, and Bangla.`.slice(0, 155);
-  const canonicalUrl = buildCanonicalUrl(`/kalam/${slug}/${lang}`);
+  const authorName = author ? displayAuthorName(author.name_roman) : "Unknown Poet";
+  const opening = firstCouplet(currentTranslation?.lyrics);
+  const seoTitle = `${titleText} – Naat Lyrics in ${langConfig.label}`;
+  const seoDesc = truncateAtWord(
+    opening
+      ? `${opening}. ${titleText} by ${authorName} in ${langConfig.label}.`
+      : `Naat lyrics of ${titleText} by ${authorName} in ${langConfig.label}.`
+  );
+  const canonicalUrl = buildCanonicalUrl(kalamHref(cleanSlug, lang));
 
   const alternates: Record<string, string> = {};
   Object.keys(LANGUAGES_MAP).forEach((key) => {
-    alternates[LANGUAGES_MAP[key].locale] = buildCanonicalUrl(`/kalam/${slug}/${key}`);
+    alternates[LANGUAGES_MAP[key].locale] = buildCanonicalUrl(kalamHref(cleanSlug, key));
   });
 
   const ogImageUrl = buildOgImageUrl({
@@ -157,6 +93,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: seoTitle,
     description: seoDesc,
+    robots: shouldNoindex ? { index: false, follow: false } : undefined,
     alternates: {
       canonical: canonicalUrl,
       languages: alternates,
@@ -198,16 +135,23 @@ export default async function KalamPage({ params }: PageProps) {
     notFound();
   }
 
-  const { kalam, author, translations, relatedKalams } = data;
-  
+  const { kalam, author, translations, relatedKalams, shouldNoindex, cleanSlug } = data;
+  if (shouldNoindex) {
+    notFound();
+  }
+  if (cleanKalamSlug(slug) !== slug && cleanSlug === cleanKalamSlug(slug)) {
+    redirect(kalamHref(cleanSlug, lang));
+  }
+
   const activeTranslation = translations.find((t) => t.language === langConfig.code);
   if (!activeTranslation) {
     notFound();
   }
 
-  const authorName = author ? author.name_roman : "Unknown Poet";
+  const authorName = author ? displayAuthorName(author.name_roman) : "Unknown Poet";
   const authorSlug = author ? slugify(author.name_roman) : "";
-  const pageUrl = buildCanonicalUrl(`/kalam/${slug}/${lang}`);
+  const sourceCollection = inferredSourceCollection(author?.name_roman);
+  const pageUrl = buildCanonicalUrl(kalamHref(cleanSlug, lang));
 
   const kalamSchema = buildKalamJsonLd({
     title: activeTranslation.title || kalam.primary_title_roman,
@@ -238,7 +182,7 @@ export default async function KalamPage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
 
-      <main id="main-content" className="w-full max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 flex-1 flex flex-col">
+      <main id="main-content" className="container-narrow py-6 md:py-10 flex-1 flex flex-col min-w-0">
         {/* Navigation Breadcrumbs */}
         <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-400/80 mb-6 flex items-center justify-center flex-wrap gap-2">
           <Link href="/" className="hover:text-gold-500 transition-colors">Home</Link>
@@ -256,15 +200,14 @@ export default async function KalamPage({ params }: PageProps) {
 
         {/* Kalam Heading Panel */}
         <header className="text-center mb-8 border-b border-emerald-500/10 pb-6">
-          <h1 
-            lang={lang === "urdu" ? "ur" : lang === "hindi" ? "hi" : lang === "bangla" ? "bn" : "en"}
-            className={`text-2xl md:text-4xl font-bold text-gold-500 mb-3 tracking-wide leading-relaxed ${
-              lang === "urdu" ? "font-urdu" : "font-sans"
-            }`}
-            dir={langConfig.dir}
-          >
-            {activeTranslation.title}
+          <h1 className="kalam-page-title text-2xl md:text-4xl font-bold text-gold-500 mb-3 tracking-wide leading-relaxed font-sans">
+            {kalam.primary_title_roman} – Naat Lyrics in {langConfig.label}
           </h1>
+          {kalam.primary_title_urdu && (
+            <p lang="ur" className="kalam-page-title font-urdu text-xl md:text-2xl text-emerald-300 mb-3" dir="rtl">
+              {kalam.primary_title_urdu}
+            </p>
+          )}
           {author && (
             <p className="text-sm md:text-base text-gray-400">
               Written by{" "}
@@ -274,6 +217,11 @@ export default async function KalamPage({ params }: PageProps) {
               >
                 {authorName}
               </Link>
+            </p>
+          )}
+          {sourceCollection && (
+            <p className="text-xs text-gray-500 mt-2">
+              Source collection: <span className="text-gray-300">{sourceCollection}</span>
             </p>
           )}
         </header>
@@ -296,7 +244,7 @@ export default async function KalamPage({ params }: PageProps) {
                   <Link
                     key={key}
                     id={`tab-${key}`}
-                    href={`/kalam/${slug}/${key}`}
+                    href={kalamHref(cleanSlug, key)}
                     role="tab"
                     lang={config.locale.split("-")[0]}
                     dir={config.dir}
@@ -327,6 +275,14 @@ export default async function KalamPage({ params }: PageProps) {
           dir={langConfig.dir} 
         />
 
+        <ReportErrorLink title={kalam.primary_title_roman} />
+
+        <KalamTranslationsIndex
+          slug={cleanSlug}
+          translations={translations}
+          activeLanguage={langConfig.code}
+        />
+
         {/* More Kalam by Poet Cross-Linking Section */}
         {relatedKalams && relatedKalams.length > 0 && author && (
           <section aria-label="More Kalam by Poet" className="mt-12 pt-8 border-t border-emerald-500/10 w-full text-left">
@@ -349,14 +305,14 @@ export default async function KalamPage({ params }: PageProps) {
               {relatedKalams.map((sibling) => (
                 <Link
                   key={sibling.id}
-                  href={`/kalam/${sibling.slug}`}
-                  className="p-4 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex flex-col justify-between group"
+                  href={kalamHref(sibling.slug)}
+                  className="kalam-list-card p-4 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex flex-col justify-between group"
                 >
-                  <span className="text-sm font-semibold text-gray-200 group-hover:text-gold-500 transition-colors line-clamp-1">
+                  <span className="kalam-list-title kalam-list-title--1 text-sm font-semibold text-gray-200 group-hover:text-gold-500 transition-colors">
                     {sibling.primary_title_roman}
                   </span>
                   {sibling.primary_title_urdu && (
-                    <span lang="ur" className="text-xs text-emerald-400/80 font-urdu mt-1 truncate" dir="rtl">
+                    <span lang="ur" className="kalam-list-urdu text-xs text-emerald-400/80 font-urdu mt-1" dir="rtl">
                       {sibling.primary_title_urdu}
                     </span>
                   )}

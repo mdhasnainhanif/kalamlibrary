@@ -8,9 +8,12 @@ export const SITE_CONFIG = {
   url: "https://kalamlibrary.me",
   siteUrl: "https://kalamlibrary.me",
   domain: "kalamlibrary.me",
-  tagline: "Complete Islamic Poetry, Hamd & Naat Lyrics",
+  tagline: "Naat Lyrics in Urdu, Hindi, Roman English & Bangla",
   description:
-    "Explore authentic Islamic Naat, Hamd, and Sufi Kalam lyrics in Urdu, Hindi, Bangla, and Roman English. Read, search, and verify classic devotional poetry.",
+    "Read Islamic Naat, Hamd, and Sufi Kalam lyrics in Urdu Nastaliq, Hindi, Bangla, and Roman English. A digital archive of classic and contemporary naat poetry.",
+  instagramUrl: "https://www.instagram.com/kalamlibrary.me",
+  tiktokUrl: "https://www.tiktok.com/@kalam.library",
+  whatsappUrl: "https://wa.me/923174731957",
   keywords: [
     "naat lyrics",
     "kalam lyrics",
@@ -80,13 +83,14 @@ export function buildWebSiteSchema() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: SITE_CONFIG.name,
-    alternateName: ["KalamLibrary", "کلام لائبریری"],
+    alternateName: ["Kalam Library Naat Lyrics", "KalamLibrary", "کلام لائبریری"],
     url: SITE_CONFIG.url,
     description: SITE_CONFIG.description,
     publisher: {
       "@type": "Organization",
       name: SITE_CONFIG.name,
       url: SITE_CONFIG.url,
+      sameAs: [SITE_CONFIG.instagramUrl, SITE_CONFIG.tiktokUrl],
       logo: {
         "@type": "ImageObject",
         url: `${SITE_CONFIG.url}/icon.png`,
