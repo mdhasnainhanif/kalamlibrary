@@ -101,11 +101,26 @@ const JUNK_SLUG_PREFIXES = [
   "deegar",
   "digar",
   "ayzan",
+  "aizan",
   "radeef-",
   "test-title",
   "hadaiq-e-bakhshish-hissa",
   "tareekh-e-tab-",
+  "ghazal-qata",
+  "qata-e-band",
 ];
+
+/** Robots.txt / early reject — OCR headings, misc pages, not real naat URLs. */
+export const ROBOTS_DISALLOW_KALAM_PREFIXES = [
+  "/kalam/deegar",
+  "/kalam/digar",
+  "/kalam/ayzan",
+  "/kalam/aizan",
+  "/kalam/radeef-",
+  "/kalam/tareekh-e-tab-",
+  "/kalam/test-title",
+  "/kalam/hadaiq-e-bakhshish-hissa",
+] as const;
 
 export type KalamLike = {
   slug?: string | null;
@@ -122,8 +137,12 @@ export function isIndexableKalam(kalam: KalamLike): boolean {
   if (title.includes("test title")) return false;
   if (JUNK_TITLE_PREFIXES.some((prefix) => title.startsWith(prefix))) return false;
   if (JUNK_SLUG_PREFIXES.some((prefix) => slug === prefix || slug.startsWith(prefix))) return false;
+  if (/^deegar-\d+/.test(slug) || /^digar-\d+/.test(slug)) return false;
   return true;
 }
+
+/** Languages we submit in XML sitemap (hreflang pages stay discoverable via links). */
+export const SITEMAP_KALAM_LANG_PATHS = ["urdu"] as const;
 
 export function filterIndexableKalams<T extends KalamLike>(kalams: T[] | null | undefined): T[] {
   return (kalams || []).filter(isIndexableKalam);

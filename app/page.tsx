@@ -187,7 +187,7 @@ export default async function Home() {
         <GeometricPattern />
 
         {/* Hero Section */}
-        <div className="w-full max-w-4xl text-center mb-16 relative">
+        <div className="w-full max-w-4xl text-center mb-16 relative z-0">
           
           <h1 className="text-4xl md:text-6xl font-extrabold text-gold-500 mb-6 tracking-tight flex flex-col items-center gap-1.5">
             <span lang="ur" className="font-urdu text-3xl md:text-5xl text-emerald-400 font-bold block mb-2 min-h-[2.75rem] md:min-h-[4rem]" dir="rtl">

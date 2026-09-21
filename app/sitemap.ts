@@ -1,7 +1,13 @@
 import type { MetadataRoute } from "next";
 import { supabase } from "@/utils/supabase";
 import { SITE_CONFIG } from "@/utils/seoConfig";
-import { cleanKalamSlug, filterIndexableKalams, LYRIC_LANGUAGES } from "@/utils/kalam";
+import {
+  cleanKalamSlug,
+  FEATURED_KALAM_SLUGS,
+  filterIndexableKalams,
+  kalamHref,
+  SITEMAP_KALAM_LANG_PATHS,
+} from "@/utils/kalam";
 
 function slugify(text: string) {
   return text
@@ -14,7 +20,6 @@ function slugify(text: string) {
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_CONFIG.url;
 
-  // 1. Static high-value landing and directory routes
   const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
@@ -90,7 +95,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  // 2. Author / Poet profile routes
   let authorRoutes: MetadataRoute.Sitemap = [];
   try {
     const { data: authors } = await supabase
@@ -108,45 +112,56 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     console.error("Sitemap author fetch error:", err);
   }
 
-  // 3. Kalam canonical reader and language-specific routes
   const kalamRoutes: MetadataRoute.Sitemap = [];
   try {
     const { data: kalams } = await supabase
       .from("kalams")
-      .select("slug, created_at")
+      .select("id, slug, created_at")
       .order("created_at", { ascending: false });
 
     if (kalams) {
       const indexable = filterIndexableKalams(kalams);
-      const directoryPages = Math.ceil(indexable.length / 48) || 1;
-      for (let page = 2; page <= directoryPages; page += 1) {
-        kalamRoutes.push({
-          url: `${baseUrl}/kalams?page=${page}`,
-          lastModified: new Date(),
-          changeFrequency: "weekly",
-          priority: 0.7,
-        });
+      const featuredSet = new Set<string>(FEATURED_KALAM_SLUGS);
+
+      const ids = indexable.map((k) => k.id);
+      const urduKalamIds = new Set<string>();
+      if (ids.length > 0) {
+        const { data: urduRows } = await supabase
+          .from("kalam_translations")
+          .select("kalam_id")
+          .in("kalam_id", ids)
+          .eq("language", "urdu");
+        (urduRows || []).forEach((row) => urduKalamIds.add(row.kalam_id));
       }
 
-      indexable.forEach((kalam) => {
+      const sorted = [...indexable].sort((a, b) => {
+        const aFeat = featuredSet.has(cleanKalamSlug(a.slug)) ? 0 : 1;
+        const bFeat = featuredSet.has(cleanKalamSlug(b.slug)) ? 0 : 1;
+        return aFeat - bFeat;
+      });
+
+      sorted.forEach((kalam) => {
         const lastMod = kalam.created_at ? new Date(kalam.created_at) : new Date();
         const slug = cleanKalamSlug(kalam.slug);
+        const isFeatured = featuredSet.has(slug);
 
         kalamRoutes.push({
-          url: `${baseUrl}/kalam/${slug}`,
+          url: `${baseUrl}${kalamHref(slug)}`,
           lastModified: lastMod,
           changeFrequency: "weekly",
-          priority: 0.9,
+          priority: isFeatured ? 0.95 : 0.9,
         });
 
-        Object.keys(LYRIC_LANGUAGES).forEach((lang) => {
-          kalamRoutes.push({
-            url: `${baseUrl}/kalam/${slug}/${lang}`,
-            lastModified: lastMod,
-            changeFrequency: "monthly",
-            priority: 0.8,
-          });
-        });
+        if (urduKalamIds.has(kalam.id)) {
+          for (const langPath of SITEMAP_KALAM_LANG_PATHS) {
+            kalamRoutes.push({
+              url: `${baseUrl}${kalamHref(slug, langPath)}`,
+              lastModified: lastMod,
+              changeFrequency: "monthly",
+              priority: isFeatured ? 0.9 : 0.85,
+            });
+          }
+        }
       });
     }
   } catch (err) {

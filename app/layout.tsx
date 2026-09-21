@@ -145,7 +145,7 @@ export default function RootLayout({
 
           <Navbar />
           <SearchHeroBanner />
-          <div className="flex-1 flex flex-col w-full min-h-[100dvh]">
+          <div className="relative z-0 flex-1 flex flex-col w-full min-h-[100dvh]">
             {children}
           </div>
           <Footer />

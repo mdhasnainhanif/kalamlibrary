@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { supabase } from "@/utils/supabase";
 import { SITE_CONFIG, buildCanonicalUrl, buildBreadcrumbJsonLd } from "@/utils/seoConfig";
+import SearchBar from "@/components/SearchBar";
 import { kalamHref } from "@/utils/kalam";
 
 interface PageProps {
@@ -138,6 +139,9 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
           <p className="text-sm md:text-base text-gray-300 max-w-2xl mx-auto leading-relaxed">
             Browse through our complete digital archive of devotional Naats, Manqabats, and Hamd. Select a poem to read full lyrics in multiple scripts.
           </p>
+          <div className="mt-6 mb-2 max-w-xl mx-auto w-full px-1">
+            <SearchBar />
+          </div>
           <div className="mt-4 inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/15 text-xs text-emerald-300 font-medium">
             <span>
               {totalCount} Naats &amp; Kalams

@@ -1,7 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import KalamTranslationsIndex from "@/components/KalamTranslationsIndex";
 import LyricsDisplay from "@/components/LyricsDisplay";
 import ReportErrorLink from "@/components/ReportErrorLink";
 import { getKalamPageData } from "@/utils/kalamData";
@@ -93,7 +92,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: seoTitle,
     description: seoDesc,
-    robots: shouldNoindex ? { index: false, follow: false } : undefined,
+    robots: shouldNoindex
+      ? { index: false, follow: false }
+      : { index: true, follow: true, googleBot: { index: true, follow: true } },
     alternates: {
       canonical: canonicalUrl,
       languages: alternates,
@@ -276,12 +277,6 @@ export default async function KalamPage({ params }: PageProps) {
         />
 
         <ReportErrorLink title={kalam.primary_title_roman} />
-
-        <KalamTranslationsIndex
-          slug={cleanSlug}
-          translations={translations}
-          activeLanguage={langConfig.code}
-        />
 
         {/* More Kalam by Poet Cross-Linking Section */}
         {relatedKalams && relatedKalams.length > 0 && author && (

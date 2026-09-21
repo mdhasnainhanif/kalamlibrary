@@ -24,7 +24,7 @@ export default function SearchHeroBanner() {
   return (
     <section
       aria-label="Search Kalam Library"
-      className="w-full relative z-20 overflow-visible border-b border-emerald-500/10 bg-gradient-to-b from-emerald-950/90 via-emerald-950/50 to-transparent"
+      className="w-full relative z-0 overflow-visible border-b border-emerald-500/10 bg-gradient-to-b from-emerald-950/90 via-emerald-950/50 to-transparent"
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -top-16 left-1/2 h-40 w-72 -translate-x-1/2 rounded-full bg-emerald-500/10 blur-3xl" />
@@ -53,7 +53,7 @@ export default function SearchHeroBanner() {
           Start typing to see instant suggestions, or pick a popular Naat from the list.
         </p>
 
-        <SearchBar className="relative z-30" />
+        <SearchBar />
       </div>
     </section>
   );

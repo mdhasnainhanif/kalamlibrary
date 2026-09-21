@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { ROBOTS_DISALLOW_KALAM_PREFIXES } from "@/utils/kalam";
 import { SITE_CONFIG } from "@/utils/seoConfig";
 
 export default function robots(): MetadataRoute.Robots {
@@ -47,6 +48,8 @@ export default function robots(): MetadataRoute.Robots {
           "/api/",
           "/_next/",
           "/search",
+          "/kalams?letter=",
+          ...ROBOTS_DISALLOW_KALAM_PREFIXES,
         ],
       },
       {

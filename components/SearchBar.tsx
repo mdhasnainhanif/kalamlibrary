@@ -129,7 +129,7 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
   return (
     <div
       ref={containerRef}
-      className={`relative w-full z-50 max-w-xl mx-auto ${className}`}
+      className={`relative w-full z-0 max-w-xl mx-auto ${className}`}
     >
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {announcement}
@@ -192,7 +192,7 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
           id="search-dropdown"
           role="listbox"
           aria-label="Popular Naat suggestions"
-          className="absolute left-0 right-0 w-full mt-2 rounded-2xl bg-emerald-950 border border-emerald-500/20 shadow-2xl overflow-hidden z-[100] max-h-80 overflow-y-auto"
+          className="absolute left-0 right-0 w-full mt-2 rounded-2xl bg-emerald-950 border border-emerald-500/20 shadow-2xl overflow-hidden z-50 max-h-80 overflow-y-auto"
         >
           <p className="px-5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-emerald-400/80">
             Popular Naats
@@ -227,7 +227,7 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
       {showResults && (
         <div
           id="search-dropdown"
-          className="absolute left-0 right-0 w-full mt-2 rounded-2xl bg-emerald-950 border border-emerald-500/20 shadow-2xl overflow-hidden z-[100] max-h-80 overflow-y-auto"
+          className="absolute left-0 right-0 w-full mt-2 rounded-2xl bg-emerald-950 border border-emerald-500/20 shadow-2xl overflow-hidden z-50 max-h-80 overflow-y-auto"
         >
           {results.length === 0 && !loading ? (
             <div className="px-5 py-4 text-sm text-gray-400 text-center">
