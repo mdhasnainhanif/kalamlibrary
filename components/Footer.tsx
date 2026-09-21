@@ -92,6 +92,9 @@ export default function Footer() {
               <Link href="/kalams" className="hover:text-gold-500 transition-colors">All Kalams</Link>
             </li>
             <li>
+              <Link href="/trending" className="hover:text-gold-500 transition-colors">Trending Naats</Link>
+            </li>
+            <li>
               <Link href="/authors" className="hover:text-gold-500 transition-colors">All Poets</Link>
             </li>
             <li>
