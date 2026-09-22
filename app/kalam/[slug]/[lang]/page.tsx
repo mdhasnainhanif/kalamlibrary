@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import LyricsDisplay from "@/components/LyricsDisplay";
+import AdSenseDisplay from "@/components/AdSenseDisplay";
 import ReportErrorLink from "@/components/ReportErrorLink";
 import { getKalamPageData } from "@/utils/kalamData";
 import {
@@ -275,6 +276,8 @@ export default async function KalamPage({ params }: PageProps) {
           lang={lang} 
           dir={langConfig.dir} 
         />
+
+        <AdSenseDisplay />
 
         <ReportErrorLink title={kalam.primary_title_roman} />
 

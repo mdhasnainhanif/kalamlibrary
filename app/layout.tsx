@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
 import { SITE_CONFIG, buildWebSiteSchema } from "@/utils/seoConfig";
+import { ADSENSE_SCRIPT_SRC } from "@/utils/adsConfig";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -155,11 +156,7 @@ export default function RootLayout({
         </ThemeProvider>
 
         {/* Ads + analytics after first paint so they cannot delay LCP or shove the footer */}
-        <Script
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7173654343893692"
-          strategy="lazyOnload"
-          crossOrigin="anonymous"
-        />
+        <Script src={ADSENSE_SCRIPT_SRC} strategy="lazyOnload" crossOrigin="anonymous" />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-Z7H5JF3KB9"
           strategy="lazyOnload"
