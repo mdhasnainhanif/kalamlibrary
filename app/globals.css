@@ -424,20 +424,20 @@ body::before {
   border-bottom-color: rgba(16, 185, 129, 0.2) !important;
 }
 
-/* Google AdSense Unfilled Collapse & Transparent Styling */
-.adsbygoogle {
+/* AdSense: no reserved white box; unfilled slots collapse in AdSenseDisplay (client) */
+.adsbygoogle,
+.adsbygoogle iframe {
   background: transparent !important;
 }
 
-/* Only collapse after Google marks the slot unfilled — do not hide :empty or ads never load */
-ins.adsbygoogle[data-ad-status="unfilled"],
-.adsbygoogle[data-ad-status="unfilled"] {
+ins.adsbygoogle[data-ad-status="unfilled"] {
   display: none !important;
   height: 0 !important;
   min-height: 0 !important;
   margin: 0 !important;
   padding: 0 !important;
   border: 0 !important;
+  overflow: hidden !important;
 }
 
 /* Custom scrollbar */
