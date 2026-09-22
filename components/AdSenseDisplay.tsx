@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { ADSENSE_CLIENT, ADSENSE_SLOT_FIRST } from "@/utils/adsConfig";
 
 declare global {
@@ -9,12 +9,14 @@ declare global {
   }
 }
 
+export type AdSenseResolveStatus = "pending" | "filled" | "unfilled";
+
 type AdSenseDisplayProps = {
   slot?: string;
-  format?: "auto" | "vertical";
-  /** inline = under lyrics; sidebar = desktop left/right gutter */
+  format?: "auto" | "rectangle";
   layout?: "inline" | "sidebar";
   className?: string;
+  onResolve?: (status: AdSenseResolveStatus) => void;
 };
 
 function requestAdFill(ins: HTMLModElement, pushed: { current: boolean }) {
@@ -29,15 +31,31 @@ function requestAdFill(ins: HTMLModElement, pushed: { current: boolean }) {
   }
 }
 
+function readAdStatus(ins: HTMLModElement): AdSenseResolveStatus {
+  const raw = ins.getAttribute("data-ad-status");
+  if (raw === "filled") return "filled";
+  if (raw === "unfilled") return "unfilled";
+  return "pending";
+}
+
 export default function AdSenseDisplay({
   slot = ADSENSE_SLOT_FIRST,
   format = "auto",
   layout = "inline",
   className = "",
+  onResolve,
 }: AdSenseDisplayProps) {
   const insRef = useRef<HTMLModElement>(null);
   const pushed = useRef(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const lastReported = useRef<AdSenseResolveStatus | null>(null);
+  const onResolveRef = useRef(onResolve);
+  onResolveRef.current = onResolve;
+
+  const report = (status: AdSenseResolveStatus) => {
+    if (lastReported.current === status) return;
+    lastReported.current = status;
+    onResolveRef.current?.(status);
+  };
 
   useEffect(() => {
     if (process.env.NODE_ENV !== "production") return;
@@ -46,15 +64,14 @@ export default function AdSenseDisplay({
     const ins = insRef.current;
     if (!ins) return;
 
-    const onStatus = () => {
-      const status = ins.getAttribute("data-ad-status");
-      if (status === "unfilled") setCollapsed(true);
-      if (status === "filled") setCollapsed(false);
-    };
+    lastReported.current = null;
+    report("pending");
 
-    const observer = new MutationObserver(onStatus);
+    const syncStatus = () => report(readAdStatus(ins));
+
+    const observer = new MutationObserver(syncStatus);
     observer.observe(ins, { attributes: true, attributeFilter: ["data-ad-status"] });
-    onStatus();
+    syncStatus();
 
     const attempt = () => requestAdFill(ins, pushed);
     attempt();
@@ -70,35 +87,35 @@ export default function AdSenseDisplay({
     };
   }, [slot]);
 
-  if (process.env.NODE_ENV !== "production" || collapsed) {
+  if (process.env.NODE_ENV !== "production") {
     return null;
   }
 
   const isSidebar = layout === "sidebar";
-  const isVertical = format === "vertical";
+  const isRectangle = format === "rectangle";
 
   return (
     <div
-      className={`flex justify-center items-start overflow-hidden bg-transparent ${
-        isSidebar ? "w-full my-0 min-h-0" : "my-6 w-full min-h-0"
+      className={`flex justify-center items-start overflow-hidden bg-transparent min-h-0 ${
+        isSidebar ? "w-full my-0" : "my-6 w-full"
       } ${className}`}
     >
       <ins
         ref={insRef}
-        className="adsbygoogle"
+        className="adsbygoogle ad-slot-host"
         style={{
           display: "block",
           background: "transparent",
-          ...(isSidebar
-            ? { width: 300, maxWidth: "100%" }
-            : isVertical
-              ? { width: "100%", minWidth: 160, maxWidth: 300, minHeight: 600 }
+          ...(isRectangle
+            ? { width: 300, height: 250 }
+            : isSidebar
+              ? { width: 300, maxWidth: "100%" }
               : { width: "100%", maxWidth: 728 }),
         }}
         data-ad-client={ADSENSE_CLIENT}
         data-ad-slot={slot}
-        data-ad-format={isVertical ? "vertical" : "auto"}
-        data-full-width-responsive={isVertical ? "false" : "true"}
+        data-ad-format={isRectangle ? "rectangle" : "auto"}
+        data-full-width-responsive={isRectangle ? "false" : "true"}
       />
     </div>
   );

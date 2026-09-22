@@ -424,12 +424,7 @@ body::before {
   border-bottom-color: rgba(16, 185, 129, 0.2) !important;
 }
 
-/* AdSense: no reserved white box; unfilled slots collapse in AdSenseDisplay (client) */
-.adsbygoogle,
-.adsbygoogle iframe {
-  background: transparent !important;
-}
-
+/* Unfilled slots: no layout gap (sidebar width stays 0 until filled in KalamPageAdLayout) */
 ins.adsbygoogle[data-ad-status="unfilled"] {
   display: none !important;
   height: 0 !important;
@@ -437,7 +432,6 @@ ins.adsbygoogle[data-ad-status="unfilled"] {
   margin: 0 !important;
   padding: 0 !important;
   border: 0 !important;
-  overflow: hidden !important;
 }
 
 /* Custom scrollbar */
