@@ -429,9 +429,9 @@ body::before {
   background: transparent !important;
 }
 
+/* Only collapse after Google marks the slot unfilled — do not hide :empty or ads never load */
 ins.adsbygoogle[data-ad-status="unfilled"],
-.adsbygoogle[data-ad-status="unfilled"],
-ins.adsbygoogle:empty {
+.adsbygoogle[data-ad-status="unfilled"] {
   display: none !important;
   height: 0 !important;
   min-height: 0 !important;

@@ -3,12 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { supabase } from "@/utils/supabase";
 import LyricsDisplay from "@/components/LyricsDisplay";
-import AdSenseDisplay from "@/components/AdSenseDisplay";
-import {
-  ADSENSE_SLOT_FIRST,
-  ADSENSE_SLOT_VERTICAL_LEFT,
-  ADSENSE_SLOT_VERTICAL_RIGHT,
-} from "@/utils/adsConfig";
+import KalamPageAdLayout from "@/components/KalamPageAdLayout";
 import ReportErrorLink from "@/components/ReportErrorLink";
 import { getKalamPageData } from "@/utils/kalamData";
 import {
@@ -279,23 +274,8 @@ export default async function KalamSlugPage({ params }: PageProps) {
           </div>
         )}
 
-        {/* 3-Column Layout: Left Vertical Ad (Desktop) + Kalam Center + Right Vertical Ad (Desktop) */}
-        <div className="w-full flex justify-center items-start gap-4 xl:gap-6 2xl:gap-8 relative">
-          {/* Left Vertical Ad (Desktop only - Sticky) */}
-          <aside
-            aria-label="Advertisement Left"
-            className="hidden xl:flex flex-col items-center w-[160px] 2xl:w-[200px] shrink-0 sticky top-24 self-start"
-          >
-            <AdSenseDisplay
-              slot={ADSENSE_SLOT_VERTICAL_LEFT}
-              format="vertical"
-              className="w-full"
-            />
-          </aside>
-
-          {/* Center Kalam Reading Area */}
-          <div className="w-full max-w-2xl lg:max-w-3xl flex-1 flex flex-col items-center min-w-0">
-            {/* Lyrics Content Display Panel with Font Controls (A+ / A-) & Utility Buttons */}
+        <KalamPageAdLayout
+          lyrics={
             <LyricsDisplay
               lyrics={primaryTranslation.lyrics}
               title={primaryTranslation.title}
@@ -303,66 +283,48 @@ export default async function KalamSlugPage({ params }: PageProps) {
               lang={currentLang}
               dir={currentDir}
             />
+          }
+        >
+          <ReportErrorLink title={kalam.primary_title_roman} />
 
-            {/* Mobile / Tablet Ad (Shown below lyrics only on screens < xl) */}
-            <div className="w-full xl:hidden">
-              <AdSenseDisplay slot={ADSENSE_SLOT_FIRST} format="auto" />
-            </div>
-
-            <ReportErrorLink title={kalam.primary_title_roman} />
-
-            {/* More Kalam by Poet Cross-Linking Section */}
-            {relatedKalams && relatedKalams.length > 0 && author && (
-              <section aria-label="More Kalam by Poet" className="mt-12 pt-8 border-t border-emerald-500/15 dark:border-emerald-500/10 w-full text-left">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-200 flex items-center gap-2">
-                    <span>More Kalam by {authorName}</span>
-                    <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
-                  </h2>
+          {relatedKalams && relatedKalams.length > 0 && author && (
+            <section aria-label="More Kalam by Poet" className="mt-12 pt-8 border-t border-emerald-500/15 dark:border-emerald-500/10 w-full text-left">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-lg md:text-xl font-bold text-gray-900 dark:text-gray-200 flex items-center gap-2">
+                  <span>More Kalam by {authorName}</span>
+                  <span aria-hidden="true" className="w-1.5 h-1.5 rounded-full bg-gold-500"></span>
+                </h2>
+                <Link
+                  href={`/author/${authorSlug}`}
+                  className="text-xs text-emerald-700 dark:text-emerald-400 hover:text-amber-700 dark:hover:text-gold-500 transition-colors font-medium flex items-center gap-1"
+                >
+                  <span>View all</span>
+                  <svg aria-hidden="true" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                {relatedKalams.map((sibling) => (
                   <Link
-                    href={`/author/${authorSlug}`}
-                    className="text-xs text-emerald-700 dark:text-emerald-400 hover:text-amber-700 dark:hover:text-gold-500 transition-colors font-medium flex items-center gap-1"
+                    key={sibling.id}
+                    href={kalamHref(sibling.slug)}
+                    className="kalam-list-card p-4 rounded-xl bg-white dark:bg-emerald-900/10 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 border border-emerald-500/20 dark:border-emerald-500/10 shadow-sm dark:shadow-none hover-gold-glow transition-all flex flex-col justify-between group"
                   >
-                    <span>View all</span>
-                    <svg aria-hidden="true" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </Link>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                  {relatedKalams.map((sibling) => (
-                    <Link
-                      key={sibling.id}
-                      href={kalamHref(sibling.slug)}
-                      className="kalam-list-card p-4 rounded-xl bg-white dark:bg-emerald-900/10 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 border border-emerald-500/20 dark:border-emerald-500/10 shadow-sm dark:shadow-none hover-gold-glow transition-all flex flex-col justify-between group"
-                    >
-                      <span className="kalam-list-title kalam-list-title--1 text-sm font-semibold text-gray-900 dark:text-gray-200 group-hover:text-amber-700 dark:group-hover:text-gold-500 transition-colors">
-                        {sibling.primary_title_roman}
+                    <span className="kalam-list-title kalam-list-title--1 text-sm font-semibold text-gray-900 dark:text-gray-200 group-hover:text-amber-700 dark:group-hover:text-gold-500 transition-colors">
+                      {sibling.primary_title_roman}
+                    </span>
+                    {sibling.primary_title_urdu && (
+                      <span lang="ur" className="kalam-list-urdu text-xs text-emerald-700 dark:text-emerald-400/80 font-urdu mt-1" dir="rtl">
+                        {sibling.primary_title_urdu}
                       </span>
-                      {sibling.primary_title_urdu && (
-                        <span lang="ur" className="kalam-list-urdu text-xs text-emerald-700 dark:text-emerald-400/80 font-urdu mt-1" dir="rtl">
-                          {sibling.primary_title_urdu}
-                        </span>
-                      )}
-                    </Link>
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
-
-          {/* Right Vertical Ad (Desktop only - Sticky) */}
-          <aside
-            aria-label="Advertisement Right"
-            className="hidden xl:flex flex-col items-center w-[160px] 2xl:w-[200px] shrink-0 sticky top-24 self-start"
-          >
-            <AdSenseDisplay
-              slot={ADSENSE_SLOT_VERTICAL_RIGHT}
-              format="vertical"
-              className="w-full"
-            />
-          </aside>
-        </div>
+                    )}
+                  </Link>
+                ))}
+              </div>
+            </section>
+          )}
+        </KalamPageAdLayout>
       </main>
     </>
   );
