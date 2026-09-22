@@ -210,8 +210,8 @@ export default function ServicesPage() {
             </p>
           </div>
 
-          {/* 4-Column Responsive Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* 2-Column Responsive Grid (2 cards in 1 row) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {softwareServices.map((service, index) => {
               const IconComponent = service.icon;
               return (

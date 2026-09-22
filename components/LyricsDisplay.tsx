@@ -53,28 +53,28 @@ export default function LyricsDisplay({
       <div
         role="toolbar"
         aria-label="Font size adjustment controls"
-        className="w-full flex items-center justify-between gap-3 mb-3 px-3 py-1.5 rounded-xl bg-emerald-950/50 border border-emerald-500/15 shadow-sm"
+        className="w-full flex items-center justify-between gap-3 mb-3 px-3 py-1.5 rounded-xl bg-white dark:bg-emerald-950/50 border border-emerald-500/20 dark:border-emerald-500/15 shadow-sm"
       >
-        <div className="text-xs text-gray-300 font-sans flex items-center gap-1.5 pl-1">
-          <svg aria-hidden="true" className="w-4 h-4 text-gold-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div className="text-xs text-gray-700 dark:text-gray-300 font-sans flex items-center gap-1.5 pl-1">
+          <svg aria-hidden="true" className="w-4 h-4 text-amber-600 dark:text-gold-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
           </svg>
           <span className="hidden sm:inline font-medium">Font Size:</span>
-          <span className="text-gold-500 font-bold" aria-live="polite">
+          <span className="text-amber-700 dark:text-gold-500 font-bold" aria-live="polite">
             {percentage}%
           </span>
         </div>
 
         {/* Font Control Buttons */}
         <div className="flex items-center gap-2">
-          <div className="flex items-center bg-emerald-100/70 dark:bg-emerald-900/60 p-1 rounded-lg border border-emerald-500/30 dark:border-emerald-500/20 shadow-inner">
+          <div className="flex items-center bg-emerald-50 dark:bg-emerald-900/60 p-1 rounded-lg border border-emerald-500/25 dark:border-emerald-500/20 shadow-inner">
             <button
               type="button"
               onClick={handleZoomOut}
               disabled={fontScale <= 0.75}
               aria-label="Decrease font size"
               title="Decrease font size (A-)"
-              className="px-3 py-1 text-xs md:text-sm font-black text-emerald-800 dark:text-emerald-300 hover:text-gold-600 dark:hover:text-gold-500 hover:bg-emerald-200/60 dark:hover:bg-emerald-800/60 rounded transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-0.5"
+              className="px-3 py-1 text-xs md:text-sm font-black text-emerald-800 dark:text-emerald-300 hover:text-amber-700 dark:hover:text-gold-500 hover:bg-emerald-200/60 dark:hover:bg-emerald-800/60 rounded transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-0.5"
             >
               <span>A</span>
               <span className="text-xs font-black">-</span>
@@ -86,7 +86,7 @@ export default function LyricsDisplay({
                 onClick={handleReset}
                 aria-label="Reset font size to default"
                 title="Reset font size"
-                className="px-2 py-1 text-[11px] font-semibold text-gray-600 dark:text-gray-400 hover:text-gold-600 dark:hover:text-gold-400 hover:bg-emerald-200/50 dark:hover:bg-emerald-800/60 rounded transition-all cursor-pointer"
+                className="px-2 py-1 text-[11px] font-semibold text-gray-600 dark:text-gray-400 hover:text-amber-700 dark:hover:text-gold-400 hover:bg-emerald-200/50 dark:hover:bg-emerald-800/60 rounded transition-all cursor-pointer"
               >
                 Reset
               </button>
@@ -98,7 +98,7 @@ export default function LyricsDisplay({
               disabled={fontScale >= 2.0}
               aria-label="Increase font size"
               title="Increase font size (A+)"
-              className="px-3 py-1 text-xs md:text-sm font-black text-emerald-800 dark:text-emerald-300 hover:text-gold-600 dark:hover:text-gold-500 hover:bg-emerald-200/60 dark:hover:bg-emerald-800/60 rounded transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-0.5"
+              className="px-3 py-1 text-xs md:text-sm font-black text-emerald-800 dark:text-emerald-300 hover:text-amber-700 dark:hover:text-gold-500 hover:bg-emerald-200/60 dark:hover:bg-emerald-800/60 rounded transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-0.5"
             >
               <span className="text-base font-black">A</span>
               <span className="text-xs font-black">+</span>
@@ -113,10 +113,10 @@ export default function LyricsDisplay({
         aria-label="Lyrics text"
         lang={htmlLang}
         dir={dir}
-        className={`w-full bg-emerald-900/10 border border-emerald-500/10 rounded-xl p-4 md:p-6 shadow-inner text-center whitespace-pre-line select-text transition-all duration-150 ${
+        className={`w-full bg-white dark:bg-emerald-900/10 border border-emerald-500/20 dark:border-emerald-500/10 rounded-2xl p-6 md:p-8 shadow-sm dark:shadow-inner text-center whitespace-pre-line select-text transition-all duration-150 ${
           lang === "urdu"
-            ? "kalam-urdu-lyrics text-emerald-100/90"
-            : "font-sans text-gray-200 tracking-wide leading-relaxed md:leading-loose"
+            ? "kalam-urdu-lyrics text-emerald-950 dark:text-emerald-100/90 font-bold md:font-semibold"
+            : "font-sans text-gray-900 dark:text-gray-200 tracking-wide leading-relaxed md:leading-loose font-medium"
         }`}
         style={{
           fontSize: `${currentFontSizePx}px`,

@@ -150,12 +150,12 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
           aria-expanded={isOpen}
           aria-controls="search-dropdown"
           aria-autocomplete="list"
-          className="w-full bg-emerald-950/80 border border-emerald-500/20 text-gray-100 placeholder-gray-400 focus:outline-none focus-visible:outline-none focus:border-gold-500/60 focus:ring-1 focus:ring-gold-500/40 hover:border-emerald-500/30 transition-colors [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden px-5 py-4 pl-12 pr-12 rounded-2xl shadow-lg text-sm md:text-base"
+          className="w-full bg-white dark:bg-emerald-950/80 border border-emerald-500/25 dark:border-emerald-500/20 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus-visible:outline-none focus:border-gold-500/60 focus:ring-1 focus:ring-gold-500/40 hover:border-emerald-500/40 transition-colors [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden px-5 py-4 pl-12 pr-12 rounded-2xl shadow-sm dark:shadow-lg text-sm md:text-base"
         />
         <button
           type="submit"
           aria-label="Submit search"
-          className="absolute top-1/2 -translate-y-1/2 left-4 text-gray-400 hover:text-gold-500 transition-colors cursor-pointer"
+          className="absolute top-1/2 -translate-y-1/2 left-4 text-emerald-700 dark:text-gray-400 hover:text-gold-500 transition-colors cursor-pointer"
         >
           {loading ? (
             <svg aria-hidden="true" className="animate-spin text-gold-500 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -178,7 +178,7 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
               setIsOpen(true);
               setAnnouncement(`${SEARCH_SUGGESTIONS.length} popular Naats suggested`);
             }}
-            className="absolute top-1/2 -translate-y-1/2 right-4 text-gray-400 hover:text-gray-200 cursor-pointer"
+            className="absolute top-1/2 -translate-y-1/2 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
           >
             <svg aria-hidden="true" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -192,9 +192,9 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
           id="search-dropdown"
           role="listbox"
           aria-label="Popular Naat suggestions"
-          className="absolute left-0 right-0 w-full mt-2 rounded-2xl bg-emerald-950 border border-emerald-500/20 shadow-2xl overflow-hidden z-50 max-h-80 overflow-y-auto"
+          className="absolute left-0 right-0 w-full mt-2 rounded-2xl bg-white dark:bg-emerald-950 border border-emerald-500/20 shadow-xl dark:shadow-2xl overflow-hidden z-50 max-h-80 overflow-y-auto"
         >
-          <p className="px-5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-emerald-400/80">
+          <p className="px-5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400/80">
             Popular Naats
           </p>
           <div className="py-1">
@@ -204,16 +204,16 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
                 href={kalamHref(item.slug)}
                 role="option"
                 onClick={() => setIsOpen(false)}
-                className="flex items-start gap-3 px-5 py-3 hover:bg-emerald-900/50 border-b border-emerald-500/5 last:border-0 group transition-colors"
+                className="flex items-start gap-3 px-5 py-3 hover:bg-emerald-50 dark:hover:bg-emerald-900/50 border-b border-emerald-500/10 dark:border-emerald-500/5 last:border-0 group transition-colors"
                 aria-label={`Read ${item.title}${item.poet ? ` by ${item.poet}` : ""}`}
               >
                 <TrendingIcon />
                 <div className="min-w-0 flex-1 text-left">
-                  <span className="block text-sm font-medium text-gray-100 group-hover:text-gold-500 transition-colors leading-snug">
+                  <span className="block text-sm font-medium text-gray-900 dark:text-gray-100 group-hover:text-amber-700 dark:group-hover:text-gold-500 transition-colors leading-snug">
                     {item.title}
                   </span>
                   {item.poet && (
-                    <span className="block text-[11px] text-gray-400 mt-0.5 truncate">
+                    <span className="block text-[11px] text-gray-500 dark:text-gray-400 mt-0.5 truncate">
                       {item.poet}
                     </span>
                   )}
@@ -227,10 +227,10 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
       {showResults && (
         <div
           id="search-dropdown"
-          className="absolute left-0 right-0 w-full mt-2 rounded-2xl bg-emerald-950 border border-emerald-500/20 shadow-2xl overflow-hidden z-50 max-h-80 overflow-y-auto"
+          className="absolute left-0 right-0 w-full mt-2 rounded-2xl bg-white dark:bg-emerald-950 border border-emerald-500/20 shadow-xl dark:shadow-2xl overflow-hidden z-50 max-h-80 overflow-y-auto"
         >
           {results.length === 0 && !loading ? (
-            <div className="px-5 py-4 text-sm text-gray-400 text-center">
+            <div className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400 text-center">
               No Naats found matching &quot;{query}&quot;
             </div>
           ) : (
@@ -240,18 +240,18 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
                   key={result.kalam_id}
                   href={`/kalam/${result.slug}/${getLanguagePath(result.language)}`}
                   onClick={() => setIsOpen(false)}
-                  className="flex flex-col px-5 py-3 hover:bg-emerald-900/50 border-b border-emerald-500/5 last:border-0 group transition-colors"
+                  className="flex flex-col px-5 py-3 hover:bg-emerald-50 dark:hover:bg-emerald-900/50 border-b border-emerald-500/10 dark:border-emerald-500/5 last:border-0 group transition-colors"
                   aria-label={`Read ${result.matched_title} by ${result.author_name} in ${result.language.replace("_", " ")}`}
                 >
-                  <span className="font-medium text-gray-100 group-hover:text-gold-500 transition-colors">
+                  <span className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-amber-700 dark:group-hover:text-gold-500 transition-colors">
                     {result.matched_title}
                   </span>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-gray-500 dark:text-gray-400">
                       by {result.author_name}
                     </span>
                     <span aria-hidden="true" className="w-1 h-1 rounded-full bg-emerald-500/30"></span>
-                    <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-900 text-emerald-300 font-semibold uppercase">
+                    <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-300 font-semibold uppercase">
                       {result.language.replace("_", " ")}
                     </span>
                   </div>

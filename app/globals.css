@@ -394,6 +394,52 @@ body::before {
   background: rgba(16, 185, 129, 0.3);
 }
 
+/* Light mode specific rules for kalam pages and search hero */
+.light .kalam-urdu-lyrics {
+  color: #064e3b !important;
+}
+
+.light #lyrics-panel {
+  background-color: #ffffff !important;
+  color: #1e293b !important;
+  border-color: rgba(16, 185, 129, 0.25) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
+}
+
+.light #lyrics-panel.kalam-urdu-lyrics,
+.light #lyrics-panel .kalam-urdu-lyrics {
+  color: #064e3b !important;
+}
+
+.light .text-emerald-100 {
+  color: #064e3b !important;
+}
+
+.light .text-emerald-200 {
+  color: #047857 !important;
+}
+
+.light .search-hero-banner {
+  background-image: linear-gradient(to bottom, rgba(236, 253, 245, 0.8), rgba(236, 253, 245, 0.2), transparent) !important;
+  border-bottom-color: rgba(16, 185, 129, 0.2) !important;
+}
+
+/* Google AdSense Unfilled Collapse & Transparent Styling */
+.adsbygoogle {
+  background: transparent !important;
+}
+
+ins.adsbygoogle[data-ad-status="unfilled"],
+.adsbygoogle[data-ad-status="unfilled"],
+ins.adsbygoogle:empty {
+  display: none !important;
+  height: 0 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

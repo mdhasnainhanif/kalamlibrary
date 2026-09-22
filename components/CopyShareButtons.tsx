@@ -82,14 +82,14 @@ export default function CopyShareButtons({ lyrics, title, author }: CopyShareBut
         type="button"
         onClick={handleCopy}
         aria-label={copied ? "Lyrics copied to clipboard" : "Copy full lyrics to clipboard"}
-        className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-emerald-900/60 border border-emerald-500/20 text-emerald-100 hover:bg-emerald-800/80 transition-all hover:border-emerald-400/40 shadow-sm cursor-pointer text-sm font-medium"
+        className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white dark:bg-emerald-900/60 border border-emerald-500/30 dark:border-emerald-500/20 text-emerald-800 dark:text-emerald-100 hover:bg-emerald-50 dark:hover:bg-emerald-800/80 transition-all hover:border-emerald-500/50 shadow-sm cursor-pointer text-sm font-medium"
       >
         {copied ? (
           <>
-            <svg aria-hidden="true" className="w-4 h-4 text-amber-500 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg aria-hidden="true" className="w-4 h-4 text-amber-600 dark:text-amber-500 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
-            <span className="text-amber-500">Copied!</span>
+            <span className="text-amber-600 dark:text-amber-500 font-semibold">Copied!</span>
           </>
         ) : (
           <>
@@ -105,7 +105,7 @@ export default function CopyShareButtons({ lyrics, title, author }: CopyShareBut
         type="button"
         onClick={handleShare}
         aria-label={shared ? "Link copied to clipboard" : "Share Kalam lyrics link"}
-        className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold-600/80 border border-gold-500/20 text-black hover:bg-gold-500 transition-all hover:scale-105 shadow-sm cursor-pointer text-sm font-semibold"
+        className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-gold-500 hover:bg-gold-400 dark:bg-gold-600/80 dark:hover:bg-gold-500 border border-gold-500/30 dark:border-gold-500/20 text-black transition-all hover:scale-105 shadow-sm cursor-pointer text-sm font-semibold"
       >
         <svg aria-hidden="true" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 10.742l4.028-2.014m0 0a3 3 0 10-2.243-4.077L6.445 6.66m4.267 2.068L8.684 13.25m0 0l4.028 2.014m0 0a3 3 0 102.243-4.077L14.755 13M6.445 15.34l-4.028 2.014m0 0a3 3 0 102.243 4.077l4.028-2.014" />
