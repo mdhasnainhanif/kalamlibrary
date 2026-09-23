@@ -9,6 +9,9 @@ import {
   SITEMAP_KALAM_LANG_PATHS,
 } from "@/utils/kalam";
 
+/** Always read kalams/authors from Supabase when /sitemap.xml is requested. */
+export const dynamic = "force-dynamic";
+
 function slugify(text: string) {
   return text
     .toLowerCase()
@@ -120,10 +123,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const kalamRoutes: MetadataRoute.Sitemap = [];
   try {
-    const { data: kalams } = await supabase
+    const { data: kalams, error: kalamError } = await supabase
       .from("kalams")
-      .select("id, slug, created_at")
+      .select("id, slug, primary_title_roman, created_at")
       .order("created_at", { ascending: false });
+
+    if (kalamError) {
+      console.error("Sitemap kalam fetch error:", kalamError);
+    }
 
     if (kalams) {
       const indexable = filterIndexableKalams(kalams);
