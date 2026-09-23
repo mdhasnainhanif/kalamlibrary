@@ -9,8 +9,7 @@ import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
 import { SITE_CONFIG, buildWebSiteSchema } from "@/utils/seoConfig";
-import { ADSENSE_CLIENT } from "@/utils/adsConfig";
-import AdSenseScript from "@/components/AdSenseScript";
+import { ADSENSE_CLIENT, ADSENSE_SCRIPT_SRC } from "@/utils/adsConfig";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -121,6 +120,11 @@ export default function RootLayout({
     >
       <head>
         <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
+        <script
+          async
+          src={ADSENSE_SCRIPT_SRC}
+          crossOrigin="anonymous"
+        />
         {/* Structured Data: WebSite & SearchAction for Google Sitelinks Search */}
         <script
           type="application/ld+json"
@@ -157,8 +161,7 @@ export default function RootLayout({
           <ThemeToggle />
         </ThemeProvider>
 
-        {/* Ads + analytics after first paint so they cannot delay LCP or shove the footer */}
-        <AdSenseScript />
+        {/* Analytics after first paint so it cannot delay LCP */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-Z7H5JF3KB9"
           strategy="lazyOnload"
