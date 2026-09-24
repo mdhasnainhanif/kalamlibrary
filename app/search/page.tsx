@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Metadata } from "next";
 import SearchBar from "@/components/SearchBar";
 import { searchKalams, SearchResultItem } from "@/utils/searchHelper";
+import { buildCanonicalUrl } from "@/utils/seoConfig";
 
 interface SearchPageProps {
   searchParams: Promise<{ q?: string }>;
@@ -21,7 +22,7 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
       follow: true,
     },
     alternates: {
-      canonical: `https://kalamlibrary.me/search${q ? `?q=${encodeURIComponent(q)}` : ""}`,
+      canonical: buildCanonicalUrl("/search", q ? { q } : undefined),
     },
   };
 }

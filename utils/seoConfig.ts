@@ -5,9 +5,9 @@
 
 export const SITE_CONFIG = {
   name: "Kalam Library",
-  url: "https://kalamlibrary.me",
-  siteUrl: "https://kalamlibrary.me",
-  domain: "kalamlibrary.me",
+  url: "https://www.kalamlibrary.me",
+  siteUrl: "https://www.kalamlibrary.me",
+  domain: "www.kalamlibrary.me",
   tagline: "Naat Lyrics in Urdu, Hindi, Roman English & Bangla",
   description:
     "Read Islamic Naat, Hamd, and Sufi Kalam lyrics in Urdu Nastaliq, Hindi, Bangla, and Roman English. A digital archive of classic and contemporary naat poetry.",

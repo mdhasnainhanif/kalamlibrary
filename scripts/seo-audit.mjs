@@ -24,7 +24,7 @@ function assert(condition, category, testName, details = "") {
 
 console.log("\n=======================================================");
 console.log("  KALAM LIBRARY TECHNICAL SEO AUDIT");
-console.log("  Target: https://kalamlibrary.me");
+console.log("  Target: https://www.kalamlibrary.me");
 console.log("=======================================================\n");
 
 // 1. Robots.ts verification
@@ -59,7 +59,7 @@ try {
   const seoConfigPath = path.join(rootDir, "utils", "seoConfig.ts");
   const seoConfigContent = fs.readFileSync(seoConfigPath, "utf8");
   assert(fs.existsSync(seoConfigPath), "SEO Config", "utils/seoConfig.ts exists");
-  assert(seoConfigContent.includes("https://kalamlibrary.me"), "SEO Config", "Canonical base URL is https://kalamlibrary.me");
+  assert(seoConfigContent.includes("https://www.kalamlibrary.me"), "SEO Config", "Canonical base URL is https://www.kalamlibrary.me");
   assert(seoConfigContent.includes("buildCanonicalUrl"), "SEO Config", "buildCanonicalUrl helper is defined and enforces lowercase/clean paths");
   assert(seoConfigContent.includes("buildBreadcrumbJsonLd"), "SEO Config", "buildBreadcrumbJsonLd helper is defined");
   assert(seoConfigContent.includes("buildKalamJsonLd"), "SEO Config", "buildKalamJsonLd helper is defined");
