@@ -406,6 +406,10 @@ body::before {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
 }
 
+.light #lyrics-panel.kalam-lyrics-stack {
+  background: linear-gradient(180deg, #f8faf9 0%, #ffffff 100%) !important;
+}
+
 .light #lyrics-panel.kalam-urdu-lyrics,
 .light #lyrics-panel .kalam-urdu-lyrics {
   color: #064e3b !important;
@@ -481,6 +485,92 @@ ins.adsbygoogle[data-ad-status="unfilled"] {
 
 .font-bengali {
   font-family: var(--font-bengali);
+}
+
+/* Kalam lyrics: one patterned card per ash'ar */
+#lyrics-panel.kalam-lyrics-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  padding: 1rem;
+  background: rgba(2, 8, 6, 0.35);
+}
+
+.light #lyrics-panel.kalam-lyrics-stack {
+  background: linear-gradient(180deg, #f8faf9 0%, #ffffff 100%);
+}
+
+.kalam-stanza {
+  --kalam-pattern-stroke: rgba(16, 185, 129, 0.55);
+  --kalam-pattern-accent: rgba(217, 119, 6, 0.35);
+  position: relative;
+  isolation: isolate;
+  padding: 0.875rem 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  background: linear-gradient(
+    155deg,
+    rgba(6, 46, 34, 0.72) 0%,
+    rgba(2, 12, 9, 0.88) 48%,
+    rgba(4, 30, 22, 0.75) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 2px 8px rgba(0, 0, 0, 0.18);
+}
+
+.kalam-stanza::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0.14;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56' viewBox='0 0 56 56'%3E%3Cpath d='M28 2 L34 22 L54 28 L34 34 L28 54 L22 34 L2 28 L22 22 Z' fill='none' stroke='%2310b981' stroke-width='0.65'/%3E%3Cpath d='M28 12 L28 44 M12 28 L44 28 M16 16 L40 40 M16 40 L40 16' fill='none' stroke='%23d97706' stroke-width='0.35'/%3E%3Ccircle cx='28' cy='28' r='7' fill='none' stroke='%2310b981' stroke-width='0.45'/%3E%3C/svg%3E");
+  background-size: 56px 56px;
+}
+
+.kalam-stanza::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: calc(0.75rem - 3px);
+  border: 1px solid rgba(217, 119, 6, 0.12);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.kalam-stanza-line {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+}
+
+.kalam-stanza-line + .kalam-stanza-line {
+  margin-top: 0.35rem;
+  padding-top: 0.45rem;
+  border-top: 1px dashed rgba(217, 119, 6, 0.22);
+}
+
+.light .kalam-stanza {
+  border-color: rgba(16, 185, 129, 0.28);
+  background: linear-gradient(155deg, #ffffff 0%, #f0fdf8 55%, #ecfdf5 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.9),
+    0 1px 4px rgba(6, 78, 59, 0.06);
+}
+
+.light .kalam-stanza::before {
+  opacity: 0.1;
+}
+
+.light .kalam-stanza::after {
+  border-color: rgba(217, 119, 6, 0.18);
+}
+
+.light .kalam-stanza-line + .kalam-stanza-line {
+  border-top-color: rgba(16, 185, 129, 0.2);
 }
 
 /* Accessibility: Focus Visible Ring */

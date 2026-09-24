@@ -47,6 +47,12 @@ export default function LyricsDisplay({
   };
   const htmlLang = langIsoMap[lang] || "en";
 
+  const stanzas = lyrics
+    .trim()
+    .split(/\n\n+/)
+    .map((block) => block.split("\n").map((l) => l.trim()).filter(Boolean))
+    .filter((lines) => lines.length > 0);
+
   return (
     <div className="w-full max-w-2xl mx-auto flex flex-col items-center">
       {/* Control Bar for Font Size Adjustment (A- / Reset / A+) */}
@@ -113,9 +119,9 @@ export default function LyricsDisplay({
         aria-label="Lyrics text"
         lang={htmlLang}
         dir={dir}
-        className={`w-full bg-white dark:bg-emerald-900/10 border border-emerald-500/20 dark:border-emerald-500/10 rounded-2xl p-6 md:p-8 shadow-sm dark:shadow-inner text-center whitespace-pre-line select-text transition-all duration-150 ${
+        className={`w-full kalam-lyrics-stack border border-emerald-500/20 dark:border-emerald-500/10 rounded-2xl md:rounded-3xl shadow-sm dark:shadow-inner text-center select-text transition-all duration-150 ${
           lang === "urdu"
-            ? "kalam-urdu-lyrics text-emerald-950 dark:text-emerald-100/90 font-bold md:font-semibold"
+            ? "kalam-urdu-lyrics text-emerald-950 dark:text-emerald-100/95 font-bold md:font-semibold"
             : "font-sans text-gray-900 dark:text-gray-200 tracking-wide leading-relaxed md:leading-loose font-medium"
         }`}
         style={{
@@ -123,7 +129,15 @@ export default function LyricsDisplay({
           lineHeight: lang === "urdu" ? (fontScale > 1.3 ? 2.5 : 2.2) : 1.8,
         }}
       >
-        {lyrics}
+        {stanzas.map((lines, i) => (
+          <div key={i} className="kalam-stanza w-full" aria-label={`Verse ${i + 1}`}>
+            {lines.map((line, j) => (
+              <p key={j} className="kalam-stanza-line">
+                {line}
+              </p>
+            ))}
+          </div>
+        ))}
       </article>
 
       {/* Copy and Share Buttons */}

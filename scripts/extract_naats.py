@@ -239,6 +239,11 @@ def main():
                  YOUR MISSION:
                  You must transcribe EVERY SINGLE line and couplet (she'r) printed on the pages literally, line-by-line, without skipping a single word.
                  
+                 EXCLUDE NON-POETRY (CRITICAL):
+                 Do NOT transcribe prose commentary, footnotes, or anecdote boxes (often in a dashed/ dotted rectangular border, e.g. headings like "آج کیا کیا؟").
+                 Do NOT include page footers, decorative place names alone (e.g. "مدینہ"), or publisher watermarks.
+                 Only transcribe actual kalam ash'aar (couplets) in the main poetry layout.
+                 
                  RULES FOR CONTENT SEGMENTATION:
                  A poetry page might contain:
                  - A continuation of a Kalam started on a previous page (no bold title is printed for it here).
@@ -250,10 +255,14 @@ def main():
                  - If a block is a continuation of the previous Kalam (it has no bold title heading on these pages):
                    - Set "belongs_to_new_kalam": false.
                    - Set title fields to empty strings.
+                   - Even if the first couplet line could read like a title, it is still continuation unless there is a bold printed heading.
                    
                  - If a block starts a new Kalam on these pages (marked by a bold heading/title):
                    - Set "belongs_to_new_kalam": true.
                    - Extract the title in Urdu Unicode, Roman English, Hindi, and Bangla.
+                   - A new kalam MUST have a visible bold title on the page; never split one kalam across pages into two entries.
+                   - One kalam continues until the NEXT bold heading appears (even across many pages). All intervening couplets belong to the same kalam.
+                   - Example: Wasail p.311 heading "جدھر دیکھوں مدینے کا حرم ہو" continues through p.312–313 until the next bold title (e.g. "اے کاش!").
                  
                  For each block, transcribe:
                  - "lyrics_urdu": Every single Urdu line literally in Urdu Unicode (Nastaliq), stanza-by-stanza (double newlines between stanzas).

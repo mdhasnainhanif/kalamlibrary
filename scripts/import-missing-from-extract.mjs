@@ -15,7 +15,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const apply = process.argv.includes("--apply");
 
 function loadEnv() {
-  for (const f of [".env.local", ".env"]) {
+  for (const f of [".env", ".env.local"]) {
     const p = join(__dirname, "..", f);
     if (!existsSync(p)) continue;
     for (const line of readFileSync(p, "utf8").split(/\r?\n/)) {
