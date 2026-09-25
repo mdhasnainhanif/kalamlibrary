@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* Language tabs: scroll target clears sticky navbar + search banner */
+.kalam-lang-tabs {
+  scroll-margin-top: 6.5rem;
+}
+
 @theme {
   --color-gold-50: hsl(45, 100%, 96%);
   --color-gold-100: hsl(45, 90%, 90%);

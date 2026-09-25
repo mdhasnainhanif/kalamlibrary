@@ -1,0 +1,57 @@
+{
+  "output_dir": "public/new/extracted",
+  "books": {
+    "aarzoo-e-deedar-e-madina": {
+      "pdf": "public/new/aarzoo-e-deedar-e-madina.pdf",
+      "collection_title_roman": "Aarzoo-e-Deedar-e-Madina",
+      "collection_title_urdu": "آرزوِ دیدارِ مدینہ",
+      "author_roman": "Muhammad Ilyas Attar Qadri",
+      "index_pdf_pages": [1],
+      "skip_pdf_pages_from_end": 1,
+      "page_calibration": { "printed_page": 1, "pdf_page": 2 },
+      "notes": "Index is on the cover (PDF p.1). Always verify entries against printed page headers in the scan — cover order may differ from binding."
+    },
+    "noor-wala-aaya-hay": {
+      "pdf": "public/new/noor-wala-aaya-hay.pdf",
+      "collection_title_roman": "Noor Wala Aaya Hay",
+      "collection_title_urdu": "نوروالاآیاہے",
+      "author_roman": "Muhammad Ilyas Attar Qadri",
+      "index_pdf_pages": [5],
+      "skip_pdf_pages_from_end": 1,
+      "page_calibration": { "printed_page": 1, "pdf_page": 6 },
+      "notes": "Index on PDF p.5; front matter pp.2–4."
+    },
+    "wasail-e-firdos": {
+      "pdf": "public/new/wasail-e-firdos.pdf",
+      "collection_title_roman": "Wasail-e-Firdos",
+      "collection_title_urdu": "وسائلِ فردوس",
+      "author_roman": "Muhammad Ilyas Attar Qadri",
+      "index_pdf_pages": [],
+      "content_pdf_start": 2,
+      "skip_pdf_pages_from_end": 1,
+      "page_calibration": { "printed_page": 1, "pdf_page": 2 },
+      "notes": "No فہرست in scan — use scan-kalam-starts to build index from page headers."
+    },
+    "riaz-e-naeem": {
+      "pdf": "public/new/riaz-e-naeem.pdf",
+      "collection_title_roman": "Riaz-e-Naeem",
+      "collection_title_urdu": "ریاضِ نعیم",
+      "author_roman": "Maulana Syed Muhammad Naeemuddin Muradabadi",
+      "index_pdf_pages": [6, 7],
+      "index_min_printed_page": 17,
+      "skip_pdf_pages_from_end": 2,
+      "page_calibration": { "printed_page": 17, "pdf_page": 22 }
+    },
+    "bayaz-e-paak-hujjat-ul-islam": {
+      "pdf": "public/new/bayaz-e-paak-hujjat-ul-islam.pdf",
+      "collection_title_roman": "Bayaz-e-Paak Hujjat-ul-Islam",
+      "collection_title_urdu": "بیاضِ پاک حجت الاسلام",
+      "author_roman": "Molana Hamid Raza Khan",
+      "index_pdf_pages": [],
+      "content_pdf_start": 10,
+      "skip_pdf_pages_from_end": 1,
+      "page_calibration": null,
+      "notes": "No index — kalams start on new pages (first line = title). Use scan-kalam-starts from content_pdf_start."
+    }
+  }
+}

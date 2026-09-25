@@ -4,10 +4,10 @@ export const FEATURED_KALAM_SLUGS = [
   "mustafa-jaan-e-rehmat-pe-lakhon-salaam",
   "sair-e-gulshan-kaun-dekhe-dasht-e-taiba-chhor-kar",
   "noor-wala-aaya-hai-hoor-le-kar-aaya-hai",
-  "aamad-e-mustafa-marhaba-marhaba",
-  "anbiya-ke-sarwar-o-sardar-par-lakhon-salam",
+  "jidhar-dekhun-madinay-ka-haram-ho",
+  "bulalo-phir-mujhe-ae-shah-e-bahr-o-bar-madine-mein",
   "ae-shahanshah-e-madina-assalatu-wassalam",
-  "ya-nabi-mujh-ko-madeene-mein-bulana-baar-baar",
+  "lam-yati-naziruka-fi-nazar",
   "tajdar-e-haram-ae-shehanshah-e-deen-tum-pe-har-dam-karoron-durood-o-salam",
 ] as const;
 
@@ -33,14 +33,14 @@ export const SEARCH_SUGGESTIONS: ReadonlyArray<{
     poet: "Maulana Ilyas Attar Qadri",
   },
   {
-    title: "Aamad-e-Mustafa Marhaba Marhaba",
-    slug: "aamad-e-mustafa-marhaba-marhaba",
-    poet: "Ala Hazrat Imam Ahmad Raza Khan",
+    title: "Jidhar Dekhun Madinay Ka Haram Ho",
+    slug: "jidhar-dekhun-madinay-ka-haram-ho",
+    poet: "Muhammad Ilyas Attar Qadri",
   },
   {
-    title: "Anbiya Ke Sarwar o Sardar Par Lakhon Salam",
-    slug: "anbiya-ke-sarwar-o-sardar-par-lakhon-salam",
-    poet: "Ala Hazrat Imam Ahmad Raza Khan",
+    title: "Bulalo Phir Mujhe Ae Shah-e-Bahr-o-Bar Madine Mein",
+    slug: "bulalo-phir-mujhe-ae-shah-e-bahr-o-bar-madine-mein",
+    poet: "Muhammad Ilyas Attar Qadri",
   },
   {
     title: "Ae Shahanshah-e-Madina Assalatu Wassalam",
@@ -48,8 +48,8 @@ export const SEARCH_SUGGESTIONS: ReadonlyArray<{
     poet: "Ala Hazrat Imam Ahmad Raza Khan",
   },
   {
-    title: "Ya Nabi Mujh Ko Madine Mein Bulana Baar Baar",
-    slug: "ya-nabi-mujh-ko-madeene-mein-bulana-baar-baar",
+    title: "Lam Yati Naziruka Fi Nazar",
+    slug: "lam-yati-naziruka-fi-nazar",
     poet: "Ala Hazrat Imam Ahmad Raza Khan",
   },
   {

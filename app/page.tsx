@@ -116,13 +116,24 @@ export default async function Home() {
 
   const { data: featuredRows, error: kalamsError } = await supabase
     .from("kalams")
-    .select("*, authors(*)")
+    .select("*, authors(*), kalam_translations(language, title)")
     .in("slug", [...FEATURED_KALAM_SLUGS]);
 
   const featuredBySlug = new Map((featuredRows || []).map((row) => [row.slug, row]));
   const kalams = FEATURED_KALAM_SLUGS.map((slug) => featuredBySlug.get(slug)).filter(
     (row): row is NonNullable<typeof row> => Boolean(row)
   );
+
+  function featuredUrduTitle(kalam: (typeof kalams)[number]): string {
+    const primary = (kalam.primary_title_urdu || "").trim();
+    if (primary && /[\u0600-\u06FF]/.test(primary)) return primary;
+    const translations = kalam.kalam_translations;
+    const list = Array.isArray(translations) ? translations : translations ? [translations] : [];
+    const urduRow = list.find((t) => t.language === "urdu");
+    const fromTrans = (urduRow?.title || "").trim();
+    if (fromTrans && /[\u0600-\u06FF]/.test(fromTrans)) return fromTrans;
+    return primary;
+  }
 
   const { data: allKalams } = await supabase
     .from("kalams")
@@ -298,6 +309,7 @@ export default async function Home() {
                 {kalams.map((kalam) => {
                   const authorData = Array.isArray(kalam.authors) ? kalam.authors[0] : kalam.authors;
                   const authorName = authorData ? authorData.name_roman : "Unknown Poet";
+                  const urduTitle = featuredUrduTitle(kalam);
 
                   return (
                     <Link
@@ -310,9 +322,9 @@ export default async function Home() {
                         <h3 className="kalam-list-title kalam-list-title--1 font-bold text-gray-100 group-hover:text-gold-500 transition-colors">
                           {kalam.primary_title_roman}
                         </h3>
-                        {kalam.primary_title_urdu && (
+                        {urduTitle && (
                           <p lang="ur" className="kalam-list-urdu text-lg text-emerald-400/80 font-urdu mt-1.5 py-1" dir="rtl">
-                            {kalam.primary_title_urdu}
+                            {urduTitle}
                           </p>
                         )}
                       </div>

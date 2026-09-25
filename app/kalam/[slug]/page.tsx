@@ -4,6 +4,8 @@ import { notFound, redirect } from "next/navigation";
 import { supabase } from "@/utils/supabase";
 import LyricsDisplay from "@/components/LyricsDisplay";
 import KalamPageAdLayout from "@/components/KalamPageAdLayout";
+import KalamLangScrollAnchor from "@/components/KalamLangScrollAnchor";
+import KalamLangTabLink from "@/components/KalamLangTabLink";
 import ReportErrorLink from "@/components/ReportErrorLink";
 import { getKalamPageData } from "@/utils/kalamData";
 import {
@@ -195,6 +197,7 @@ export default async function KalamSlugPage({ params }: PageProps) {
       />
 
       <main id="main-content" className="w-full max-w-7xl mx-auto px-3 sm:px-6 py-6 md:py-10 flex-1 flex flex-col min-w-0">
+        <KalamLangScrollAnchor />
         {/* Breadcrumb Navigation */}
         <nav aria-label="Breadcrumb" className="text-xs md:text-sm text-emerald-700 dark:text-emerald-400/80 mb-6 flex items-center justify-center flex-wrap gap-2 max-w-3xl mx-auto w-full">
           <Link href="/" className="hover:text-amber-700 dark:hover:text-gold-500 transition-colors">Home</Link>
@@ -240,7 +243,7 @@ export default async function KalamSlugPage({ params }: PageProps) {
 
         {/* Translation Switcher Tabs */}
         {translations.length > 1 && (
-          <div className="relative w-full max-w-3xl mx-auto border-b border-emerald-500/15 dark:border-emerald-500/10 mb-8">
+          <div id="kalam-lang-tabs" className="kalam-lang-tabs relative w-full max-w-3xl mx-auto border-b border-emerald-500/15 dark:border-emerald-500/10 mb-8">
             <div className="flex justify-start md:justify-center overflow-x-auto py-2 px-6 scrollbar-none w-full max-w-full">
               <div role="tablist" aria-label="Available language translations" className="flex bg-white/90 dark:bg-emerald-950/60 p-1.5 rounded-xl border border-emerald-500/20 dark:border-emerald-500/10 shadow-sm dark:shadow-none gap-1 shrink-0">
                 {Object.entries(LANGUAGES_MAP).map(([key, config]) => {
@@ -250,7 +253,7 @@ export default async function KalamSlugPage({ params }: PageProps) {
                   const isDefaultActive = primaryTranslation.language === config.code;
 
                     return (
-                      <Link
+                      <KalamLangTabLink
                         key={key}
                         href={isDefaultActive ? kalamHref(cleanSlug) : kalamHref(cleanSlug, key)}
                         role="tab"
@@ -266,7 +269,7 @@ export default async function KalamSlugPage({ params }: PageProps) {
                         }`}
                       >
                         {config.label}
-                      </Link>
+                      </KalamLangTabLink>
                     );
                 })}
               </div>
