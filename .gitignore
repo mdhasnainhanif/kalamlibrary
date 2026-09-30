@@ -42,6 +42,9 @@ yarn-error.log*
 # PDF extraction workspace (local only; kalams live in Supabase)
 /public/new/
 
+# Source PDFs for local OCR/scripts — not served on the live site (Cloudflare 25 MiB/asset limit)
+/public/*.pdf
+
 # Python
 __pycache__/
 *.py[cod]
