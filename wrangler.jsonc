@@ -1,3 +1,7 @@
+// Cloudflare Workers & Pages → Settings → Build (required):
+//   Build command:  npx opennextjs-cloudflare build
+//   Deploy command: npx opennextjs-cloudflare deploy
+// Avoid `npx wrangler deploy` — it re-runs migrate and can set WORKER_SELF_REFERENCE to the wrong name.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "main": ".open-next/worker.js",

@@ -20,6 +20,7 @@
 
 # cloudflare local secrets (use dashboard env in production)
 .dev.vars
+.wrangler/
 
 # production
 /build
