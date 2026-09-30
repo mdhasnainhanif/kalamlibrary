@@ -12,7 +12,7 @@ interface PageProps {
   }>;
 }
 
-export const revalidate = 3600; // Cache for 1 hour
+export const revalidate = 604800;
 
 const PAGE_SIZE = 48;
 const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");

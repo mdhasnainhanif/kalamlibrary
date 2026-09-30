@@ -5,7 +5,7 @@ import { getAuthorUrduName } from "@/utils/authorHelper";
 import { filterIndexableKalams } from "@/utils/kalam";
 import { SITE_CONFIG, buildBreadcrumbJsonLd, buildCanonicalUrl } from "@/utils/seoConfig";
 
-export const revalidate = 3600; // Cache for 1 hour
+export const revalidate = 604800;
 
 export const metadata: Metadata = {
   title: "All Poets & Authors - Devotional Kalam Directory",

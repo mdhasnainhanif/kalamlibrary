@@ -7,7 +7,8 @@ import FAQAccordion from "@/components/FAQAccordion";
 import { SITE_CONFIG, buildCanonicalUrl, buildWebSiteSchema } from "@/utils/seoConfig";
 import { FEATURED_KALAM_SLUGS, filterIndexableKalams, kalamHref } from "@/utils/kalam";
 
-export const revalidate = 3600; // Cache for 1 hour
+/** 7 days — see utils/cacheConfig.ts PAGE_REVALIDATE_SECONDS */
+export const revalidate = 604800;
 
 export const metadata: Metadata = {
   title: {

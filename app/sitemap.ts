@@ -8,9 +8,8 @@ import {
   kalamHref,
   SITEMAP_KALAM_LANG_PATHS,
 } from "@/utils/kalam";
-
-/** Always read kalams/authors from Supabase when /sitemap.xml is requested. */
-export const dynamic = "force-dynamic";
+/** Cached sitemap; refreshes from Supabase daily (not on every crawl). */
+export const revalidate = 86400;
 
 function slugify(text: string) {
   return text

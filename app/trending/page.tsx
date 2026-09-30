@@ -4,7 +4,7 @@ import { supabase } from "@/utils/supabase";
 import { SITE_CONFIG, buildBreadcrumbJsonLd, buildCanonicalUrl } from "@/utils/seoConfig";
 import { FEATURED_KALAM_SLUGS, SEARCH_SUGGESTIONS, filterIndexableKalams, kalamHref } from "@/utils/kalam";
 
-export const revalidate = 3600;
+export const revalidate = 604800;
 
 export const metadata: Metadata = {
   title: "Trending Naats & Popular Kalam Lyrics",

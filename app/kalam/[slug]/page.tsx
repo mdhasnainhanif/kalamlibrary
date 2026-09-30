@@ -31,7 +31,7 @@ interface PageProps {
   }>;
 }
 
-export const revalidate = 3600; // Cache for 1 hour
+export const revalidate = 604800;
 
 function slugify(text: string) {
   return text

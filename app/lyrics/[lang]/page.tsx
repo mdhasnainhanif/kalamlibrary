@@ -11,7 +11,7 @@ interface PageProps {
 
 const LANG_KEYS = Object.keys(LYRIC_LANGUAGES) as LyricLangKey[];
 
-export const revalidate = 3600;
+export const revalidate = 604800;
 
 export function generateStaticParams() {
   return LANG_KEYS.map((lang) => ({ lang }));

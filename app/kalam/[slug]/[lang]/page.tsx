@@ -54,7 +54,7 @@ interface PageProps {
   }>;
 }
 
-export const revalidate = 3600; // Cache for 1 hour
+export const revalidate = 604800;
 
 async function getKalamData(rawSlug: string) {
   return getKalamPageData(rawSlug);
