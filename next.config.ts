@@ -2,9 +2,7 @@ import type { NextConfig } from "next";
 import path from "path";
 
 const nextConfig: NextConfig = {
-  experimental: {
-    inlineCss: true,
-  },
+  // inlineCss breaks static CSS on OpenNext/Cloudflare (/_next/static/*.css 530 → layout overlap)
   turbopack: {
     resolveAlias: {
       "../build/polyfills/polyfill-module": "./utils/empty-polyfill.js",
