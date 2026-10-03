@@ -1,5 +1,7 @@
 /** Shared kalam listing, slug, and SEO helpers. */
 
+export type KalamTranslationLanguage = "roman_english" | "urdu" | "hindi" | "bangla";
+
 export const FEATURED_KALAM_SLUGS = [
   "mustafa-jaan-e-rehmat-pe-lakhon-salaam",
   "sair-e-gulshan-kaun-dekhe-dasht-e-taiba-chhor-kar",
@@ -207,7 +209,7 @@ export function displayAuthorName(name: string): string {
 
 /** Subtitle under the main H1 — Roman tab shows no Urdu line; other tabs use that language's title. */
 export function kalamHeaderSubtitle(
-  languageCode: "roman_english" | "urdu" | "hindi" | "bangla",
+  languageCode: KalamTranslationLanguage,
   options: {
     primaryTitleUrdu?: string | null;
     translationTitle?: string | null;

@@ -15,6 +15,7 @@ import {
   kalamHeaderSubtitle,
   kalamHref,
   truncateAtWord,
+  type KalamTranslationLanguage,
 } from "@/utils/kalam";
 import {
   SITE_CONFIG,
@@ -35,7 +36,7 @@ function slugify(text: string) {
 
 // Language definition structure
 interface LanguageConfig {
-  code: string;
+  code: KalamTranslationLanguage;
   label: string;
   dir: "ltr" | "rtl";
   locale: string;

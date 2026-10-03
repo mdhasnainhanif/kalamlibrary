@@ -17,6 +17,7 @@ import {
   kalamHeaderSubtitle,
   kalamHref,
   truncateAtWord,
+  type KalamTranslationLanguage,
 } from "@/utils/kalam";
 import {
   SITE_CONFIG,
@@ -42,7 +43,10 @@ function slugify(text: string) {
     .replace(/[-\s]+/g, "-");
 }
 
-const LANGUAGES_MAP: Record<string, { code: string; label: string; dir: "ltr" | "rtl"; locale: string }> = {
+const LANGUAGES_MAP: Record<
+  string,
+  { code: KalamTranslationLanguage; label: string; dir: "ltr" | "rtl"; locale: string }
+> = {
   "roman-english": { code: "roman_english", label: "Roman English", dir: "ltr", locale: "en-US" },
   "urdu": { code: "urdu", label: "اردو (Urdu)", dir: "rtl", locale: "ur-PK" },
   "hindi": { code: "hindi", label: "हिन्दी (Hindi)", dir: "ltr", locale: "hi-IN" },
@@ -164,9 +168,7 @@ export default async function KalamSlugPage({ params }: PageProps) {
   const urduTranslation = translations.find((t) => t.language === "urdu");
 
   const isUrduPrimary = primaryTranslation.language === "urdu";
-  const headerSubtitle = kalamHeaderSubtitle(
-    primaryTranslation.language as "roman_english" | "urdu" | "hindi" | "bangla",
-    {
+  const headerSubtitle = kalamHeaderSubtitle(primaryTranslation.language as KalamTranslationLanguage, {
       primaryTitleUrdu: kalam.primary_title_urdu,
       translationTitle: primaryTranslation.title,
     }
