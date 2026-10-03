@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Outfit, Noto_Nastaliq_Urdu } from "next/font/google";
+import { Plus_Jakarta_Sans, Noto_Nastaliq_Urdu } from "next/font/google";
 import Script from "next/script";
 import "./globals.css";
 
@@ -8,11 +8,13 @@ import SearchHeroBanner from "@/components/SearchHeroBanner";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
+import AppToaster from "@/components/AppToaster";
+import SiteBackground from "@/components/ui/SiteBackground";
 import { SITE_CONFIG, buildWebSiteSchema } from "@/utils/seoConfig";
 import { ADSENSE_CLIENT, ADSENSE_SCRIPT_SRC } from "@/utils/adsConfig";
 
-const outfit = Outfit({
-  variable: "--font-outfit",
+const plusJakarta = Plus_Jakarta_Sans({
+  variable: "--font-sans-premium",
   subsets: ["latin"],
   display: "swap",
   preload: true,
@@ -116,7 +118,7 @@ export default function RootLayout({
       lang="en"
       dir="ltr"
       suppressHydrationWarning
-      className={`${outfit.variable} ${notoNastaliqUrdu.variable} min-h-full antialiased`}
+      className={`${plusJakarta.variable} ${notoNastaliqUrdu.variable} min-h-full scroll-smooth antialiased`}
     >
       <head>
         <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
@@ -131,34 +133,32 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
       </head>
-      <body className="min-h-full flex flex-col relative overflow-x-hidden">
+      <body className="relative flex min-h-full flex-col overflow-x-hidden">
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
           enableSystem={false}
           disableTransitionOnChange
         >
-          {/* Keyboard Accessibility: Skip to Main Content Link */}
           <a
             href="#main-content"
-            className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-gold-500 focus:text-black focus:font-bold focus:rounded-xl focus:shadow-xl focus:outline-none"
+            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-xl focus:bg-gold-500 focus:px-4 focus:py-2.5 focus:font-bold focus:text-black focus:shadow-xl focus:outline-none"
           >
             Skip to main content
           </a>
 
-          {/* Decorative blurs are desktop-only — they stall mobile paint */}
-          <div aria-hidden="true" className="hidden md:block fixed top-20 left-1/2 -translate-x-1/2 w-80 h-80 bg-emerald-500/10 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
-          <div aria-hidden="true" className="hidden md:block fixed bottom-10 left-10 w-70 h-70 bg-gold-500/5 rounded-full blur-[100px] -z-10 pointer-events-none"></div>
+          <SiteBackground />
 
           <Navbar />
           <SearchHeroBanner />
-          <div className="relative z-0 flex-1 flex flex-col w-full min-h-[100dvh] isolate">
+          <div className="relative z-0 flex min-h-0 w-full flex-1 flex-col isolate">
             {children}
           </div>
           <Footer />
 
           {/* Floating Theme Toggle (Light / Dark) */}
           <ThemeToggle />
+          <AppToaster />
         </ThemeProvider>
 
         {/* Analytics after first paint so it cannot delay LCP */}

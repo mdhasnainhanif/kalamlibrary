@@ -14,10 +14,22 @@ export default function ThemeToggle() {
   const currentTheme = resolvedTheme || theme;
   const isDark = currentTheme !== "light";
 
+  if (!mounted) {
+    return (
+      <button
+        type="button"
+        aria-label="Toggle color theme"
+        title="Toggle color theme"
+        className="theme-toggle fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full flex items-center justify-center bg-emerald-950/90 text-gold-400 border border-emerald-500/20 shadow-xl shadow-black/40 cursor-pointer"
+        tabIndex={-1}
+      />
+    );
+  }
+
   return (
     <button
       type="button"
-      onClick={() => mounted && setTheme(isDark ? "light" : "dark")}
+      onClick={() => setTheme(isDark ? "light" : "dark")}
       aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
       title={isDark ? "Switch to light mode" : "Switch to dark mode"}
       className="theme-toggle fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full flex items-center justify-center bg-emerald-950/90 text-gold-400 border border-emerald-500/20 hover:border-gold-500/50 shadow-xl shadow-black/40 transition-colors hover:scale-110 active:scale-95 focus:outline-none focus:ring-2 focus:ring-gold-500/50 cursor-pointer"

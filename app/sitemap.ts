@@ -48,6 +48,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.88,
     },
     {
+      url: `${baseUrl}/durood-o-salam`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.88,
+    },
+    {
       url: `${baseUrl}/lyrics/roman-english`,
       lastModified: new Date(),
       changeFrequency: "weekly",

@@ -150,7 +150,7 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
           aria-expanded={isOpen}
           aria-controls="search-dropdown"
           aria-autocomplete="list"
-          className="w-full bg-white dark:bg-emerald-950/80 border border-emerald-500/25 dark:border-emerald-500/20 text-gray-900 dark:text-gray-100 placeholder-gray-400 focus:outline-none focus-visible:outline-none focus:border-gold-500/60 focus:ring-1 focus:ring-gold-500/40 hover:border-emerald-500/40 transition-colors [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden px-5 py-4 pl-12 pr-12 rounded-2xl shadow-sm dark:shadow-lg text-sm md:text-base"
+          className="w-full border border-emerald-200/90 bg-white/95 text-gray-900 shadow-[0_4px_20px_-8px_rgba(15,23,42,0.12)] placeholder-gray-400 transition-colors hover:border-emerald-300/80 focus:border-gold-500/60 focus:outline-none focus:ring-1 focus:ring-gold-500/40 focus-visible:outline-none dark:border-emerald-500/20 dark:bg-emerald-950/80 dark:text-gray-100 dark:shadow-lg [&::-webkit-search-cancel-button]:hidden [&::-webkit-search-decoration]:hidden px-5 py-4 pl-12 pr-12 rounded-2xl text-sm md:text-base"
         />
         <button
           type="submit"

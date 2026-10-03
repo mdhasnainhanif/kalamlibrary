@@ -1,6 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
+import { faqItemSurfaceClass } from "@/utils/kalamCardStyles";
 
 interface FAQItem {
   q: string;
@@ -8,15 +11,15 @@ interface FAQItem {
 }
 
 export default function FAQAccordion({ items }: { items: FAQItem[] }) {
-  // Open the first item by default (index 0)
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+  const reduceMotion = useReducedMotion();
 
   const toggleIndex = (idx: number) => {
-    setOpenIndex(openIndex === idx ? null : idx);
+    setOpenIndex((current) => (current === idx ? null : idx));
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       {items.map((item, idx) => {
         const isOpen = openIndex === idx;
         const questionId = `faq-question-${idx}`;
@@ -25,7 +28,7 @@ export default function FAQAccordion({ items }: { items: FAQItem[] }) {
         return (
           <div
             key={idx}
-            className="rounded-xl bg-emerald-900/10 border border-emerald-500/10 overflow-hidden transition-all duration-300"
+            className={faqItemSurfaceClass}
           >
             <button
               id={questionId}
@@ -33,35 +36,38 @@ export default function FAQAccordion({ items }: { items: FAQItem[] }) {
               onClick={() => toggleIndex(idx)}
               aria-expanded={isOpen}
               aria-controls={answerId}
-              className="w-full p-5 flex justify-between items-center text-left font-bold text-gray-100 text-sm md:text-base hover:text-gold-500 transition-colors focus:outline-none cursor-pointer"
+              className="flex w-full cursor-pointer items-center justify-between gap-4 p-5 text-left text-sm font-bold text-slate-800 transition-colors hover:text-gold-500 focus:outline-none md:text-base dark:text-gray-100"
             >
-              <span className="pr-4">{item.q}</span>
-              <svg
-                aria-hidden="true"
-                className={`w-4 h-4 text-gold-500 transition-transform duration-300 shrink-0 ${
-                  isOpen ? "rotate-180" : ""
-                }`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+              <span className="pr-2">{item.q}</span>
+              <motion.span
+                animate={{ rotate: isOpen ? 180 : 0 }}
+                transition={{ duration: reduceMotion ? 0 : 0.25 }}
+                className="shrink-0 text-gold-500"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-              </svg>
+                <ChevronDown className="h-5 w-5" aria-hidden />
+              </motion.span>
             </button>
-            
-            <div
-              id={answerId}
-              role="region"
-              aria-labelledby={questionId}
-              className={`transition-all duration-300 ease-in-out overflow-hidden ${
-                isOpen ? "max-h-[300px] opacity-100 border-t border-emerald-500/5" : "max-h-0 opacity-0"
-              }`}
-            >
-              <p 
-                className="p-5 text-xs md:text-sm text-gray-400 leading-relaxed bg-emerald-950/20 font-sans"
-                dangerouslySetInnerHTML={{ __html: item.a }}
-              />
-            </div>
+
+            <AnimatePresence initial={false}>
+              {isOpen ? (
+                <motion.div
+                  id={answerId}
+                  role="region"
+                  aria-labelledby={questionId}
+                  key="content"
+                  initial={reduceMotion ? false : { height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={reduceMotion ? undefined : { height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                  className="overflow-hidden border-t border-emerald-100 dark:border-emerald-500/5"
+                >
+                  <p
+                    className="bg-emerald-50/80 p-5 text-sm leading-relaxed text-slate-600 dark:bg-emerald-950/20 dark:text-gray-400"
+                    dangerouslySetInnerHTML={{ __html: item.a }}
+                  />
+                </motion.div>
+              ) : null}
+            </AnimatePresence>
           </div>
         );
       })}

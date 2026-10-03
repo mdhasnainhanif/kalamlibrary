@@ -12,6 +12,7 @@ import {
   displayAuthorName,
   firstCouplet,
   inferredSourceCollection,
+  kalamHeaderSubtitle,
   kalamHref,
   truncateAtWord,
 } from "@/utils/kalam";
@@ -156,6 +157,10 @@ export default async function KalamPage({ params }: PageProps) {
   const authorSlug = author ? slugify(author.name_roman) : "";
   const sourceCollection = inferredSourceCollection(author?.name_roman);
   const pageUrl = buildCanonicalUrl(kalamHref(cleanSlug, lang));
+  const headerSubtitle = kalamHeaderSubtitle(langConfig.code, {
+    primaryTitleUrdu: kalam.primary_title_urdu,
+    translationTitle: activeTranslation.title,
+  });
 
   const kalamSchema = buildKalamJsonLd({
     title: activeTranslation.title || kalam.primary_title_roman,
@@ -208,9 +213,13 @@ export default async function KalamPage({ params }: PageProps) {
           <h1 className="kalam-page-title text-2xl md:text-4xl font-bold text-amber-700 dark:text-gold-500 mb-3 tracking-wide leading-relaxed font-sans">
             {kalam.primary_title_roman} – Naat Lyrics in {langConfig.label}
           </h1>
-          {kalam.primary_title_urdu && (
-            <p lang="ur" className="kalam-page-title font-urdu text-xl md:text-2xl text-emerald-800 dark:text-emerald-300 mb-3" dir="rtl">
-              {kalam.primary_title_urdu}
+          {headerSubtitle && (
+            <p
+              lang={headerSubtitle.langAttr}
+              dir={headerSubtitle.dir}
+              className={`kalam-page-title ${headerSubtitle.fontClass} text-xl md:text-2xl text-emerald-800 dark:text-emerald-300 mb-3`}
+            >
+              {headerSubtitle.text}
             </p>
           )}
           {author && (

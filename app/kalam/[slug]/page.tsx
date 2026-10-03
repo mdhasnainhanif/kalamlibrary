@@ -14,6 +14,7 @@ import {
   firstCouplet,
   inferredSourceCollection,
   isIndexableKalam,
+  kalamHeaderSubtitle,
   kalamHref,
   truncateAtWord,
 } from "@/utils/kalam";
@@ -163,6 +164,13 @@ export default async function KalamSlugPage({ params }: PageProps) {
   const urduTranslation = translations.find((t) => t.language === "urdu");
 
   const isUrduPrimary = primaryTranslation.language === "urdu";
+  const headerSubtitle = kalamHeaderSubtitle(
+    primaryTranslation.language as "roman_english" | "urdu" | "hindi" | "bangla",
+    {
+      primaryTitleUrdu: kalam.primary_title_urdu,
+      translationTitle: primaryTranslation.title,
+    }
+  );
   const currentLang = isUrduPrimary ? "urdu" : "roman-english";
   const currentDir = isUrduPrimary ? "rtl" : "ltr";
   const kalamUrl = buildCanonicalUrl(kalamHref(cleanSlug));
@@ -218,9 +226,13 @@ export default async function KalamSlugPage({ params }: PageProps) {
           <h1 className="kalam-page-title text-2xl md:text-4xl font-bold text-amber-700 dark:text-gold-500 mb-3 tracking-wide leading-relaxed font-sans">
             {kalam.primary_title_roman} – Naat Lyrics
           </h1>
-          {(kalam.primary_title_urdu || urduTranslation?.title) && (
-            <p lang="ur" className="kalam-page-title font-urdu text-xl md:text-2xl text-emerald-800 dark:text-emerald-300 mb-3" dir="rtl">
-              {kalam.primary_title_urdu || urduTranslation?.title}
+          {headerSubtitle && (
+            <p
+              lang={headerSubtitle.langAttr}
+              dir={headerSubtitle.dir}
+              className={`kalam-page-title ${headerSubtitle.fontClass} text-xl md:text-2xl text-emerald-800 dark:text-emerald-300 mb-3`}
+            >
+              {headerSubtitle.text}
             </p>
           )}
           {author && (

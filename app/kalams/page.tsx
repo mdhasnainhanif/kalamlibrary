@@ -4,6 +4,7 @@ import { supabase } from "@/utils/supabase";
 import { SITE_CONFIG, buildCanonicalUrl, buildBreadcrumbJsonLd } from "@/utils/seoConfig";
 import SearchBar from "@/components/SearchBar";
 import { kalamHref } from "@/utils/kalam";
+import { kalamGridCardClass, kalamGridCardFooterClass } from "@/utils/kalamCardStyles";
 
 interface PageProps {
   searchParams: Promise<{
@@ -197,7 +198,7 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
             )}
           </div>
         ) : (
-          <section aria-label="Kalam List" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <section aria-label="Kalam List" className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {kalams.map((kalam) => {
               const authorData = Array.isArray(kalam.authors) ? kalam.authors[0] : kalam.authors;
               const authorName = authorData ? authorData.name_roman : "Unknown Poet";
@@ -207,20 +208,20 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
                   key={kalam.id}
                   href={kalamHref(kalam.slug)}
                   aria-label={`Read ${kalam.primary_title_roman} lyrics by ${authorName}`}
-                  className="kalam-list-card p-4 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex flex-col justify-between min-h-32 text-left group"
+                  className={kalamGridCardClass}
                 >
-                  <div className="kalam-list-card__body">
-                    <h2 className="kalam-list-title font-semibold text-gray-100 group-hover:text-gold-500 transition-colors text-sm">
+                  <div className="kalam-list-card__body space-y-1.5">
+                    <h2 className="kalam-list-title kalam-list-title--4 text-sm font-semibold leading-snug text-slate-800 transition-colors group-hover:text-gold-500 dark:text-gray-100">
                       {kalam.primary_title_roman}
                     </h2>
                     {kalam.primary_title_urdu && (
-                      <span lang="ur" className="kalam-list-urdu text-sm text-emerald-400/80 font-urdu mt-1" dir="rtl">
+                      <p lang="ur" dir="rtl" className="kalam-list-urdu font-urdu text-base text-emerald-700 dark:text-emerald-400/90">
                         {kalam.primary_title_urdu}
-                      </span>
+                      </p>
                     )}
                   </div>
-                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-emerald-500/5 text-[11px] text-gray-400">
-                    <span className="truncate max-w-[80%]">{authorName}</span>
+                  <div className={`${kalamGridCardFooterClass} flex items-center justify-between gap-2 text-[11px] text-slate-500 dark:text-gray-400`}>
+                    <span className="kalam-card-author min-w-0 flex-1">{authorName}</span>
                     <svg aria-hidden="true" className="w-3.5 h-3.5 text-emerald-400 group-hover:text-gold-500 transform group-hover:translate-x-0.5 transition-all shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>

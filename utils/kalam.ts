@@ -205,6 +205,30 @@ export function displayAuthorName(name: string): string {
   return name;
 }
 
+/** Subtitle under the main H1 — Roman tab shows no Urdu line; other tabs use that language's title. */
+export function kalamHeaderSubtitle(
+  languageCode: "roman_english" | "urdu" | "hindi" | "bangla",
+  options: {
+    primaryTitleUrdu?: string | null;
+    translationTitle?: string | null;
+  }
+): { text: string; dir: "ltr" | "rtl"; langAttr: string; fontClass: string } | null {
+  if (languageCode === "roman_english") {
+    return null;
+  }
+  if (languageCode === "urdu") {
+    const text = (options.primaryTitleUrdu || options.translationTitle || "").trim();
+    if (!text) return null;
+    return { text, dir: "rtl", langAttr: "ur", fontClass: "font-urdu" };
+  }
+  const text = (options.translationTitle || "").trim();
+  if (!text) return null;
+  if (languageCode === "hindi") {
+    return { text, dir: "ltr", langAttr: "hi", fontClass: "font-devanagari" };
+  }
+  return { text, dir: "ltr", langAttr: "bn", fontClass: "font-bengali" };
+}
+
 export function inferredSourceCollection(authorName?: string | null): string | null {
   if (!authorName) return null;
   const name = authorName.toLowerCase();

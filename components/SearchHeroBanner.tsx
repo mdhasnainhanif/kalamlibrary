@@ -5,7 +5,11 @@ import { usePathname } from "next/navigation";
 
 const SearchBar = dynamic(() => import("./SearchBar"), {
   loading: () => (
-    <div className="h-14 max-w-xl mx-auto rounded-2xl bg-emerald-900/20 border border-emerald-500/10 animate-pulse" />
+    <div
+      className="mx-auto h-14 max-w-xl animate-pulse rounded-2xl border border-emerald-500/10 bg-emerald-900/10 dark:border-emerald-500/10 dark:bg-emerald-950/30"
+      role="status"
+      aria-label="Loading search"
+    />
   ),
 });
 
@@ -24,11 +28,11 @@ export default function SearchHeroBanner() {
   return (
     <section
       aria-label="Search Kalam Library"
-      className="search-hero-banner w-full relative z-[90] isolate overflow-visible border-b border-emerald-500/15 dark:border-emerald-500/10 bg-gradient-to-b from-emerald-50/70 via-emerald-50/20 to-transparent dark:from-emerald-950/90 dark:via-emerald-950/50 dark:to-transparent"
+      className="search-hero-banner w-full relative z-[90] isolate overflow-visible border-b border-slate-200/80 bg-white dark:border-emerald-500/10 dark:bg-gradient-to-b dark:from-emerald-950/90 dark:via-emerald-950/50 dark:to-transparent"
     >
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-16 left-1/2 h-40 w-72 -translate-x-1/2 rounded-full bg-emerald-500/10 dark:bg-emerald-500/10 blur-3xl" />
-        <div className="absolute bottom-0 right-8 h-24 w-24 rounded-full bg-gold-500/10 dark:bg-gold-500/5 blur-2xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden overflow-hidden dark:block">
+        <div className="absolute -top-16 left-1/2 h-40 w-72 -translate-x-1/2 rounded-full bg-emerald-500/10 blur-3xl" />
+        <div className="absolute bottom-0 right-8 h-24 w-24 rounded-full bg-gold-500/5 blur-2xl" />
       </div>
 
       <div className="container relative py-8 md:py-10 text-center">

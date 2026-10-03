@@ -1,19 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-
-const AppToaster = dynamic(() => import("./AppToaster"), { ssr: false });
+import { Menu, X } from "lucide-react";
+import HeroIslamicPattern from "@/components/ui/HeroIslamicPattern";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
 
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/kalams", label: "Browse Kalams" },
+    { href: "/durood-o-salam", label: "Durood o Salam" },
     { href: "/authors", label: "Poets" },
     { href: "/about", label: "About" },
     { href: "/services", label: "Services" },
@@ -21,89 +22,104 @@ export default function Navbar() {
   ];
 
   const isActive = (path: string) => {
-    if (path === "/") {
-      return pathname === "/";
-    }
+    if (path === "/") return pathname === "/";
     return pathname.startsWith(path);
   };
 
-  // Close mobile menu on Escape key press
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isOpen) {
-        setIsOpen(false);
-      }
+      if (e.key === "Escape" && isOpen) setIsOpen(false);
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen]);
 
-  return (
-    <nav aria-label="Main navigation" className="w-full bg-emerald-950 border-b border-emerald-500/10 sticky top-0 z-[100] isolate">
-      <div className="container">
-        <div className="flex items-center justify-between h-16 md:h-20">
-          
-          {/* Logo Section */}
-          <div className="flex-shrink-0 flex items-center">
-            <Link href="/" aria-label="Kalam Library Home" className="flex items-center group">
-              <span lang="ur" className="text-xl md:text-2xl font-urdu text-gold-500 font-bold tracking-wide transition-colors group-hover:text-gold-100 relative -top-[2px] md:-top-[3px] inline-block min-h-[1.75rem] leading-none" dir="rtl">
-                کلام لائبریری
-              </span>
-            </Link>
-          </div>
+  useEffect(() => {
+    const onScroll = () => {
+      setScrolled(window.scrollY > 12);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
-          {/* Desktop Nav Links */}
+  return (
+    <header
+      className={`sticky top-0 z-[100] isolate w-full shrink-0 overflow-hidden transition-[background-color,box-shadow,border-color,backdrop-filter] duration-300 ease-out ${
+        scrolled
+          ? "border-b border-emerald-200/70 bg-white/72 shadow-[0_1px_0_rgba(16,185,129,0.06),0_10px_30px_-12px_rgba(15,23,42,0.12)] backdrop-blur-xl backdrop-saturate-150 dark:border-emerald-500/20 dark:bg-emerald-950/75 dark:shadow-lg dark:shadow-black/25"
+          : "border-b border-emerald-100/60 bg-white/50 backdrop-blur-md dark:border-emerald-500/10 dark:bg-emerald-950/35 dark:backdrop-blur-[2px]"
+      }`}
+    >
+      <HeroIslamicPattern
+        fullPage
+        className="hero-islamic-pattern-tone absolute inset-0 hidden text-gold-500/18 opacity-90 dark:block"
+      />
+      <div
+        aria-hidden
+        className={`navbar-glass-tint pointer-events-none absolute inset-0 transition-colors duration-300 ${
+          scrolled
+            ? "bg-white/55 dark:bg-emerald-950/65"
+            : "bg-gradient-to-b from-white/45 to-white/15 dark:from-emerald-950/40 dark:to-emerald-950/20"
+        }`}
+      />
+
+      <nav aria-label="Main navigation" className="container relative z-[1]">
+        <div className="flex h-16 items-center justify-between md:h-20">
+          <Link href="/" aria-label="Kalam Library Home" className="group flex items-center">
+            <span
+              lang="ur"
+              dir="rtl"
+              className="font-urdu text-xl font-bold leading-none text-gold-500 transition-colors group-hover:text-gold-100 md:text-2xl"
+            >
+              کلام لائبریری
+            </span>
+          </Link>
+
           <div className="hidden lg:block">
-            <div className="ml-10 flex items-center space-x-1">
+            <ul className="flex items-center gap-1">
               {navLinks.map((link) => {
                 const active = isActive(link.href);
                 return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    aria-current={active ? "page" : undefined}
-                    className={`px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
-                      active
-                        ? "bg-gold-500 text-black font-semibold shadow-md shadow-gold-500/10"
-                        : "text-gray-300 hover:text-white hover:bg-emerald-900/40"
-                    }`}
-                  >
-                    {link.label}
-                  </Link>
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      aria-current={active ? "page" : undefined}
+                      className={`rounded-xl px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                        active
+                          ? "bg-gold-500 font-semibold text-black shadow-md shadow-gold-500/10"
+                          : "text-slate-600 hover:bg-emerald-50 hover:text-emerald-900 dark:text-gray-300 dark:hover:bg-emerald-900/40 dark:hover:text-white"
+                      }`}
+                    >
+                      {link.label}
+                    </Link>
+                  </li>
                 );
               })}
-            </div>
+            </ul>
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="flex lg:hidden">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              type="button"
-              className="inline-flex items-center justify-center p-2 rounded-xl text-gray-400 hover:text-white hover:bg-emerald-900/40 focus:outline-none focus:ring-1 focus:ring-emerald-500/30"
-              aria-controls="mobile-menu"
-              aria-expanded={isOpen}
-              aria-label={isOpen ? "Close main menu" : "Open main menu"}
-            >
-              {isOpen ? (
-                <svg aria-hidden="true" className="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              ) : (
-                <svg aria-hidden="true" className="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              )}
-            </button>
-          </div>
-
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            type="button"
+            className="inline-flex items-center justify-center rounded-xl p-2 text-slate-500 hover:bg-emerald-50 hover:text-emerald-900 focus:outline-none dark:text-gray-400 dark:hover:bg-emerald-900/40 dark:hover:text-white lg:hidden"
+            aria-controls="mobile-menu"
+            aria-expanded={isOpen}
+            aria-label={isOpen ? "Close main menu" : "Open main menu"}
+          >
+            {isOpen ? <X className="h-6 w-6" aria-hidden /> : <Menu className="h-6 w-6" aria-hidden />}
+          </button>
         </div>
-      </div>
+      </nav>
 
-      {/* Mobile Menu Dropdown */}
-      {isOpen && (
-        <div className="lg:hidden bg-emerald-950 border-b border-emerald-500/10" id="mobile-menu">
-          <div className="container pt-2 pb-4 space-y-1">
+      {isOpen ? (
+        <div
+          className={`relative z-[1] border-t border-emerald-100/80 backdrop-blur-xl lg:hidden dark:border-emerald-500/15 ${
+            scrolled ? "bg-white/92 dark:bg-emerald-950/90" : "bg-white/88 dark:bg-emerald-950/80"
+          }`}
+          id="mobile-menu"
+        >
+          <div className="container space-y-1 py-3">
             {navLinks.map((link) => {
               const active = isActive(link.href);
               return (
@@ -112,10 +128,10 @@ export default function Navbar() {
                   href={link.href}
                   onClick={() => setIsOpen(false)}
                   aria-current={active ? "page" : undefined}
-                  className={`block px-4 py-3 rounded-xl text-base font-medium transition-all ${
+                  className={`block rounded-xl px-4 py-3 text-base font-medium transition-all ${
                     active
-                      ? "bg-gold-500 text-black font-semibold"
-                      : "text-gray-300 hover:text-white hover:bg-emerald-900/40"
+                      ? "bg-gold-500 font-semibold text-black"
+                      : "text-slate-600 hover:bg-emerald-50 hover:text-emerald-900 dark:text-gray-300 dark:hover:bg-emerald-900/40 dark:hover:text-white"
                   }`}
                 >
                   {link.label}
@@ -124,8 +140,7 @@ export default function Navbar() {
             })}
           </div>
         </div>
-      )}
-      <AppToaster />
-    </nav>
+      ) : null}
+    </header>
   );
 }
