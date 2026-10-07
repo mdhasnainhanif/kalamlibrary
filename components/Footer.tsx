@@ -1,10 +1,13 @@
 import Link from "next/link";
+import { SITE_CONFIG } from "@/utils/seoConfig";
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
-  const whatsappUrl = "https://wa.me/923174731957";
-  const instagramUrl = "https://www.instagram.com/kalamlibrary.me";
-  const tiktokUrl = "https://www.tiktok.com/@kalam.library";
+  const whatsappUrl = SITE_CONFIG.whatsappUrl;
+  const instagramUrl = SITE_CONFIG.instagramUrl;
+  const tiktokUrl = SITE_CONFIG.tiktokUrl;
+  const supportEmail =
+    process.env.NEXT_PUBLIC_SUPPORT_EMAIL || SITE_CONFIG.supportEmail;
 
   return (
     <footer className="w-full bg-emerald-950/40 border-t border-emerald-500/10 py-12 mt-auto">
@@ -104,6 +107,11 @@ export default function Footer() {
               <Link href="/services" className="hover:text-gold-500 transition-colors">Our Services</Link>
             </li>
             <li>
+              <Link href="/durood-o-salam" className="hover:text-gold-500 transition-colors">
+                Durood o Salam
+              </Link>
+            </li>
+            <li>
               <Link href="/contact" className="hover:text-gold-500 transition-colors">Contact Us</Link>
             </li>
           </ul>
@@ -117,8 +125,8 @@ export default function Footer() {
               <svg aria-hidden="true" className="w-4 h-4 text-gold-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
-              <a href="mailto:md.hasnain.developer@gmail.com" className="hover:text-gold-500 transition-colors break-all">
-                md.hasnain.developer@gmail.com
+              <a href={`mailto:${supportEmail}`} className="hover:text-gold-500 transition-colors break-all">
+                {supportEmail}
               </a>
             </li>
             <li className="flex items-center gap-2">

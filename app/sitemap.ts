@@ -6,7 +6,6 @@ import {
   FEATURED_KALAM_SLUGS,
   filterIndexableKalams,
   kalamHref,
-  SITEMAP_KALAM_LANG_PATHS,
 } from "@/utils/kalam";
 /** Cached sitemap; refreshes from Supabase daily (not on every crawl). */
 export const revalidate = 86400;
@@ -141,17 +140,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const indexable = filterIndexableKalams(kalams);
       const featuredSet = new Set<string>(FEATURED_KALAM_SLUGS);
 
-      const ids = indexable.map((k) => k.id);
-      const urduKalamIds = new Set<string>();
-      if (ids.length > 0) {
-        const { data: urduRows } = await supabase
-          .from("kalam_translations")
-          .select("kalam_id")
-          .in("kalam_id", ids)
-          .eq("language", "urdu");
-        (urduRows || []).forEach((row) => urduKalamIds.add(row.kalam_id));
-      }
-
       const sorted = [...indexable].sort((a, b) => {
         const aFeat = featuredSet.has(cleanKalamSlug(a.slug)) ? 0 : 1;
         const bFeat = featuredSet.has(cleanKalamSlug(b.slug)) ? 0 : 1;
@@ -169,17 +157,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           changeFrequency: "weekly",
           priority: isFeatured ? 0.95 : 0.9,
         });
-
-        if (urduKalamIds.has(kalam.id)) {
-          for (const langPath of SITEMAP_KALAM_LANG_PATHS) {
-            kalamRoutes.push({
-              url: `${baseUrl}${kalamHref(slug, langPath)}`,
-              lastModified: lastMod,
-              changeFrequency: "monthly",
-              priority: isFeatured ? 0.9 : 0.85,
-            });
-          }
-        }
       });
     }
   } catch (err) {

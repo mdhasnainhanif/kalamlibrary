@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import LyricsDisplay from "@/components/LyricsDisplay";
 import KalamPageAdLayout from "@/components/KalamPageAdLayout";
 import KalamLangScrollAnchor from "@/components/KalamLangScrollAnchor";
@@ -24,6 +24,7 @@ import {
   buildKalamJsonLd,
   buildBreadcrumbJsonLd,
 } from "@/utils/seoConfig";
+import { buildKalamLanguageAlternates } from "@/utils/kalamAlternates";
 
 // Helper to slugify author names in code for routing
 function slugify(text: string) {
@@ -83,10 +84,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   );
   const canonicalUrl = buildCanonicalUrl(kalamHref(cleanSlug, lang));
 
-  const alternates: Record<string, string> = {};
-  Object.keys(LANGUAGES_MAP).forEach((key) => {
-    alternates[LANGUAGES_MAP[key].locale] = buildCanonicalUrl(kalamHref(cleanSlug, key));
-  });
+  const languageAlternates = buildKalamLanguageAlternates(cleanSlug, translations);
 
   const ogImageUrl = buildOgImageUrl({
     title: titleText,
@@ -102,7 +100,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       : { index: true, follow: true, googleBot: { index: true, follow: true } },
     alternates: {
       canonical: canonicalUrl,
-      languages: alternates,
+      languages: languageAlternates,
     },
     openGraph: {
       title: `${seoTitle} | ${SITE_CONFIG.name}`,
@@ -145,8 +143,13 @@ export default async function KalamPage({ params }: PageProps) {
   if (shouldNoindex) {
     notFound();
   }
+
+  if (lang === "roman-english") {
+    permanentRedirect(kalamHref(cleanSlug));
+  }
+
   if (cleanKalamSlug(slug) !== slug && cleanSlug === cleanKalamSlug(slug)) {
-    redirect(kalamHref(cleanSlug, lang));
+    permanentRedirect(kalamHref(cleanSlug, lang));
   }
 
   const activeTranslation = translations.find((t) => t.language === langConfig.code);
@@ -255,11 +258,13 @@ export default async function KalamPage({ params }: PageProps) {
 
                 if (!hasLanguageTranslation) return null;
 
+                const tabHref = key === "roman-english" ? kalamHref(cleanSlug) : kalamHref(cleanSlug, key);
+
                 return (
                   <KalamLangTabLink
                     key={key}
                     id={`tab-${key}`}
-                    href={kalamHref(cleanSlug, key)}
+                    href={tabHref}
                     role="tab"
                     lang={config.locale.split("-")[0]}
                     dir={config.dir}

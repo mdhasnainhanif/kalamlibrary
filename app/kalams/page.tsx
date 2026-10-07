@@ -35,7 +35,10 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
   return {
     title,
     description,
-    robots: activeLetter ? { index: false, follow: true } : undefined,
+    robots:
+      activeLetter || currentPage > 1
+        ? { index: false, follow: true, googleBot: { index: false, follow: true } }
+        : undefined,
     alternates: {
       canonical: canonicalUrl,
     },

@@ -2,6 +2,7 @@
 
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
+import HeroIslamicPattern from "@/components/ui/HeroIslamicPattern";
 
 const SearchBar = dynamic(() => import("./SearchBar"), {
   loading: () => (
@@ -28,14 +29,19 @@ export default function SearchHeroBanner() {
   return (
     <section
       aria-label="Search Kalam Library"
-      className="search-hero-banner w-full relative z-[90] isolate overflow-visible border-b border-slate-200/80 bg-white dark:border-emerald-500/10 dark:bg-gradient-to-b dark:from-emerald-950/90 dark:via-emerald-950/50 dark:to-transparent"
+      className="search-hero-banner relative isolate z-[90] w-full overflow-hidden"
     >
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 hidden overflow-hidden dark:block">
-        <div className="absolute -top-16 left-1/2 h-40 w-72 -translate-x-1/2 rounded-full bg-emerald-500/10 blur-3xl" />
-        <div className="absolute bottom-0 right-8 h-24 w-24 rounded-full bg-gold-500/5 blur-2xl" />
+      <HeroIslamicPattern
+        fullPage
+        className="hero-islamic-pattern-tone pointer-events-none absolute inset-0 hidden h-full w-full text-gold-500/16 opacity-90 dark:block"
+      />
+      <div aria-hidden="true" className="search-hero-banner__tint" />
+      <div aria-hidden="true" className="search-hero-banner__glow pointer-events-none absolute inset-0 overflow-hidden">
+        <div className="absolute -top-20 left-1/2 h-44 w-80 -translate-x-1/2 rounded-full bg-emerald-500/12 blur-3xl" />
+        <div className="absolute bottom-0 right-10 h-28 w-28 rounded-full bg-gold-500/8 blur-2xl" />
       </div>
 
-      <div className="container relative py-8 md:py-10 text-center">
+      <div className="container relative z-[1] py-7 text-center md:py-9">
         <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-400 mb-3">
           700+ Naats · Urdu · Roman · Hindi · Bangla
         </p>

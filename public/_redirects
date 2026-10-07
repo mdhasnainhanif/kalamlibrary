@@ -1,0 +1,2 @@
+# Canonical host (Cloudflare Pages / static edge; Next middleware also handles this)
+https://kalamlibrary.me/* https://www.kalamlibrary.me/:splat 301

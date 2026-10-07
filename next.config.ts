@@ -17,15 +17,40 @@ const nextConfig: NextConfig = {
     };
     return config;
   },
-  async rewrites() {
+  async redirects() {
     return [
       {
         source: "/poets",
         destination: "/authors",
+        permanent: true,
       },
       {
         source: "/poet/:slug*",
         destination: "/author/:slug*",
+        permanent: true,
+      },
+    ];
+  },
+  async headers() {
+    return [
+      {
+        source: "/ads.txt",
+        headers: [
+          { key: "Content-Type", value: "text/plain; charset=utf-8" },
+          { key: "Cache-Control", value: "public, max-age=3600, s-maxage=86400" },
+        ],
+      },
+      {
+        source: "/:path*",
+        headers: [
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=31536000; includeSubDomains; preload",
+          },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+        ],
       },
     ];
   },

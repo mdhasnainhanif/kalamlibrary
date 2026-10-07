@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { supabase } from "@/utils/supabase";
 import LyricsDisplay from "@/components/LyricsDisplay";
 import KalamPageAdLayout from "@/components/KalamPageAdLayout";
@@ -26,6 +26,7 @@ import {
   buildKalamJsonLd,
   buildBreadcrumbJsonLd,
 } from "@/utils/seoConfig";
+import { buildKalamLanguageAlternates } from "@/utils/kalamAlternates";
 
 interface PageProps {
   params: Promise<{
@@ -82,13 +83,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   );
   const canonicalUrl = buildCanonicalUrl(kalamHref(cleanSlug));
 
-  const alternates: Record<string, string> = {};
-  translations.forEach((t) => {
-    const langKey = Object.keys(LANGUAGES_MAP).find((k) => LANGUAGES_MAP[k].code === t.language);
-    if (langKey) {
-      alternates[LANGUAGES_MAP[langKey].locale] = buildCanonicalUrl(kalamHref(cleanSlug, langKey));
-    }
-  });
+  const languageAlternates = buildKalamLanguageAlternates(cleanSlug, translations);
 
   const ogImageUrl = buildOgImageUrl({
     title: titleText,
@@ -104,7 +99,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       : { index: true, follow: true, googleBot: { index: true, follow: true } },
     alternates: {
       canonical: canonicalUrl,
-      languages: alternates,
+      languages: languageAlternates,
     },
     openGraph: {
       title: `${pageTitle} | ${SITE_CONFIG.name}`,
@@ -159,7 +154,7 @@ export default async function KalamSlugPage({ params }: PageProps) {
     notFound();
   }
   if (cleanKalamSlug(slug) !== slug && cleanSlug === cleanKalamSlug(slug)) {
-    redirect(kalamHref(cleanSlug));
+    permanentRedirect(kalamHref(cleanSlug));
   }
 
   const authorName = author ? displayAuthorName(author.name_roman) : "Unknown Poet";

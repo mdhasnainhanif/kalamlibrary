@@ -670,10 +670,43 @@ body::before {
   color: var(--accent-primary-hover) !important;
 }
 
+/* Kalam inner-page search hero — default matches dark site (no white flash) */
+.search-hero-banner {
+  border-bottom: 1px solid rgba(16, 185, 129, 0.14);
+  background: linear-gradient(
+    180deg,
+    rgba(3, 18, 13, 0.98) 0%,
+    rgba(2, 10, 7, 0.92) 55%,
+    rgba(2, 8, 6, 0.72) 100%
+  );
+}
+
+.search-hero-banner__tint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(2, 20, 14, 0.45) 0%, rgba(2, 8, 6, 0.12) 100%);
+}
+
+.search-hero-banner__glow {
+  display: none;
+}
+
+.dark .search-hero-banner__glow {
+  display: block;
+}
+
 .light .search-hero-banner {
-  background-color: var(--bg-primary) !important;
-  background-image: none !important;
+  background: linear-gradient(180deg, var(--bg-primary) 0%, color-mix(in srgb, var(--bg-secondary) 85%, var(--bg-primary)) 100%) !important;
   border-bottom-color: var(--border-subtle) !important;
+}
+
+.light .search-hero-banner__tint {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.55) 0%, transparent 85%);
+}
+
+.light .search-hero-banner__glow {
+  display: none;
 }
 
 .light .islamic-golden-seamless {

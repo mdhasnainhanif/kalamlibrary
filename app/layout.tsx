@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Noto_Nastaliq_Urdu } from "next/font/google";
-import Script from "next/script";
 import "./globals.css";
 
 import Navbar from "@/components/Navbar";
@@ -9,6 +8,7 @@ import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
 import AppToaster from "@/components/AppToaster";
+import CookieConsent from "@/components/CookieConsent";
 import SiteBackground from "@/components/ui/SiteBackground";
 import { SITE_CONFIG, buildWebSiteSchema } from "@/utils/seoConfig";
 import { ADSENSE_CLIENT, ADSENSE_SCRIPT_SRC } from "@/utils/adsConfig";
@@ -122,11 +122,8 @@ export default function RootLayout({
     >
       <head>
         <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
-        <script
-          async
-          src={ADSENSE_SCRIPT_SRC}
-          crossOrigin="anonymous"
-        />
+        {/* AdSense site verification + ad script (required in <head> per Google) */}
+        <script async src={ADSENSE_SCRIPT_SRC} crossOrigin="anonymous" />
         {/* Structured Data: WebSite & SearchAction for Google Sitelinks Search */}
         <script
           type="application/ld+json"
@@ -159,22 +156,8 @@ export default function RootLayout({
           {/* Floating Theme Toggle (Light / Dark) */}
           <ThemeToggle />
           <AppToaster />
+          <CookieConsent />
         </ThemeProvider>
-
-        {/* Analytics after first paint so it cannot delay LCP */}
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-Z7H5JF3KB9"
-          strategy="lazyOnload"
-        />
-        <Script id="google-analytics" strategy="lazyOnload">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-
-            gtag('config', 'G-Z7H5JF3KB9');
-          `}
-        </Script>
       </body>
     </html>
   );

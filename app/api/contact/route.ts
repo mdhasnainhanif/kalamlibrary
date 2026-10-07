@@ -2,14 +2,21 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import nodemailer from "nodemailer";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder-please-set-your-env-variables.supabase.co";
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "placeholder-anon-key";
-
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX = { name: 120, email: 254, subject: 200, message: 5000 } as const;
 
 export async function POST(request: Request) {
   try {
-    const { name, email, subject, message } = await request.json();
+    const body = await request.json();
+    const name = typeof body.name === "string" ? body.name.trim() : "";
+    const email = typeof body.email === "string" ? body.email.trim() : "";
+    const subject = typeof body.subject === "string" ? body.subject.trim() : "";
+    const message = typeof body.message === "string" ? body.message.trim() : "";
+    const honeypot = typeof body.company === "string" ? body.company.trim() : "";
+
+    if (honeypot) {
+      return NextResponse.json({ success: true });
+    }
 
     if (!name || !email || !message) {
       return NextResponse.json(
@@ -18,82 +25,68 @@ export async function POST(request: Request) {
       );
     }
 
-    // 1. Insert into Supabase contact_submissions table
-    // We do not use .select() here because anonymous clients do not have SELECT permissions (read access is blocked for security).
-    const { error: dbError } = await supabaseAdmin
-      .from("contact_submissions")
-      .insert({
-        name: name.trim(),
-        email: email.trim(),
-        subject: subject.trim(),
-        message: message.trim(),
-      });
+    if (!EMAIL_RE.test(email) || name.length > MAX.name || email.length > MAX.email) {
+      return NextResponse.json({ error: "Invalid name or email." }, { status: 400 });
+    }
+
+    if (subject.length > MAX.subject || message.length > MAX.message) {
+      return NextResponse.json({ error: "Message or subject is too long." }, { status: 400 });
+    }
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error("Contact API: missing Supabase server env vars");
+      return NextResponse.json({ error: "Server configuration error." }, { status: 503 });
+    }
+
+    const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+    const { error: dbError } = await supabaseAdmin.from("contact_submissions").insert({
+      name,
+      email,
+      subject,
+      message,
+    });
 
     if (dbError) {
       console.error("Supabase contact insertion error:", dbError);
-      return NextResponse.json(
-        { error: "Failed to store submission in database." },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to store submission in database." }, { status: 500 });
     }
 
-    // 2. Setup SMTP Email Transport if configured (defaulting to Gmail for md.hasnain.developer@gmail.com)
-    const smtpHost = process.env.SMTP_HOST || "smtp.gmail.com";
-    const smtpPort = process.env.SMTP_PORT || "465";
-    const smtpUser = process.env.SMTP_USER || "md.hasnain.developer@gmail.com";
     const smtpPass = process.env.SMTP_PASSWORD;
-    const smtpFrom = process.env.SMTP_FROM || "md.hasnain.developer@gmail.com";
-    const smtpTo = process.env.SMTP_TO || "md.hasnain.developer@gmail.com";
+    const smtpHost = process.env.SMTP_HOST;
+    const smtpPort = process.env.SMTP_PORT;
+    const smtpUser = process.env.SMTP_USER;
+    const smtpFrom = process.env.SMTP_FROM;
+    const smtpTo = process.env.SMTP_TO;
 
-    if (smtpPass) {
+    if (smtpPass && smtpHost && smtpUser && smtpFrom && smtpTo) {
       try {
+        const port = parseInt(smtpPort || "465", 10);
         const transporter = nodemailer.createTransport({
           host: smtpHost,
-          port: parseInt(smtpPort, 10),
-          secure: smtpPort === "465", // true for 465, false for 587 or other ports
-          auth: {
-            user: smtpUser,
-            pass: smtpPass,
-          },
+          port,
+          secure: port === 465,
+          auth: { user: smtpUser, pass: smtpPass },
         });
 
-        const mailOptions = {
+        await transporter.sendMail({
           from: `"Kalam Library Contact" <${smtpFrom}>`,
           to: smtpTo,
-          replyTo: email.trim(),
+          replyTo: email,
           subject: `New Contact Submission: ${subject || "No Subject"}`,
-          text: `You have received a new contact form submission:\n\nName: ${name}\nEmail: ${email}\nSubject: ${subject || "None"}\n\nMessage:\n${message}`,
-          html: `
-            <div style="font-family: sans-serif; padding: 20px; color: #333; max-width: 600px; border: 1px solid #eee; border-radius: 8px;">
-              <h2 style="color: #10b981; border-bottom: 2px solid #eab308; padding-bottom: 8px;">New Contact Message</h2>
-              <p><strong>Name:</strong> ${name}</p>
-              <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-              <p><strong>Subject:</strong> ${subject || "N/A"}</p>
-              <div style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #10b981; margin-top: 15px; border-radius: 4px;">
-                <p style="margin: 0; white-space: pre-wrap; font-size: 14px; line-height: 1.6;">${message}</p>
-              </div>
-              <hr style="border: none; border-top: 1px solid #eee; margin-top: 25px;" />
-              <p style="font-size: 11px; color: #888;">This email was automatically generated by Kalam Library.</p>
-            </div>
-          `,
-        };
-
-        await transporter.sendMail(mailOptions);
-        console.log(`Contact form email successfully sent to ${smtpTo}`);
+          text: `Name: ${name}\nEmail: ${email}\nSubject: ${subject || "None"}\n\n${message}`,
+        });
       } catch (emailErr) {
         console.error("Nodemailer SMTP email send failure:", emailErr);
-        // Note: We do not fail the API response here so the user registration succeeds in the DB
       }
-    } else {
-      console.warn("SMTP environment variables are not fully configured. Skipping email notification.");
     }
 
     return NextResponse.json({ success: true });
   } catch (err) {
     console.error("API contact error:", err);
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

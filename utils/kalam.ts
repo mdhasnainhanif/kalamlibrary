@@ -143,9 +143,6 @@ export function isIndexableKalam(kalam: KalamLike): boolean {
   return true;
 }
 
-/** Languages we submit in XML sitemap (hreflang pages stay discoverable via links). */
-export const SITEMAP_KALAM_LANG_PATHS = ["urdu"] as const;
-
 export function filterIndexableKalams<T extends KalamLike>(kalams: T[] | null | undefined): T[] {
   return (kalams || []).filter(isIndexableKalam);
 }

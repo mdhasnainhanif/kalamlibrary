@@ -8,9 +8,12 @@ export default function ContactForm({ defaultSubject = "" }: { defaultSubject?: 
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState(defaultSubject);
   const [message, setMessage] = useState("");
+  const [company, setCompany] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+
+  const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,8 +21,24 @@ export default function ContactForm({ defaultSubject = "" }: { defaultSubject?: 
     setErrorMsg("");
     setSuccess(false);
 
-    if (!name || !email || !message) {
+    if (!name.trim() || !email.trim() || !message.trim()) {
       const valErr = "Please fill in all required fields (Name, Email, Message).";
+      setErrorMsg(valErr);
+      toast.error(valErr);
+      setLoading(false);
+      return;
+    }
+
+    if (!emailPattern.test(email.trim())) {
+      const valErr = "Please enter a valid email address.";
+      setErrorMsg(valErr);
+      toast.error(valErr);
+      setLoading(false);
+      return;
+    }
+
+    if (name.length > 120 || message.length > 5000) {
+      const valErr = "Name or message is too long.";
       setErrorMsg(valErr);
       toast.error(valErr);
       setLoading(false);
@@ -37,6 +56,7 @@ export default function ContactForm({ defaultSubject = "" }: { defaultSubject?: 
           email: email.trim(),
           subject: subject.trim(),
           message: message.trim(),
+          company,
         }),
       });
 
@@ -83,7 +103,19 @@ export default function ContactForm({ defaultSubject = "" }: { defaultSubject?: 
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-5 text-left">
+      <form onSubmit={handleSubmit} className="relative flex flex-col gap-5 text-left">
+        <div className="absolute left-[-9999px] h-0 w-0 overflow-hidden" aria-hidden="true">
+          <label htmlFor="form-company">Company</label>
+          <input
+            id="form-company"
+            type="text"
+            name="company"
+            tabIndex={-1}
+            autoComplete="off"
+            value={company}
+            onChange={(e) => setCompany(e.target.value)}
+          />
+        </div>
         <div>
           <label htmlFor="form-name" className="block text-xs font-semibold uppercase text-gray-400 mb-2">
             Your Name <span className="text-gold-500">*</span>
