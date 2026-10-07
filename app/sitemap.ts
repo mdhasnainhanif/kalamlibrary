@@ -18,6 +18,11 @@ function slugify(text: string) {
     .replace(/[-\s]+/g, "-");
 }
 
+function hasSupabaseAtBuild(): boolean {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? "";
+  return url.length > 0 && !url.includes("placeholder-please-set");
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = SITE_CONFIG.url;
 
@@ -107,6 +112,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.5,
     },
   ];
+
+  if (!hasSupabaseAtBuild()) {
+    return staticRoutes;
+  }
 
   let authorRoutes: MetadataRoute.Sitemap = [];
   try {
