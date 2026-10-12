@@ -654,6 +654,12 @@ body::before {
   color: var(--accent-primary-hover) !important;
 }
 
+/* Share post card: own palette — do not inherit lyrics-page green override */
+.light #kalam-share-card .share-post-lyrics,
+.light #kalam-share-card .share-post-lyrics p {
+  color: #2a2a22 !important;
+}
+
 .light #lyrics-panel {
   background-color: var(--bg-elevated) !important;
   color: var(--text-primary) !important;

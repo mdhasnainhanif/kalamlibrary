@@ -118,14 +118,17 @@ export default function Footer() {
         </nav>
 
         {/* Support & Contact */}
-        <div className="flex flex-col gap-4 text-left">
+        <div className="flex min-w-0 flex-col gap-4 text-left md:min-w-[13.5rem]">
           <h2 className="text-sm font-bold text-gray-200 uppercase tracking-wider">Contact Details</h2>
           <ul className="flex flex-col gap-2.5 text-xs md:text-sm text-gray-400">
-            <li className="flex items-center gap-2">
-              <svg aria-hidden="true" className="w-4 h-4 text-gold-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <li className="flex items-start gap-2">
+              <svg aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-gold-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
-              <a href={`mailto:${supportEmail}`} className="hover:text-gold-500 transition-colors break-all">
+              <a
+                href={`mailto:${supportEmail}`}
+                className="min-w-0 leading-snug hover:text-gold-500 transition-colors [overflow-wrap:break-word] [word-break:normal] md:whitespace-nowrap"
+              >
                 {supportEmail}
               </a>
             </li>

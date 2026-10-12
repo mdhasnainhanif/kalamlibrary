@@ -241,16 +241,22 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
                   href={`/kalam/${result.slug}/${getLanguagePath(result.language)}`}
                   onClick={() => setIsOpen(false)}
                   className="flex flex-col px-5 py-3 hover:bg-emerald-50 dark:hover:bg-emerald-900/50 border-b border-emerald-500/10 dark:border-emerald-500/5 last:border-0 group transition-colors"
-                  aria-label={`Read ${result.matched_title} by ${result.author_name} in ${result.language.replace("_", " ")}`}
+                  aria-label={
+                    result.author_name
+                      ? `Read ${result.matched_title} by ${result.author_name} in ${result.language.replace("_", " ")}`
+                      : `Read ${result.matched_title} in ${result.language.replace("_", " ")}`
+                  }
                 >
                   <span className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-amber-700 dark:group-hover:text-gold-500 transition-colors">
                     {result.matched_title}
                   </span>
                   <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-gray-500 dark:text-gray-400">
-                      by {result.author_name}
-                    </span>
-                    <span aria-hidden="true" className="w-1 h-1 rounded-full bg-emerald-500/30"></span>
+                    {result.author_name ? (
+                      <>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">by {result.author_name}</span>
+                        <span aria-hidden="true" className="h-1 w-1 rounded-full bg-emerald-500/30" />
+                      </>
+                    ) : null}
                     <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-300 font-semibold uppercase">
                       {result.language.replace("_", " ")}
                     </span>

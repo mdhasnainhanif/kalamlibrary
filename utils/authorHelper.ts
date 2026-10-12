@@ -17,6 +17,53 @@ export function canonicalAuthorRoman(nameRoman: string): string {
   return AUTHOR_ROMAN_ALIASES[nameRoman] ?? nameRoman;
 }
 
+/** Placeholder author rows from imports — hide in nav and UI. */
+export function isPlaceholderAuthorName(name: string | null | undefined): boolean {
+  if (!name?.trim()) return true;
+  const n = name.trim().toLowerCase();
+  return n === "unknown" || n === "unknown poet" || n === "anonymous" || n === "n/a";
+}
+
+export function filterListedAuthors<T extends { name_roman: string }>(authors: T[] | null | undefined): T[] {
+  return (authors || []).filter((a) => !isPlaceholderAuthorName(a.name_roman));
+}
+
+/** Poets nav: A–Z, then these authors at the end (order preserved). */
+export const POET_NAV_LAST_NAME = "Abu Al-Asar Hafeez Jalandhari";
+
+function poetNavLastRank(nameRoman: string): number | null {
+  const n = nameRoman.trim().toLowerCase();
+  if (n.includes("busiri")) return 0;
+  if (n.includes("hafeez jalandhari") || n === POET_NAV_LAST_NAME.toLowerCase()) return 1;
+  return null;
+}
+
+function isPoetNavLastEntry(nameRoman: string): boolean {
+  return poetNavLastRank(nameRoman) !== null;
+}
+
+export function sortAuthorsForPoetsNav<T extends { name_roman: string }>(authors: T[]): T[] {
+  const pinned: T[] = [];
+  const rest: T[] = [];
+  for (const author of authors) {
+    if (isPoetNavLastEntry(author.name_roman)) pinned.push(author);
+    else rest.push(author);
+  }
+  rest.sort((a, b) => a.name_roman.localeCompare(b.name_roman, "en", { sensitivity: "base" }));
+  pinned.sort(
+    (a, b) =>
+      (poetNavLastRank(a.name_roman) ?? 0) - (poetNavLastRank(b.name_roman) ?? 0) ||
+      a.name_roman.localeCompare(b.name_roman, "en", { sensitivity: "base" }),
+  );
+  return [...rest, ...pinned];
+}
+
+/** Display name for cards/SEO, or empty when missing/placeholder. */
+export function authorLabelFromRoman(name: string | null | undefined): string {
+  if (isPlaceholderAuthorName(name)) return "";
+  return name!.trim();
+}
+
 export const AUTHOR_URDU_NAMES: Record<string, string> = {
   "Imam Ahmad Raza Khan Qadri": "امام احمد رضا خان قادری",
   "Mustafa Raza Khan Qadri": "مصطفیٰ رضا خان قادری",

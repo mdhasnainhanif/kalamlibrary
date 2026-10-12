@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Noto_Nastaliq_Urdu } from "next/font/google";
 import "./globals.css";
 
-import Navbar from "@/components/Navbar";
+import NavbarWithPoets from "@/components/NavbarWithPoets";
 import SearchHeroBanner from "@/components/SearchHeroBanner";
 import Footer from "@/components/Footer";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -146,7 +146,7 @@ export default function RootLayout({
 
           <SiteBackground />
 
-          <Navbar />
+          <NavbarWithPoets />
           <SearchHeroBanner />
           <div className="relative z-0 flex min-h-0 w-full flex-1 flex-col isolate">
             {children}

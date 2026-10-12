@@ -7,6 +7,7 @@ import KalamPageAdLayout from "@/components/KalamPageAdLayout";
 import KalamLangScrollAnchor from "@/components/KalamLangScrollAnchor";
 import KalamLangTabLink from "@/components/KalamLangTabLink";
 import ReportErrorLink from "@/components/ReportErrorLink";
+import { isPlaceholderAuthorName } from "@/utils/authorHelper";
 import KalamReaderIntro from "@/components/KalamReaderIntro";
 import { getKalamPageData } from "@/utils/kalamData";
 import {
@@ -77,13 +78,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const { kalam, author, primaryTranslation, translations, cleanSlug } = data;
   const titleText = primaryTranslation?.title || kalam.primary_title_roman;
-  const authorName = author ? displayAuthorName(author.name_roman) : "Unknown Poet";
+  const authorName = author && !isPlaceholderAuthorName(author.name_roman) ? displayAuthorName(author.name_roman) : "";
   const opening = firstCouplet(primaryTranslation?.lyrics);
   const pageTitle = `${titleText} – Naat Lyrics`;
   const pageDescription = truncateAtWord(
     opening
-      ? `${opening}. Naat lyrics by ${authorName} in Urdu, Hindi, Bangla, and Roman English.`
-      : `Naat lyrics of ${titleText} by ${authorName}, available in Urdu Nastaliq, Hindi, Bangla, and Roman English.`
+      ? authorName
+        ? `${opening}. Naat lyrics by ${authorName} in Urdu, Hindi, Bangla, and Roman English.`
+        : `${opening}. Naat lyrics in Urdu, Hindi, Bangla, and Roman English.`
+      : authorName
+        ? `Naat lyrics of ${titleText} by ${authorName}, available in Urdu Nastaliq, Hindi, Bangla, and Roman English.`
+        : `Naat lyrics of ${titleText}, available in Urdu Nastaliq, Hindi, Bangla, and Roman English.`
   );
   const canonicalUrl = buildCanonicalUrl(kalamHref(cleanSlug));
 
@@ -159,8 +164,8 @@ export default async function KalamSlugPage({ params }: PageProps) {
     permanentRedirect(kalamHref(cleanSlug));
   }
 
-  const authorName = author ? displayAuthorName(author.name_roman) : "Unknown Poet";
-  const authorSlug = author ? slugify(author.name_roman) : "";
+  const authorName = author && !isPlaceholderAuthorName(author.name_roman) ? displayAuthorName(author.name_roman) : "";
+  const authorSlug = author && authorName ? slugify(author.name_roman) : "";
   const sourceCollection = inferredSourceCollection(author?.name_roman);
   const urduTranslation = translations.find((t) => t.language === "urdu");
 
@@ -241,7 +246,7 @@ export default async function KalamSlugPage({ params }: PageProps) {
               {headerSubtitle.text}
             </p>
           )}
-          {author && (
+          {author && authorName ? (
             <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">
               Written by{" "}
               <Link
@@ -251,7 +256,7 @@ export default async function KalamSlugPage({ params }: PageProps) {
                 {authorName}
               </Link>
             </p>
-          )}
+          ) : null}
           {sourceCollection && (
             <p className="text-xs text-gray-500 mt-2">
               Source collection: <span className="text-gray-700 dark:text-gray-300">{sourceCollection}</span>

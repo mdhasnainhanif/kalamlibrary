@@ -8,7 +8,9 @@ export function buildKalamReaderIntro(params: {
 }): string {
   const { titleRoman, authorName, sourceCollection, activeLanguageLabel, translationCount } = params;
 
-  const opening = `${titleRoman} is a devotional naat and kalam by ${authorName}.`;
+  const opening = authorName.trim()
+    ? `${titleRoman} is a devotional naat and kalam by ${authorName}.`
+    : `${titleRoman} is a devotional naat and kalam preserved in the Kalam Library archive.`;
   const source = sourceCollection
     ? ` The poem is associated with the published collection ${sourceCollection}.`
     : "";

@@ -4,6 +4,7 @@ import { supabase } from "@/utils/supabase";
 import { SITE_CONFIG, buildCanonicalUrl, buildBreadcrumbJsonLd } from "@/utils/seoConfig";
 import SearchBar from "@/components/SearchBar";
 import { kalamHref } from "@/utils/kalam";
+import { authorLabelFromRoman } from "@/utils/authorHelper";
 import { kalamGridCardClass, kalamGridCardFooterClass } from "@/utils/kalamCardStyles";
 
 interface PageProps {
@@ -204,13 +205,17 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
           <section aria-label="Kalam List" className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {kalams.map((kalam) => {
               const authorData = Array.isArray(kalam.authors) ? kalam.authors[0] : kalam.authors;
-              const authorName = authorData ? authorData.name_roman : "Unknown Poet";
+              const authorName = authorLabelFromRoman(authorData?.name_roman);
 
               return (
                 <Link
                   key={kalam.id}
                   href={kalamHref(kalam.slug)}
-                  aria-label={`Read ${kalam.primary_title_roman} lyrics by ${authorName}`}
+                  aria-label={
+                    authorName
+                      ? `Read ${kalam.primary_title_roman} lyrics by ${authorName}`
+                      : `Read ${kalam.primary_title_roman} lyrics`
+                  }
                   className={kalamGridCardClass}
                 >
                   <div className="kalam-list-card__body space-y-1.5">
@@ -224,7 +229,7 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
                     )}
                   </div>
                   <div className={`${kalamGridCardFooterClass} flex items-center justify-between gap-2 text-[11px] text-slate-500 dark:text-gray-400`}>
-                    <span className="kalam-card-author min-w-0 flex-1">{authorName}</span>
+                    {authorName ? <span className="kalam-card-author min-w-0 flex-1">{authorName}</span> : <span className="flex-1" />}
                     <svg aria-hidden="true" className="w-3.5 h-3.5 text-emerald-400 group-hover:text-gold-500 transform group-hover:translate-x-0.5 transition-all shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>

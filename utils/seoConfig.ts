@@ -93,7 +93,7 @@ export function buildWebSiteSchema() {
       sameAs: [SITE_CONFIG.instagramUrl, SITE_CONFIG.tiktokUrl],
       logo: {
         "@type": "ImageObject",
-        url: `${SITE_CONFIG.url}/icon.png`,
+        url: `${SITE_CONFIG.url}/kalam-library-logo.png`,
       },
     },
     potentialAction: {
@@ -158,7 +158,7 @@ export function buildKalamJsonLd(params: {
       url: SITE_CONFIG.url,
       logo: {
         "@type": "ImageObject",
-        url: `${SITE_CONFIG.url}/icon.png`,
+        url: `${SITE_CONFIG.url}/kalam-library-logo.png`,
       },
     },
     isAccessibleForFree: true,

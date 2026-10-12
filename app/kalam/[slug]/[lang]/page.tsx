@@ -7,6 +7,7 @@ import KalamLangScrollAnchor from "@/components/KalamLangScrollAnchor";
 import KalamLangTabLink from "@/components/KalamLangTabLink";
 import ReportErrorLink from "@/components/ReportErrorLink";
 import KalamReaderIntro from "@/components/KalamReaderIntro";
+import { isPlaceholderAuthorName } from "@/utils/authorHelper";
 import { getKalamPageData } from "@/utils/kalamData";
 import {
   cleanKalamSlug,
@@ -80,13 +81,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { kalam, author, translations, cleanSlug } = data;
   const currentTranslation = translations.find((t) => t.language === langConfig.code);
   const titleText = currentTranslation ? currentTranslation.title : kalam.primary_title_roman;
-  const authorName = author ? displayAuthorName(author.name_roman) : "Unknown Poet";
+  const authorName = author && !isPlaceholderAuthorName(author.name_roman) ? displayAuthorName(author.name_roman) : "";
   const opening = firstCouplet(currentTranslation?.lyrics);
   const seoTitle = `${titleText} – Naat Lyrics in ${langConfig.label}`;
   const seoDesc = truncateAtWord(
     opening
-      ? `${opening}. ${titleText} by ${authorName} in ${langConfig.label}.`
-      : `Naat lyrics of ${titleText} by ${authorName} in ${langConfig.label}.`
+      ? authorName
+        ? `${opening}. ${titleText} by ${authorName} in ${langConfig.label}.`
+        : `${opening}. ${titleText} in ${langConfig.label}.`
+      : authorName
+        ? `Naat lyrics of ${titleText} by ${authorName} in ${langConfig.label}.`
+        : `Naat lyrics of ${titleText} in ${langConfig.label}.`
   );
   const canonicalUrl = buildCanonicalUrl(kalamHref(cleanSlug, lang));
 
@@ -161,8 +166,8 @@ export default async function KalamPage({ params }: PageProps) {
     notFound();
   }
 
-  const authorName = author ? displayAuthorName(author.name_roman) : "Unknown Poet";
-  const authorSlug = author ? slugify(author.name_roman) : "";
+  const authorName = author && !isPlaceholderAuthorName(author.name_roman) ? displayAuthorName(author.name_roman) : "";
+  const authorSlug = author && authorName ? slugify(author.name_roman) : "";
   const sourceCollection = inferredSourceCollection(author?.name_roman);
   const pageUrl = buildCanonicalUrl(kalamHref(cleanSlug, lang));
   const headerSubtitle = kalamHeaderSubtitle(langConfig.code, {
@@ -237,7 +242,7 @@ export default async function KalamPage({ params }: PageProps) {
               {headerSubtitle.text}
             </p>
           )}
-          {author && (
+          {author && authorName ? (
             <p className="text-sm md:text-base text-gray-600 dark:text-gray-400">
               Written by{" "}
               <Link 
@@ -247,7 +252,7 @@ export default async function KalamPage({ params }: PageProps) {
                 {authorName}
               </Link>
             </p>
-          )}
+          ) : null}
           {sourceCollection && (
             <p className="text-xs text-gray-500 mt-2">
               Source collection: <span className="text-gray-700 dark:text-gray-300">{sourceCollection}</span>

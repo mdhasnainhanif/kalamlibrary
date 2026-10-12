@@ -14,7 +14,7 @@ import {
 import SearchBar from "@/components/SearchBar";
 import FAQAccordion from "@/components/FAQAccordion";
 import HomePageAd from "@/components/HomePageAd";
-import { getAuthorUrduName } from "@/utils/authorHelper";
+import { authorLabelFromRoman, getAuthorUrduName } from "@/utils/authorHelper";
 import { kalamHref } from "@/utils/kalam";
 import {
   bentoCtaBlockClass,
@@ -227,7 +227,7 @@ export default function HomePageView({
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {kalams.map((kalam) => {
                   const authorData = Array.isArray(kalam.authors) ? kalam.authors[0] : kalam.authors;
-                  const authorName = authorData?.name_roman ?? "Unknown Poet";
+                  const authorName = authorLabelFromRoman(authorData?.name_roman);
                   const urduTitle = featuredUrduTitle(kalam);
                   return (
                     <Link
@@ -249,11 +249,13 @@ export default function HomePageView({
                           </p>
                         ) : null}
                       </div>
-                      <div className={kalamGridCardFooterClass}>
-                        <span className="kalam-card-author text-[11px] text-slate-500 dark:text-gray-400">
-                          By {authorName}
-                        </span>
-                      </div>
+                      {authorName ? (
+                        <div className={kalamGridCardFooterClass}>
+                          <span className="kalam-card-author text-[11px] text-slate-500 dark:text-gray-400">
+                            By {authorName}
+                          </span>
+                        </div>
+                      ) : null}
                     </Link>
                   );
                 })}

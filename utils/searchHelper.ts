@@ -1,3 +1,4 @@
+import { authorLabelFromRoman } from "@/utils/authorHelper";
 import { supabase } from "@/utils/supabase";
 
 export interface SearchResultItem {
@@ -164,7 +165,7 @@ export async function searchKalams(rawQuery: string, limit = 40): Promise<Search
           matched_title: matchedTitle,
           language: language || "roman_english",
           slug,
-          author_name: authorName || "Unknown Poet",
+          author_name: authorName || "",
           author_slug: authorName ? slugify(authorName) : "",
           score,
         });
@@ -185,7 +186,9 @@ export async function searchKalams(rawQuery: string, limit = 40): Promise<Search
         const kalam = (Array.isArray(item.kalams) ? item.kalams[0] : item.kalams) as { primary_title_roman: string; primary_title_urdu?: string; slug: string; authors?: { name_roman: string } | { name_roman: string }[] } | null;
         if (!kalam) continue;
         const authorData = kalam.authors;
-        const authorName = (Array.isArray(authorData) ? authorData[0]?.name_roman : authorData?.name_roman) || "Unknown Poet";
+        const authorName = authorLabelFromRoman(
+          Array.isArray(authorData) ? authorData[0]?.name_roman : authorData?.name_roman
+        );
 
         processKalamRecord(
           item.kalam_id,
@@ -210,7 +213,9 @@ export async function searchKalams(rawQuery: string, limit = 40): Promise<Search
     if (kalamsData) {
       for (const item of kalamsData) {
         const authorData = item.authors as { name_roman: string } | { name_roman: string }[] | null;
-        const authorName = (Array.isArray(authorData) ? authorData[0]?.name_roman : authorData?.name_roman) || "Unknown Poet";
+        const authorName = authorLabelFromRoman(
+          Array.isArray(authorData) ? authorData[0]?.name_roman : authorData?.name_roman
+        );
         const translations = (item.kalam_translations || []) as { id: string; title: string; language: string; lyrics: string }[];
         const primaryTrans = translations[0] || {};
 
@@ -273,7 +278,9 @@ export async function searchKalams(rawQuery: string, limit = 40): Promise<Search
       if (wordKalams) {
         for (const k of wordKalams) {
           const authorData = k.authors as { name_roman: string } | { name_roman: string }[] | null;
-          const authorName = (Array.isArray(authorData) ? authorData[0]?.name_roman : authorData?.name_roman) || "Unknown Poet";
+          const authorName = authorLabelFromRoman(
+          Array.isArray(authorData) ? authorData[0]?.name_roman : authorData?.name_roman
+        );
           const translations = (k.kalam_translations || []) as { id: string; title: string; language: string; lyrics: string }[];
           for (const t of translations) {
             processKalamRecord(
@@ -303,7 +310,9 @@ export async function searchKalams(rawQuery: string, limit = 40): Promise<Search
           const kalam = (Array.isArray(item.kalams) ? item.kalams[0] : item.kalams) as { primary_title_roman: string; primary_title_urdu?: string; slug: string; authors?: { name_roman: string } | { name_roman: string }[] } | null;
           if (!kalam) continue;
           const authorData = kalam.authors;
-          const authorName = (Array.isArray(authorData) ? authorData[0]?.name_roman : authorData?.name_roman) || "Unknown Poet";
+          const authorName = authorLabelFromRoman(
+          Array.isArray(authorData) ? authorData[0]?.name_roman : authorData?.name_roman
+        );
 
           processKalamRecord(
             item.kalam_id,

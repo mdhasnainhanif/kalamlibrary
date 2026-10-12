@@ -147,6 +147,32 @@ export function filterIndexableKalams<T extends KalamLike>(kalams: T[] | null | 
   return (kalams || []).filter(isIndexableKalam);
 }
 
+function isUrduScript(text: string): boolean {
+  return /[\u0600-\u06FF]/.test(text);
+}
+
+/** Roman card + Urdu Nastaliq line (primary title, optional translation title, or lookup map). */
+export function resolveKalamUrduTitle(
+  kalam: { id?: string; primary_title_urdu?: string | null },
+  options?: {
+    translationTitle?: string | null;
+    urduTitleByKalamId?: Map<string, string>;
+  }
+): string {
+  const primary = (kalam.primary_title_urdu || "").trim();
+  if (primary && isUrduScript(primary)) return primary;
+
+  const fromTrans = (options?.translationTitle || "").trim();
+  if (fromTrans && isUrduScript(fromTrans)) return fromTrans;
+
+  if (kalam.id && options?.urduTitleByKalamId) {
+    const fromMap = (options.urduTitleByKalamId.get(kalam.id) || "").trim();
+    if (fromMap && isUrduScript(fromMap)) return fromMap;
+  }
+
+  return "";
+}
+
 /** Strip honorifics and unsafe characters; cap extreme OCR slugs. */
 export function cleanKalamSlug(rawSlug: string): string {
   let slug = rawSlug;

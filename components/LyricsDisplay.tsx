@@ -1,7 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import CopyShareButtons from "./CopyShareButtons";
+import { useCallback, useMemo, useState } from "react";
+import { Check, Circle } from "lucide-react";
+import KalamShareHint from "@/components/KalamShareHint";
+import KalamShareToolbar from "@/components/KalamShareToolbar";
+import { parseKalamCouplets } from "@/utils/parseKalamCouplets";
 
 interface LyricsDisplayProps {
   lyrics: string;
@@ -18,8 +21,8 @@ export default function LyricsDisplay({
   lang,
   dir,
 }: LyricsDisplayProps) {
-  // Font size multiplier (default = 1, min = 0.75, max = 2.0, step = 0.15)
   const [fontScale, setFontScale] = useState(1);
+  const [selectedIndices, setSelectedIndices] = useState<Set<number>>(() => new Set());
 
   const handleZoomIn = () => {
     setFontScale((prev) => Math.min(2.0, +(prev + 0.15).toFixed(2)));
@@ -33,12 +36,10 @@ export default function LyricsDisplay({
     setFontScale(1);
   };
 
-  // Base font size in px based on language
   const baseSizePx = lang === "urdu" ? 22 : 16;
   const currentFontSizePx = Math.round(baseSizePx * fontScale);
   const percentage = Math.round(fontScale * 100);
 
-  // Map language to ISO code for HTML lang attribute
   const langIsoMap: Record<string, string> = {
     urdu: "ur",
     hindi: "hi",
@@ -47,15 +48,27 @@ export default function LyricsDisplay({
   };
   const htmlLang = langIsoMap[lang] || "en";
 
-  const stanzas = lyrics
-    .trim()
-    .split(/\n\n+/)
-    .map((block) => block.split("\n").map((l) => l.trim()).filter(Boolean))
-    .filter((lines) => lines.length > 0);
+  const stanzas = useMemo(() => parseKalamCouplets(lyrics), [lyrics]);
+
+  const toggleStanza = useCallback((index: number) => {
+    setSelectedIndices((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  }, []);
+
+  const selectAll = useCallback(() => {
+    setSelectedIndices(new Set(stanzas.map((_, i) => i)));
+  }, [stanzas]);
+
+  const clearSelection = useCallback(() => {
+    setSelectedIndices(new Set());
+  }, []);
 
   return (
-    <div className="w-full max-w-2xl mx-auto flex flex-col items-center">
-      {/* Control Bar for Font Size Adjustment (A- / Reset / A+) */}
+    <div className="w-full max-w-2xl mx-auto flex flex-col items-center pb-20 md:pb-0">
       <div
         role="toolbar"
         aria-label="Font size adjustment controls"
@@ -71,7 +84,6 @@ export default function LyricsDisplay({
           </span>
         </div>
 
-        {/* Font Control Buttons */}
         <div className="flex items-center gap-2">
           <div className="flex items-center bg-emerald-50 dark:bg-emerald-900/60 p-1 rounded-lg border border-emerald-500/25 dark:border-emerald-500/20 shadow-inner">
             <button
@@ -113,13 +125,14 @@ export default function LyricsDisplay({
         </div>
       </div>
 
-      {/* Lyrics Display Container */}
+      <KalamShareHint />
+
       <article
         id="lyrics-panel"
         aria-label="Lyrics text"
         lang={htmlLang}
         dir={dir}
-        className={`w-full kalam-lyrics-stack border border-emerald-500/20 dark:border-emerald-500/10 rounded-2xl md:rounded-3xl shadow-sm dark:shadow-inner text-center select-text transition-all duration-150 ${
+        className={`w-full kalam-lyrics-stack border border-emerald-500/20 dark:border-emerald-500/10 rounded-2xl md:rounded-3xl shadow-sm dark:shadow-inner text-center transition-all duration-150 ${
           lang === "urdu"
             ? "kalam-urdu-lyrics text-emerald-950 dark:text-emerald-100/95 font-bold md:font-semibold"
             : "font-sans text-gray-900 dark:text-gray-200 tracking-wide leading-relaxed md:leading-loose font-medium"
@@ -129,19 +142,56 @@ export default function LyricsDisplay({
           lineHeight: lang === "urdu" ? (fontScale > 1.3 ? 2.5 : 2.2) : 1.8,
         }}
       >
-        {stanzas.map((lines, i) => (
-          <div key={i} className="kalam-stanza w-full" aria-label={`Verse ${i + 1}`}>
-            {lines.map((line, j) => (
-              <p key={j} className="kalam-stanza-line">
-                {line}
-              </p>
-            ))}
-          </div>
-        ))}
+        {stanzas.map((lines, i) => {
+          const selected = selectedIndices.has(i);
+          return (
+            <button
+              key={i}
+              type="button"
+              onClick={() => toggleStanza(i)}
+              aria-pressed={selected}
+              aria-label={`Verse ${i + 1}${selected ? ", selected for sharing" : ", tap to select for sharing"}`}
+              className={`kalam-stanza group/stanza relative w-full cursor-pointer border-0 bg-transparent p-0 text-center transition-all select-text ${
+                selected
+                  ? "rounded-xl ring-2 ring-gold-500/90 ring-offset-2 ring-offset-white dark:ring-offset-emerald-950 bg-gold-500/5"
+                  : "hover:bg-emerald-500/5 rounded-xl"
+              }`}
+            >
+              <span
+                className={`absolute left-2 top-2 flex h-5 w-5 items-center justify-center rounded-full shadow-sm md:left-3 ${
+                  selected
+                    ? "bg-gold-500 text-black"
+                    : "border border-amber-500/40 bg-emerald-950/40 text-amber-500/70 opacity-80 group-hover/stanza:opacity-100"
+                }`}
+                aria-hidden
+              >
+                {selected ? (
+                  <Check className="h-3 w-3" strokeWidth={3} />
+                ) : (
+                  <Circle className="h-3 w-3" strokeWidth={2} />
+                )}
+              </span>
+              {lines.map((line, j) => (
+                <p key={j} className="kalam-stanza-line pointer-events-none">
+                  {line}
+                </p>
+              ))}
+            </button>
+          );
+        })}
       </article>
 
-      {/* Copy and Share Buttons */}
-      <CopyShareButtons lyrics={lyrics} title={title} author={author} />
+      <KalamShareToolbar
+        lyrics={lyrics}
+        title={title}
+        author={author}
+        lang={lang}
+        dir={dir}
+        stanzas={stanzas}
+        selectedIndices={selectedIndices}
+        onSelectAll={selectAll}
+        onClearSelection={clearSelection}
+      />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { supabase } from "@/utils/supabase";
-import { getAuthorUrduName } from "@/utils/authorHelper";
+import { filterListedAuthors, getAuthorUrduName } from "@/utils/authorHelper";
 import { filterIndexableKalams } from "@/utils/kalam";
 import { SITE_CONFIG, buildBreadcrumbJsonLd, buildCanonicalUrl } from "@/utils/seoConfig";
 
@@ -44,10 +44,12 @@ function slugify(text: string) {
 }
 
 export default async function AuthorsPage() {
-  const { data: authors, error: authorsError } = await supabase
+  const { data: authorsRaw, error: authorsError } = await supabase
     .from("authors")
     .select("*")
     .order("name_roman", { ascending: true });
+
+  const authors = filterListedAuthors(authorsRaw);
 
   const { data: allKalams } = await supabase
     .from("kalams")

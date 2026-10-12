@@ -4,7 +4,9 @@ import { supabase } from "@/utils/supabase";
 import { SITE_CONFIG, buildBreadcrumbJsonLd, buildCanonicalUrl } from "@/utils/seoConfig";
 import { filterIndexableKalams, kalamHref } from "@/utils/kalam";
 import { DUROOD_SALAM_PAGE, DUROOD_SALAM_SLUGS } from "@/utils/duroodSalamCollection";
-import { kalamGridCardClass, kalamGridCardFooterClass } from "@/utils/kalamCardStyles";
+import { authorLabelFromRoman } from "@/utils/authorHelper";
+import SearchBar from "@/components/SearchBar";
+import DuroodKalamList, { type DuroodKalamItem } from "@/components/DuroodKalamList";
 
 export const revalidate = 604800;
 
@@ -36,6 +38,17 @@ export default async function DuroodOSalamPage() {
   const ordered = slugs.map((slug) => bySlug.get(slug)).filter(Boolean) as NonNullable<
     typeof rawKalams
   >[number][];
+
+  const listItems: DuroodKalamItem[] = ordered.map((kalam) => {
+    const authorData = Array.isArray(kalam.authors) ? kalam.authors[0] : kalam.authors;
+    return {
+      id: kalam.id,
+      slug: kalam.slug,
+      primary_title_roman: kalam.primary_title_roman,
+      primary_title_urdu: kalam.primary_title_urdu,
+      authorName: authorLabelFromRoman(authorData?.name_roman),
+    };
+  });
 
   const breadcrumbSchema = buildBreadcrumbJsonLd([
     { name: "Home", url: "/" },
@@ -85,43 +98,15 @@ export default async function DuroodOSalamPage() {
           <p className="mt-4 text-xs text-emerald-300/90">
             {ordered.length} kalams · Urdu, Roman English, Hindi &amp; Bangla
           </p>
+          <div className="mx-auto mt-6 max-w-xl px-1">
+            <SearchBar />
+          </div>
         </header>
 
         {ordered.length === 0 ? (
           <p className="text-center text-sm text-gray-400">Kalams for this collection are being added.</p>
         ) : (
-          <section
-            aria-label="Durood and Salam kalams"
-            className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3"
-          >
-            {ordered.map((kalam) => {
-              const authorData = Array.isArray(kalam.authors) ? kalam.authors[0] : kalam.authors;
-              const authorName = authorData?.name_roman ?? "Unknown Poet";
-
-              return (
-                <Link
-                  key={kalam.id}
-                  href={kalamHref(kalam.slug)}
-                  className={kalamGridCardClass}
-                  aria-label={`Read ${kalam.primary_title_roman} by ${authorName}`}
-                >
-                  <div className="kalam-list-card__body space-y-1.5">
-                    <h2 className="kalam-list-title kalam-list-title--4 text-sm font-semibold leading-snug text-slate-800 transition-colors group-hover:text-gold-500 dark:text-gray-100">
-                      {kalam.primary_title_roman}
-                    </h2>
-                    {kalam.primary_title_urdu && (
-                      <p lang="ur" dir="rtl" className="kalam-list-urdu font-urdu text-base text-emerald-700 dark:text-emerald-400/90">
-                        {kalam.primary_title_urdu}
-                      </p>
-                    )}
-                  </div>
-                  <div className={kalamGridCardFooterClass}>
-                    <span className="kalam-card-author text-xs text-gray-500 dark:text-gray-400">{authorName}</span>
-                  </div>
-                </Link>
-              );
-            })}
-          </section>
+          <DuroodKalamList kalams={listItems} />
         )}
       </main>
     </>
