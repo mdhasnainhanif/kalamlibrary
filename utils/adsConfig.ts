@@ -1,6 +1,6 @@
 /** Google AdSense (Display). Override via env if you add more ad units later. */
 export const ADSENSE_CLIENT =
-  process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-7173654343893692";
+  process.env.NEXT_PUBLIC_ADSENSE_CLIENT ?? "ca-pub-4716378596479015";
 
 /** Ad unit: "First Add" (Display, auto, responsive) */
 export const ADSENSE_SLOT_FIRST =

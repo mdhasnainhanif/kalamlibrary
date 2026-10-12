@@ -6,6 +6,7 @@ import KalamPageAdLayout from "@/components/KalamPageAdLayout";
 import KalamLangScrollAnchor from "@/components/KalamLangScrollAnchor";
 import KalamLangTabLink from "@/components/KalamLangTabLink";
 import ReportErrorLink from "@/components/ReportErrorLink";
+import KalamReaderIntro from "@/components/KalamReaderIntro";
 import { getKalamPageData } from "@/utils/kalamData";
 import {
   cleanKalamSlug,
@@ -25,6 +26,7 @@ import {
   buildBreadcrumbJsonLd,
 } from "@/utils/seoConfig";
 import { buildKalamLanguageAlternates } from "@/utils/kalamAlternates";
+import { buildKalamReaderIntro } from "@/utils/kalamReaderIntro";
 
 // Helper to slugify author names in code for routing
 function slugify(text: string) {
@@ -66,12 +68,16 @@ async function getKalamData(rawSlug: string) {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug, lang } = await params;
   const langConfig = LANGUAGES_MAP[lang];
-  if (!langConfig) return {};
+  if (!langConfig) {
+    notFound();
+  }
 
   const data = await getKalamData(slug);
-  if (!data) return {};
+  if (!data || data.shouldNoindex) {
+    notFound();
+  }
 
-  const { kalam, author, translations, shouldNoindex, cleanSlug } = data;
+  const { kalam, author, translations, cleanSlug } = data;
   const currentTranslation = translations.find((t) => t.language === langConfig.code);
   const titleText = currentTranslation ? currentTranslation.title : kalam.primary_title_roman;
   const authorName = author ? displayAuthorName(author.name_roman) : "Unknown Poet";
@@ -95,9 +101,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: seoTitle,
     description: seoDesc,
-    robots: shouldNoindex
-      ? { index: false, follow: false }
-      : { index: true, follow: true, googleBot: { index: true, follow: true } },
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
     alternates: {
       canonical: canonicalUrl,
       languages: languageAlternates,
@@ -164,6 +168,13 @@ export default async function KalamPage({ params }: PageProps) {
   const headerSubtitle = kalamHeaderSubtitle(langConfig.code, {
     primaryTitleUrdu: kalam.primary_title_urdu,
     translationTitle: activeTranslation.title,
+  });
+  const readerIntro = buildKalamReaderIntro({
+    titleRoman: kalam.primary_title_roman,
+    authorName,
+    sourceCollection,
+    activeLanguageLabel: langConfig.label,
+    translationCount: translations.length,
   });
 
   const kalamSchema = buildKalamJsonLd({
@@ -285,6 +296,8 @@ export default async function KalamPage({ params }: PageProps) {
             </div>
           </div>
         </div>
+
+        <KalamReaderIntro text={readerIntro} />
 
         <KalamPageAdLayout
           lyrics={

@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 /** Mirrors public/ads.txt so crawlers always get plain text from the app router if assets are misconfigured. */
-const ADS_TXT = "google.com, pub-7173654343893692, DIRECT, f08c47fec0942fa0\n";
+const ADS_TXT = "google.com, pub-4716378596479015, DIRECT, f08c47fec0942fa0\n";
 
 export function GET() {
   return new NextResponse(ADS_TXT, {

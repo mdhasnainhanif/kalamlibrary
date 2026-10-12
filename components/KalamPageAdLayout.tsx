@@ -56,7 +56,7 @@ export default function KalamPageAdLayout({ lyrics, children }: KalamPageAdLayou
 
       <div className="w-full max-w-2xl lg:max-w-3xl flex-1 flex flex-col items-center min-w-0">
         {lyrics}
-        <div className="w-full xl:hidden">
+        <div className="w-full">
           <AdSenseDisplay slot={ADSENSE_SLOT_FIRST} format="auto" layout="inline" />
         </div>
         {children}

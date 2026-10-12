@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import SearchBar from "@/components/SearchBar";
 import FAQAccordion from "@/components/FAQAccordion";
+import HomePageAd from "@/components/HomePageAd";
 import { getAuthorUrduName } from "@/utils/authorHelper";
 import { kalamHref } from "@/utils/kalam";
 import {
@@ -135,6 +136,8 @@ export default function HomePageView({
         </div>
         </div>
       </section>
+
+      <HomePageAd />
 
       {/* Bento: Poets + Popular — soft gray-green band */}
       <section className="page-section-alt w-full py-8 md:py-12" id="featured" aria-label="Featured content">

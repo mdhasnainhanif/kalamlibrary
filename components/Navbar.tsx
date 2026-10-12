@@ -14,6 +14,7 @@ export default function Navbar() {
   const navLinks = [
     { href: "/", label: "Home" },
     { href: "/kalams", label: "Browse Kalams" },
+    { href: "/trending", label: "Trending" },
     { href: "/durood-o-salam", label: "Durood o Salam" },
     { href: "/authors", label: "Poets" },
     { href: "/about", label: "About" },

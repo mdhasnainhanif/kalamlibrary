@@ -7,6 +7,7 @@ import KalamPageAdLayout from "@/components/KalamPageAdLayout";
 import KalamLangScrollAnchor from "@/components/KalamLangScrollAnchor";
 import KalamLangTabLink from "@/components/KalamLangTabLink";
 import ReportErrorLink from "@/components/ReportErrorLink";
+import KalamReaderIntro from "@/components/KalamReaderIntro";
 import { getKalamPageData } from "@/utils/kalamData";
 import {
   cleanKalamSlug,
@@ -27,6 +28,7 @@ import {
   buildBreadcrumbJsonLd,
 } from "@/utils/seoConfig";
 import { buildKalamLanguageAlternates } from "@/utils/kalamAlternates";
+import { buildKalamReaderIntro } from "@/utils/kalamReaderIntro";
 
 interface PageProps {
   params: Promise<{
@@ -69,9 +71,11 @@ async function getKalamData(rawSlug: string) {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const data = await getKalamData(slug);
-  if (!data) return {};
+  if (!data || data.shouldNoindex) {
+    notFound();
+  }
 
-  const { kalam, author, primaryTranslation, translations, shouldNoindex, cleanSlug } = data;
+  const { kalam, author, primaryTranslation, translations, cleanSlug } = data;
   const titleText = primaryTranslation?.title || kalam.primary_title_roman;
   const authorName = author ? displayAuthorName(author.name_roman) : "Unknown Poet";
   const opening = firstCouplet(primaryTranslation?.lyrics);
@@ -94,9 +98,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return {
     title: pageTitle,
     description: pageDescription,
-    robots: shouldNoindex
-      ? { index: false, follow: false }
-      : { index: true, follow: true, googleBot: { index: true, follow: true } },
+    robots: { index: true, follow: true, googleBot: { index: true, follow: true } },
     alternates: {
       canonical: canonicalUrl,
       languages: languageAlternates,
@@ -171,6 +173,13 @@ export default async function KalamSlugPage({ params }: PageProps) {
   const currentLang = isUrduPrimary ? "urdu" : "roman-english";
   const currentDir = isUrduPrimary ? "rtl" : "ltr";
   const kalamUrl = buildCanonicalUrl(kalamHref(cleanSlug));
+  const readerIntro = buildKalamReaderIntro({
+    titleRoman: kalam.primary_title_roman,
+    authorName,
+    sourceCollection,
+    activeLanguageLabel: LANGUAGES_MAP[currentLang]?.label,
+    translationCount: translations.length,
+  });
 
   const kalamSchema = buildKalamJsonLd({
     title: primaryTranslation?.title || kalam.primary_title_roman,
@@ -285,6 +294,8 @@ export default async function KalamSlugPage({ params }: PageProps) {
             </div>
           </div>
         )}
+
+        <KalamReaderIntro text={readerIntro} />
 
         <KalamPageAdLayout
           lyrics={
