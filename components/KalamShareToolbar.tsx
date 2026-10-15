@@ -91,9 +91,12 @@ export default function KalamShareToolbar({
 
   const openSharePreview = () => {
     if (selectedIndices.size === 0) {
-      toast("Tap couplets above to pick bands for your post", { duration: 3500 });
+      toast.error("Please select at least one couplet (band / شعر) to create your post.", {
+        duration: 4500,
+      });
+      return;
     }
-    setPreviewOpen((v) => !v);
+    setPreviewOpen(true);
   };
 
   const selectionCount = selectedIndices.size;
@@ -105,7 +108,7 @@ export default function KalamShareToolbar({
           <button
             type="button"
             onClick={onSelectAll}
-            className="rounded-lg px-3 py-1.5 text-xs font-medium text-emerald-800 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-900/40"
+            className="cursor-pointer rounded-lg px-3 py-1.5 text-xs font-medium text-emerald-800 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-900/40"
           >
             Select all couplets
           </button>
@@ -113,7 +116,7 @@ export default function KalamShareToolbar({
             <button
               type="button"
               onClick={onClearSelection}
-              className="rounded-lg px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-emerald-50 dark:text-gray-400 dark:hover:bg-emerald-900/40"
+              className="cursor-pointer rounded-lg px-3 py-1.5 text-xs font-medium text-gray-600 hover:bg-emerald-50 dark:text-gray-400 dark:hover:bg-emerald-900/40"
             >
               Clear selection
             </button>
@@ -124,7 +127,7 @@ export default function KalamShareToolbar({
           <button
             type="button"
             onClick={handleCopyFull}
-            className="flex items-center gap-2 rounded-full border border-emerald-500/30 bg-white px-5 py-2.5 text-sm font-medium text-emerald-800 shadow-sm hover:bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-900/60 dark:text-emerald-100"
+            className="flex cursor-pointer items-center gap-2 rounded-full border border-emerald-500/30 bg-white px-5 py-2.5 text-sm font-medium text-emerald-800 shadow-sm hover:bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-900/60 dark:text-emerald-100 dark:hover:bg-emerald-800/80 dark:hover:text-emerald-50"
           >
             {copiedFull ? "Copied!" : "Copy full lyrics"}
           </button>
@@ -132,7 +135,7 @@ export default function KalamShareToolbar({
             type="button"
             onClick={openSharePreview}
             aria-expanded={previewOpen}
-            className="flex items-center gap-2 rounded-full bg-gold-500 px-5 py-2.5 text-sm font-semibold text-black shadow-sm hover:bg-gold-400"
+            className="flex cursor-pointer items-center gap-2 rounded-full bg-gold-500 px-5 py-2.5 text-sm font-semibold text-black shadow-sm hover:bg-gold-400"
           >
             <Share2 className="h-4 w-4" aria-hidden />
             {selectionCount > 0
@@ -162,7 +165,7 @@ export default function KalamShareToolbar({
           <button
             type="button"
             onClick={() => setPreviewOpen(true)}
-            className="rounded-lg bg-gold-500 px-4 py-2 text-sm font-bold text-black"
+            className="cursor-pointer rounded-lg bg-gold-500 px-4 py-2 text-sm font-bold text-black"
           >
             Preview post
           </button>

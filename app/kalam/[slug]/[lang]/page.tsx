@@ -326,7 +326,7 @@ export default async function KalamPage({ params }: PageProps) {
                 </h2>
                 <Link
                   href={`/author/${authorSlug}`}
-                  className="text-xs text-emerald-700 dark:text-emerald-400 hover:text-amber-700 dark:hover:text-gold-500 transition-colors font-medium flex items-center gap-1"
+                  className="flex cursor-pointer items-center gap-1 text-xs font-medium text-emerald-700 transition-colors hover:text-amber-700 dark:text-emerald-400 dark:hover:text-gold-500"
                 >
                   <span>View all</span>
                   <svg aria-hidden="true" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -62,8 +62,8 @@ async function getKalamData(rawSlug: string) {
   if (!data) return null;
 
   const primaryTranslation =
-    data.translations.find((t) => t.language === "urdu") ||
     data.translations.find((t) => t.language === "roman_english") ||
+    data.translations.find((t) => t.language === "urdu") ||
     data.translations[0];
 
   return { ...data, primaryTranslation };
@@ -167,8 +167,6 @@ export default async function KalamSlugPage({ params }: PageProps) {
   const authorName = author && !isPlaceholderAuthorName(author.name_roman) ? displayAuthorName(author.name_roman) : "";
   const authorSlug = author && authorName ? slugify(author.name_roman) : "";
   const sourceCollection = inferredSourceCollection(author?.name_roman);
-  const urduTranslation = translations.find((t) => t.language === "urdu");
-
   const isUrduPrimary = primaryTranslation.language === "urdu";
   const headerSubtitle = kalamHeaderSubtitle(primaryTranslation.language as KalamTranslationLanguage, {
       primaryTitleUrdu: kalam.primary_title_urdu,
@@ -324,7 +322,7 @@ export default async function KalamSlugPage({ params }: PageProps) {
                 </h2>
                 <Link
                   href={`/author/${authorSlug}`}
-                  className="text-xs text-emerald-700 dark:text-emerald-400 hover:text-amber-700 dark:hover:text-gold-500 transition-colors font-medium flex items-center gap-1"
+                  className="flex cursor-pointer items-center gap-1 text-xs font-medium text-emerald-700 transition-colors hover:text-amber-700 dark:text-emerald-400 dark:hover:text-gold-500"
                 >
                   <span>View all</span>
                   <svg aria-hidden="true" className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

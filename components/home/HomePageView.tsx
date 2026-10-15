@@ -98,7 +98,7 @@ export default function HomePageView({
         <div className="relative z-10">
           <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200/80 bg-white/75 px-3 py-1 text-xs font-medium tracking-wide text-slate-600 shadow-sm backdrop-blur-md dark:border-emerald-500/15 dark:bg-emerald-950/50 dark:text-gray-300 dark:shadow-none">
             <Sparkles className="h-3.5 w-3.5 text-gold-500" aria-hidden />
-            700+ Naats · Urdu · Roman · Hindi · Bangla
+            750+ Naats · Urdu · Roman · Hindi · Bangla
           </p>
           <h1 className="flex flex-col items-center gap-2 tracking-tight">
             <span lang="ur" dir="rtl" className="font-urdu text-3xl font-bold text-emerald-400 md:text-5xl">

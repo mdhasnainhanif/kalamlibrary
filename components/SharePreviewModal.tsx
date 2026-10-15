@@ -154,7 +154,7 @@ export default function SharePreviewModal({
         <button
           type="button"
           onClick={onClose}
-          className="rounded-lg p-2 text-gray-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/40"
+          className="cursor-pointer rounded-lg p-2 text-gray-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/40"
           aria-label="Close share preview"
         >
           <X className="h-5 w-5" aria-hidden />
@@ -177,7 +177,7 @@ export default function SharePreviewModal({
           type="button"
           disabled={imageBusy || stanzaCount === 0}
           onClick={handleWhatsAppShare}
-          className="flex w-full items-center justify-center gap-2.5 rounded-xl bg-[#25D366] px-4 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#20bd5a] disabled:cursor-not-allowed disabled:opacity-45"
+          className="flex w-full cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-[#25D366] px-4 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#20bd5a] disabled:cursor-not-allowed disabled:opacity-45"
         >
           {imageBusy ? (
             <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
@@ -192,7 +192,7 @@ export default function SharePreviewModal({
             type="button"
             disabled={imageBusy || stanzaCount === 0}
             onClick={handleSaveImage}
-            className="flex flex-1 items-center justify-center gap-2 rounded-xl border border-emerald-500/25 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-900 hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-950/70 dark:text-emerald-100 dark:hover:bg-emerald-800/55 dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-45"
+            className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border border-emerald-500/25 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-900 hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-950/70 dark:text-emerald-100 dark:hover:bg-emerald-800/55 dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-45"
           >
             <ImageDown className="h-4 w-4" aria-hidden />
             Save image
@@ -200,7 +200,7 @@ export default function SharePreviewModal({
           <button
             type="button"
             onClick={onCopyCaption}
-            className="flex-1 rounded-xl border border-emerald-500/25 px-4 py-2.5 text-sm font-semibold text-emerald-800 hover:bg-emerald-50 dark:border-emerald-500/30 dark:text-emerald-200 dark:hover:bg-emerald-900/50 dark:hover:text-emerald-50"
+            className="flex-1 cursor-pointer rounded-xl border border-emerald-500/25 px-4 py-2.5 text-sm font-semibold text-emerald-800 hover:bg-emerald-50 dark:border-emerald-500/30 dark:text-emerald-200 dark:hover:bg-emerald-900/50 dark:hover:text-emerald-50"
           >
             {copyDone ? "Caption copied!" : "Copy caption"}
           </button>

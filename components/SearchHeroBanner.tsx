@@ -43,7 +43,7 @@ export default function SearchHeroBanner() {
 
       <div className="container relative z-[1] py-7 text-center md:py-9">
         <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-400 mb-3">
-          700+ Naats · Urdu · Roman · Hindi · Bangla
+          750+ Naats · Urdu · Roman · Hindi · Bangla
         </p>
 
         <h2 className="text-2xl md:text-4xl font-extrabold text-amber-700 dark:text-gold-500 tracking-tight mb-1">

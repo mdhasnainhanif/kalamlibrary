@@ -1,5 +1,3 @@
-import KalamLibraryLogo from "@/components/KalamLibraryLogo";
-
 type SiteLoaderProps = {
   compact?: boolean;
   label?: string;
@@ -55,7 +53,9 @@ export default function SiteLoader({ compact = false, label = "Loading" }: SiteL
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-slate-500 dark:text-gray-500">
           {label}
         </p>
-        <KalamLibraryLogo size="share" className="opacity-90" />
+        <p lang="ur" dir="rtl" className="font-urdu text-sm text-emerald-700/90 dark:text-emerald-400/90">
+          کلام لائبریری
+        </p>
       </div>
 
       <div
