@@ -5,6 +5,14 @@
   scroll-margin-top: 6.5rem;
 }
 
+.kalam-lang-tabs [role="tablist"] {
+  align-items: center;
+}
+
+.kalam-lang-tab {
+  vertical-align: middle;
+}
+
 @theme {
   --color-gold-50: hsl(45, 100%, 96%);
   --color-gold-100: hsl(45, 90%, 90%);
@@ -678,6 +686,7 @@ body::before {
 
 /* Kalam inner-page search hero — default matches dark site (no white flash) */
 .search-hero-banner {
+  overflow: visible;
   border-bottom: 1px solid rgba(16, 185, 129, 0.14);
   background: linear-gradient(
     180deg,

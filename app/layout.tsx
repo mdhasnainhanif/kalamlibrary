@@ -5,6 +5,7 @@ import "./globals.css";
 import NavbarWithPoets from "@/components/NavbarWithPoets";
 import SearchHeroBanner from "@/components/SearchHeroBanner";
 import Footer from "@/components/Footer";
+import FooterGate from "@/components/FooterGate";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import ThemeToggle from "@/components/ThemeToggle";
 import AppToaster from "@/components/AppToaster";
@@ -148,10 +149,12 @@ export default function RootLayout({
 
           <NavbarWithPoets />
           <SearchHeroBanner />
-          <div className="relative z-0 flex min-h-0 w-full flex-1 flex-col isolate">
+          <div className="relative z-[1] flex min-h-0 w-full flex-1 flex-col">
             {children}
           </div>
-          <Footer />
+          <FooterGate>
+            <Footer />
+          </FooterGate>
 
           {/* Floating Theme Toggle (Light / Dark) */}
           <ThemeToggle />

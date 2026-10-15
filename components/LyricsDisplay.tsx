@@ -29,7 +29,7 @@ export default function LyricsDisplay({
   };
 
   const handleZoomOut = () => {
-    setFontScale((prev) => Math.max(0.75, +(prev - 0.15).toFixed(2)));
+    setFontScale((prev) => Math.max(0.5, +(prev - 0.15).toFixed(2)));
   };
 
   const handleReset = () => {
@@ -89,7 +89,7 @@ export default function LyricsDisplay({
             <button
               type="button"
               onClick={handleZoomOut}
-              disabled={fontScale <= 0.75}
+              disabled={fontScale <= 0.5}
               aria-label="Decrease font size"
               title="Decrease font size (A-)"
               className="px-3 py-1 text-xs md:text-sm font-black text-emerald-800 dark:text-emerald-300 hover:text-amber-700 dark:hover:text-gold-500 hover:bg-emerald-200/60 dark:hover:bg-emerald-800/60 rounded transition-all disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer flex items-center gap-0.5"

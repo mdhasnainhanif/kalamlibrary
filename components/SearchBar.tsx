@@ -129,7 +129,7 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
   return (
     <div
       ref={containerRef}
-      className={`relative z-10 isolate w-full max-w-xl mx-auto ${className}`}
+      className={`relative z-30 isolate w-full max-w-xl mx-auto ${className}`}
     >
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {announcement}
@@ -145,7 +145,7 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
           value={query}
           onChange={handleInputChange}
           onFocus={handleFocus}
-          placeholder="Type a Naat title, poet name, or opening line..."
+          placeholder="Search Naat, poet, or opening line…"
           autoComplete="off"
           aria-expanded={isOpen}
           aria-controls="search-dropdown"
@@ -192,7 +192,7 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
           id="search-dropdown"
           role="listbox"
           aria-label="Popular Naat suggestions"
-          className="absolute left-0 right-0 top-full w-full mt-2 rounded-2xl bg-white dark:bg-emerald-950 border border-emerald-500/20 shadow-xl dark:shadow-2xl overflow-hidden z-[100] max-h-80 overflow-y-auto"
+          className="absolute left-0 right-0 top-full z-[120] mt-2 max-h-[min(20rem,55vh)] w-full overflow-hidden overflow-y-auto rounded-2xl border border-emerald-500/20 bg-white shadow-xl dark:bg-emerald-950 dark:shadow-2xl"
         >
           <p className="px-5 pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400/80">
             Popular Naats
@@ -227,7 +227,7 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
       {showResults && (
         <div
           id="search-dropdown"
-          className="absolute left-0 right-0 top-full w-full mt-2 rounded-2xl bg-white dark:bg-emerald-950 border border-emerald-500/20 shadow-xl dark:shadow-2xl overflow-hidden z-[100] max-h-80 overflow-y-auto"
+          className="absolute left-0 right-0 top-full z-[120] mt-2 max-h-[min(20rem,55vh)] w-full overflow-hidden overflow-y-auto rounded-2xl border border-emerald-500/20 bg-white shadow-xl dark:bg-emerald-950 dark:shadow-2xl"
         >
           {results.length === 0 && !loading ? (
             <div className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400 text-center">

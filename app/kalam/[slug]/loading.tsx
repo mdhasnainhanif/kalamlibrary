@@ -1,5 +1,5 @@
-import KalamPageSkeleton from "@/components/ui/KalamPageSkeleton";
+import KalamPageLoading from "@/components/KalamPageLoading";
 
 export default function KalamLoading() {
-  return <KalamPageSkeleton />;
+  return <KalamPageLoading />;
 }

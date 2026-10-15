@@ -28,6 +28,7 @@ import {
 } from "@/utils/seoConfig";
 import { buildKalamLanguageAlternates } from "@/utils/kalamAlternates";
 import { buildKalamReaderIntro } from "@/utils/kalamReaderIntro";
+import { KALAM_LANG_TABLIST_CLASS, kalamLangTabClassName } from "@/utils/kalamLangTabStyles";
 
 // Helper to slugify author names in code for routing
 function slugify(text: string) {
@@ -267,7 +268,7 @@ export default async function KalamPage({ params }: PageProps) {
           <div aria-hidden="true" className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#f6f9f7] dark:from-[#020806] to-transparent pointer-events-none md:hidden z-10"></div>
 
           <div className="flex justify-start md:justify-center overflow-x-auto py-2 px-6 scrollbar-none w-full max-w-full">
-            <div role="tablist" aria-label="Kalam language translation options" className="flex bg-white/90 dark:bg-emerald-950/60 p-1.5 rounded-xl border border-emerald-500/20 dark:border-emerald-500/10 shadow-sm dark:shadow-none gap-1 shrink-0">
+            <div role="tablist" aria-label="Kalam language translation options" className={KALAM_LANG_TABLIST_CLASS}>
               {Object.entries(LANGUAGES_MAP).map(([key, config]) => {
                 const isSelected = key === lang;
                 const hasLanguageTranslation = translations.some((t) => t.language === config.code);
@@ -286,13 +287,7 @@ export default async function KalamPage({ params }: PageProps) {
                     dir={config.dir}
                     aria-selected={isSelected}
                     aria-controls="lyrics-panel"
-                    className={`px-4 py-2 text-xs md:text-sm font-medium rounded-lg transition-all cursor-pointer whitespace-nowrap ${
-                      key === "urdu" ? "font-urdu" : key === "hindi" ? "font-devanagari" : key === "bangla" ? "font-bengali" : "font-sans"
-                    } ${
-                      isSelected
-                        ? "bg-gold-500 text-black shadow-md font-semibold scale-[1.02]"
-                        : "text-gray-600 dark:text-gray-400 hover:text-emerald-950 dark:hover:text-white hover:bg-emerald-100/60 dark:hover:bg-emerald-900/40"
-                    }`}
+                    className={kalamLangTabClassName(key, isSelected)}
                   >
                     {config.label}
                   </KalamLangTabLink>

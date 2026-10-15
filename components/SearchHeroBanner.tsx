@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
 import HeroIslamicPattern from "@/components/ui/HeroIslamicPattern";
+import { useMainContentBusy } from "@/components/useMainContentBusy";
 
 const SearchBar = dynamic(() => import("./SearchBar"), {
   loading: () => (
@@ -21,27 +22,30 @@ function isKalamInnerPage(pathname: string): boolean {
 
 export default function SearchHeroBanner() {
   const pathname = usePathname();
+  const kalamLoading = useMainContentBusy();
 
-  if (!isKalamInnerPage(pathname)) {
+  if (!isKalamInnerPage(pathname) || kalamLoading) {
     return null;
   }
 
   return (
     <section
       aria-label="Search Kalam Library"
-      className="search-hero-banner relative isolate z-[90] w-full overflow-hidden"
+      className="search-hero-banner relative isolate z-[90] w-full overflow-visible"
     >
-      <HeroIslamicPattern
-        fullPage
-        className="hero-islamic-pattern-tone pointer-events-none absolute inset-0 hidden h-full w-full text-gold-500/16 opacity-90 dark:block"
-      />
-      <div aria-hidden="true" className="search-hero-banner__tint" />
-      <div aria-hidden="true" className="search-hero-banner__glow pointer-events-none absolute inset-0 overflow-hidden">
-        <div className="absolute -top-20 left-1/2 h-44 w-80 -translate-x-1/2 rounded-full bg-emerald-500/12 blur-3xl" />
-        <div className="absolute bottom-0 right-10 h-28 w-28 rounded-full bg-gold-500/8 blur-2xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
+        <HeroIslamicPattern
+          fullPage
+          className="hero-islamic-pattern-tone absolute inset-0 hidden h-full w-full text-gold-500/16 opacity-90 dark:block"
+        />
+        <div className="search-hero-banner__tint" />
+        <div className="search-hero-banner__glow absolute inset-0 overflow-hidden">
+          <div className="absolute -top-20 left-1/2 h-44 w-80 -translate-x-1/2 rounded-full bg-emerald-500/12 blur-3xl" />
+          <div className="absolute bottom-0 right-10 h-28 w-28 rounded-full bg-gold-500/8 blur-2xl" />
+        </div>
       </div>
 
-      <div className="container relative z-[1] py-7 text-center md:py-9">
+      <div className="container relative z-[2] overflow-visible py-5 text-center sm:py-7 md:py-9">
         <p className="text-[10px] md:text-xs font-bold uppercase tracking-[0.2em] text-emerald-700 dark:text-emerald-400 mb-3">
           750+ Naats · Urdu · Roman · Hindi · Bangla
         </p>
@@ -58,12 +62,17 @@ export default function SearchHeroBanner() {
           اپنا کلام تلاش کریں
         </p>
 
-        <p className="text-sm md:text-base text-gray-600 dark:text-gray-300 max-w-2xl mx-auto leading-relaxed mb-6">
+        <p className="mb-5 max-w-2xl mx-auto text-sm leading-relaxed text-gray-600 dark:text-gray-300 md:mb-6 md:text-base">
           Find any Naat, Hamd, or Manqabat by title, poet name, or opening line.
-          Start typing to see instant suggestions, or pick a popular Naat from the list.
+          <span className="hidden sm:inline">
+            {" "}
+            Start typing to see instant suggestions, or pick a popular Naat from the list.
+          </span>
         </p>
 
-        <SearchBar />
+        <div className="relative z-[30] mx-auto w-full max-w-xl pb-1">
+          <SearchBar />
+        </div>
       </div>
     </section>
   );
