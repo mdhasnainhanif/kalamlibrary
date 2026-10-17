@@ -3,40 +3,40 @@
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
-function isKalamInnerPage(pathname: string): boolean {
-  return /^\/kalam\/[^/]+(\/[^/]+)?$/.test(pathname);
+const MAIN_SLOT_ID = "app-main-slot";
+
+function readMainBusy(): boolean {
+  const main = document.getElementById("main-content");
+  return main?.getAttribute("aria-busy") === "true";
 }
 
-/** True while #main-content has aria-busy (kalam loading) or kalam route is mid-navigation. */
+/** True only while #main-content has aria-busy (kalam route loading UI). */
 export function useMainContentBusy(): boolean {
   const pathname = usePathname();
-  const [busy, setBusy] = useState(() => isKalamInnerPage(pathname));
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    const read = () => {
-      const onKalam = isKalamInnerPage(pathname);
-      const main = document.getElementById("main-content");
-      if (!main) {
-        setBusy(onKalam);
-        return;
-      }
-      setBusy(main.getAttribute("aria-busy") === "true");
-    };
+    const sync = () => setBusy(readMainBusy());
 
-    setBusy(isKalamInnerPage(pathname));
-    read();
+    sync();
 
-    const obs = new MutationObserver(read);
-    const main = document.getElementById("main-content");
-    if (main) {
-      obs.observe(main, { attributes: true, attributeFilter: ["aria-busy"] });
+    const slot = document.getElementById(MAIN_SLOT_ID);
+    const obs = new MutationObserver(sync);
+    if (slot) {
+      obs.observe(slot, {
+        childList: true,
+        subtree: true,
+        attributes: true,
+        attributeFilter: ["aria-busy"],
+      });
     }
 
-    const raf = requestAnimationFrame(read);
+    // Catch Next.js swapping loading.tsx → page (new #main-content node).
+    const timers = [0, 50, 150, 350, 700].map((ms) => window.setTimeout(sync, ms));
 
     return () => {
-      cancelAnimationFrame(raf);
       obs.disconnect();
+      timers.forEach(clearTimeout);
     };
   }, [pathname]);
 

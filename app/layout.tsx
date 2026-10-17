@@ -149,7 +149,7 @@ export default function RootLayout({
 
           <NavbarWithPoets />
           <SearchHeroBanner />
-          <div className="relative z-[1] flex min-h-0 w-full flex-1 flex-col">
+          <div id="app-main-slot" className="relative z-[1] flex min-h-0 w-full flex-1 flex-col">
             {children}
           </div>
           <FooterGate>
