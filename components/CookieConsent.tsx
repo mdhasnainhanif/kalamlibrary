@@ -24,9 +24,23 @@ export default function CookieConsent() {
     setConsent(stored);
     if (stored !== null) return;
 
-    // Defer banner so hero/LCP paints first (same UI, slightly later on first visit).
-    const timeout = window.setTimeout(() => setShowBanner(true), 2800);
-    return () => window.clearTimeout(timeout);
+    const show = () => setShowBanner(true);
+    let timeoutId = 0;
+
+    const onReady = () => {
+      timeoutId = window.setTimeout(show, 2000);
+    };
+
+    if (document.readyState === "complete") {
+      onReady();
+    } else {
+      window.addEventListener("load", onReady, { once: true });
+    }
+
+    return () => {
+      window.removeEventListener("load", onReady);
+      if (timeoutId) window.clearTimeout(timeoutId);
+    };
   }, []);
 
   const save = (choice: ConsentChoice) => {

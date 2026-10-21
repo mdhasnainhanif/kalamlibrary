@@ -9,8 +9,8 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import SearchBar from "@/components/SearchBar";
-import FAQAccordion from "@/components/FAQAccordion";
+import HomeSearchBar from "@/components/home/HomeSearchBar";
+import HomeFAQ from "@/components/home/HomeFAQ";
 import HomePageAd from "@/components/HomePageAd";
 import { authorLabelFromRoman, getAuthorUrduName } from "@/utils/authorHelper";
 import { kalamHref } from "@/utils/kalam";
@@ -118,7 +118,7 @@ export default function HomePageView({
             English, Urdu Nastaliq, Hindi, and Bangla.
           </p>
           <div className="mx-auto mt-8 max-w-xl">
-            <SearchBar />
+            <HomeSearchBar />
           </div>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
             <Link
@@ -363,7 +363,7 @@ export default function HomePageView({
           Frequently Asked Questions
         </h2>
         <p className="mb-8 mt-2 text-center text-xs text-slate-500 dark:text-gray-400">Got questions? We have answers.</p>
-        <FAQAccordion items={faqItems} />
+        <HomeFAQ items={faqItems} />
         </div>
       </section>
     </main>

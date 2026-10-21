@@ -6,9 +6,9 @@ import { ADSENSE_SCRIPT_SRC } from "@/utils/adsConfig";
 export default function AdSenseScript() {
   return (
     <Script
-      id="adsbygoogle-js"
+      id="adsense-js"
       src={ADSENSE_SCRIPT_SRC}
-      strategy="afterInteractive"
+      strategy="lazyOnload"
       crossOrigin="anonymous"
       onLoad={() => {
         window.dispatchEvent(new Event("adsense-script-loaded"));

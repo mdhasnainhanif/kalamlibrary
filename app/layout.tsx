@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans, Noto_Nastaliq_Urdu } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
 import NavbarWithPoets from "@/components/NavbarWithPoets";
@@ -7,12 +7,10 @@ import SearchHeroBanner from "@/components/SearchHeroBanner";
 import Footer from "@/components/Footer";
 import FooterGate from "@/components/FooterGate";
 import { ThemeProvider } from "@/components/ThemeProvider";
-import ThemeToggle from "@/components/ThemeToggle";
-import AppToaster from "@/components/AppToaster";
-import CookieConsent from "@/components/CookieConsent";
+import DeferredClientWidgets from "@/components/DeferredClientWidgets";
 import SiteBackground from "@/components/ui/SiteBackground";
 import { SITE_CONFIG, buildWebSiteSchema } from "@/utils/seoConfig";
-import { ADSENSE_CLIENT, ADSENSE_SCRIPT_SRC } from "@/utils/adsConfig";
+import { ADSENSE_CLIENT } from "@/utils/adsConfig";
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-sans-premium",
@@ -21,16 +19,6 @@ const plusJakarta = Plus_Jakarta_Sans({
   preload: true,
   fallback: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
   adjustFontFallback: true,
-});
-
-const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
-  variable: "--font-noto-nastaliq",
-  subsets: ["arabic"],
-  weight: ["400", "700"],
-  display: "swap",
-  preload: false,
-  adjustFontFallback: true,
-  fallback: ["Noto Naskh Arabic", "serif"],
 });
 
 export const viewport: Viewport = {
@@ -119,7 +107,7 @@ export default function RootLayout({
       lang="en"
       dir="ltr"
       suppressHydrationWarning
-      className={`${plusJakarta.variable} ${notoNastaliqUrdu.variable} min-h-full scroll-smooth antialiased`}
+      className={`${plusJakarta.variable} min-h-full scroll-smooth antialiased`}
     >
       <head>
         <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
@@ -130,8 +118,6 @@ export default function RootLayout({
             __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.classList.add(t);else document.documentElement.classList.add("dark");}catch(e){document.documentElement.classList.add("dark");}})();`,
           }}
         />
-        {/* AdSense site verification + ad script (required in <head> per Google) */}
-        <script async src={ADSENSE_SCRIPT_SRC} crossOrigin="anonymous" />
         {/* Structured Data: WebSite & SearchAction for Google Sitelinks Search */}
         <script
           type="application/ld+json"
@@ -163,10 +149,7 @@ export default function RootLayout({
             <Footer />
           </FooterGate>
 
-          {/* Floating Theme Toggle (Light / Dark) */}
-          <ThemeToggle />
-          <AppToaster />
-          <CookieConsent />
+          <DeferredClientWidgets />
         </ThemeProvider>
       </body>
     </html>
