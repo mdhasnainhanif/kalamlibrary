@@ -22,7 +22,11 @@ export default function CookieConsent() {
   useEffect(() => {
     const stored = readConsent();
     setConsent(stored);
-    setShowBanner(stored === null);
+    if (stored !== null) return;
+
+    // Defer banner so hero/LCP paints first (same UI, slightly later on first visit).
+    const timeout = window.setTimeout(() => setShowBanner(true), 2800);
+    return () => window.clearTimeout(timeout);
   }, []);
 
   const save = (choice: ConsentChoice) => {

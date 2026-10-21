@@ -1,5 +1,3 @@
-"use client";
-
 import Link from "next/link";
 import {
   ArrowRight,
@@ -101,7 +99,11 @@ export default function HomePageView({
             750+ Naats · Urdu · Roman · Hindi · Bangla
           </p>
           <h1 className="flex flex-col items-center gap-2 tracking-tight">
-            <span lang="ur" dir="rtl" className="font-urdu text-3xl font-bold text-emerald-400 md:text-5xl">
+            <span
+              lang="ur"
+              dir="rtl"
+              className="font-urdu inline-block min-h-[2.75rem] text-3xl font-bold leading-tight text-emerald-400 md:min-h-[3.25rem] md:text-5xl"
+            >
               کلام لائبریری
             </span>
             <span className="text-4xl font-extrabold text-gold-500 sm:text-5xl md:text-6xl lg:text-7xl">

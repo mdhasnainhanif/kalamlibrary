@@ -40,21 +40,32 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const { data: authors, error: authorsError } = await supabase.from("authors").select("*").limit(8);
+  const authorIds = (authors || []).map((a) => a.id).filter(Boolean);
 
-  const { data: featuredRows, error: kalamsError } = await supabase
+  const featuredPromise = supabase
     .from("kalams")
     .select("*, authors(*), kalam_translations(language, title)")
     .in("slug", [...FEATURED_KALAM_SLUGS]);
+
+  const countsPromise =
+    authorIds.length > 0
+      ? supabase
+          .from("kalams")
+          .select("author_id, slug, primary_title_roman")
+          .in("author_id", authorIds)
+      : Promise.resolve({ data: null as null, error: null });
+
+  const [{ data: featuredRows, error: kalamsError }, { data: countRows }] = await Promise.all([
+    featuredPromise,
+    countsPromise,
+  ]);
 
   const featuredBySlug = new Map((featuredRows || []).map((row) => [row.slug, row]));
   const kalams = FEATURED_KALAM_SLUGS.map((slug) => featuredBySlug.get(slug)).filter(
     (row): row is NonNullable<typeof row> => Boolean(row)
   );
 
-  const { data: allKalams } = await supabase
-    .from("kalams")
-    .select("id, author_id, slug, primary_title_roman, primary_title_urdu");
-  const indexableKalams = filterIndexableKalams(allKalams);
+  const indexableKalams = filterIndexableKalams(countRows);
   const authorKalamCounts: Record<string, number> = {};
   indexableKalams.forEach((k) => {
     if (k.author_id) {

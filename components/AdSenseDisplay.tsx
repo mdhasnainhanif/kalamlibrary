@@ -16,6 +16,8 @@ type AdSenseDisplayProps = {
   format?: "auto" | "rectangle";
   layout?: "inline" | "sidebar";
   className?: string;
+  /** Keeps layout stable while the ad slot resolves (homepage CLS). */
+  reserveSpace?: boolean;
   onResolve?: (status: AdSenseResolveStatus) => void;
 };
 
@@ -43,6 +45,7 @@ export default function AdSenseDisplay({
   format = "auto",
   layout = "inline",
   className = "",
+  reserveSpace = false,
   onResolve,
 }: AdSenseDisplayProps) {
   const insRef = useRef<HTMLModElement>(null);
@@ -93,12 +96,13 @@ export default function AdSenseDisplay({
 
   const isSidebar = layout === "sidebar";
   const isRectangle = format === "rectangle";
+  const reserveInline = reserveSpace && !isSidebar && !isRectangle;
 
   return (
     <div
-      className={`flex justify-center items-start overflow-hidden bg-transparent min-h-0 ${
-        isSidebar ? "w-full my-0" : "my-6 w-full"
-      } ${className}`}
+      className={`flex justify-center items-start overflow-hidden bg-transparent ${
+        reserveInline ? "min-h-[100px] sm:min-h-[120px]" : "min-h-0"
+      } ${isSidebar ? "w-full my-0" : "my-6 w-full"} ${className}`}
     >
       <ins
         ref={insRef}

@@ -123,6 +123,13 @@ export default function RootLayout({
     >
       <head>
         <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
+        <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="" />
+        <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossOrigin="" />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.classList.add(t);else document.documentElement.classList.add("dark");}catch(e){document.documentElement.classList.add("dark");}})();`,
+          }}
+        />
         {/* AdSense site verification + ad script (required in <head> per Google) */}
         <script async src={ADSENSE_SCRIPT_SRC} crossOrigin="anonymous" />
         {/* Structured Data: WebSite & SearchAction for Google Sitelinks Search */}
