@@ -28,7 +28,6 @@ export default function robots(): MetadataRoute.Robots {
           "/api/",
           "/_next/",
           "/search",
-          "/kalams?letter=",
           ...ROBOTS_DISALLOW_KALAM_PREFIXES,
         ],
       },

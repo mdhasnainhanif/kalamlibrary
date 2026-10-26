@@ -8,6 +8,7 @@ export default function ReportErrorLink({ title }: { title: string }) {
       {" "}
       <Link
         href={`/contact?subject=${encodeURIComponent(subject)}`}
+        rel="nofollow"
         className="cursor-pointer text-emerald-400 hover:text-gold-500 font-semibold underline underline-offset-2"
       >
         Report an error

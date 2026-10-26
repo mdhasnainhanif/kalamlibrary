@@ -7,10 +7,14 @@ interface PageProps {
   searchParams: Promise<{ subject?: string }>;
 }
 
-export async function generateMetadata(): Promise<Metadata> {
+export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
+  const { subject } = await searchParams;
+  const hasPrefill = Boolean(subject?.trim());
+
   return {
     title: "Contact Us - Support & Inquiries",
     description: "Get in touch with the Kalam Library team. Contact us on WhatsApp +92 317 4731957 or email md.hasnain.developer@gmail.com for corrections or requests.",
+    robots: hasPrefill ? { index: false, follow: true, googleBot: { index: false, follow: true } } : undefined,
     alternates: {
       canonical: buildCanonicalUrl("/contact"),
     },

@@ -130,6 +130,24 @@ export type KalamLike = {
   primary_title_urdu?: string | null;
 };
 
+/** OCR/junk slugs — used for middleware 410 and routing guards. */
+export function isJunkKalamSlug(slug: string): boolean {
+  const cleaned = (slug || "").toLowerCase().trim();
+  if (!cleaned) return true;
+  const pseudoTitle = cleaned.replace(/-/g, " ");
+  return !isIndexableKalam({ slug: cleaned, primary_title_roman: pseudoTitle });
+}
+
+export function isJunkKalamPathname(pathname: string): boolean {
+  const match = pathname.match(/^\/kalam\/([^/]+)(?:\/(?:roman-english|urdu|hindi|bangla))?\/?$/);
+  if (!match) return false;
+  try {
+    return isJunkKalamSlug(decodeURIComponent(match[1]));
+  } catch {
+    return isJunkKalamSlug(match[1]);
+  }
+}
+
 export function isIndexableKalam(kalam: KalamLike): boolean {
   const title = (kalam.primary_title_roman || "").toLowerCase().trim();
   const slug = (kalam.slug || "").toLowerCase();

@@ -1,12 +1,19 @@
 import type { MetadataRoute } from "next";
-import { supabase } from "@/utils/supabase";
+import { supabase, supabaseConfigured } from "@/utils/supabase";
 import { SITE_CONFIG } from "@/utils/seoConfig";
+import { filterListedAuthors } from "@/utils/authorHelper";
 import {
   cleanKalamSlug,
   FEATURED_KALAM_SLUGS,
   filterIndexableKalams,
   kalamHref,
 } from "@/utils/kalam";
+
+/**
+ * Sitemap lists canonical URLs we want discovered first.
+ * Per-kalam language URLs use hreflang on-page (see buildKalamLanguageAlternates) — not duplicated here.
+ * @see https://developers.google.com/search/docs/specialty/international/localized-versions
+ */
 /** Cached sitemap; refreshes from Supabase daily (not on every crawl). */
 export const revalidate = 86400;
 
@@ -16,11 +23,6 @@ function slugify(text: string) {
     .trim()
     .replace(/[^\w\s-]/g, "")
     .replace(/[-\s]+/g, "-");
-}
-
-function hasSupabaseAtBuild(): boolean {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim() ?? "";
-  return url.length > 0 && !url.includes("placeholder-please-set");
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
@@ -113,7 +115,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ];
 
-  if (!hasSupabaseAtBuild()) {
+  if (!supabaseConfigured) {
+    console.warn("Sitemap: Supabase not configured — serving static routes only.");
     return staticRoutes;
   }
 
@@ -123,7 +126,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .from("authors")
       .select("name_roman, created_at");
     if (authors) {
-      authorRoutes = authors.map((author) => ({
+      authorRoutes = filterListedAuthors(authors).map((author) => ({
         url: `${baseUrl}/author/${slugify(author.name_roman)}`,
         lastModified: author.created_at ? new Date(author.created_at) : new Date(),
         changeFrequency: "weekly",

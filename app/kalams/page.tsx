@@ -10,23 +10,20 @@ import { kalamGridCardClass, kalamGridCardFooterClass } from "@/utils/kalamCardS
 interface PageProps {
   searchParams: Promise<{
     page?: string;
-    letter?: string;
   }>;
 }
 
 export const revalidate = 604800;
 
 const PAGE_SIZE = 48;
-const ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 export async function generateMetadata({ searchParams }: PageProps): Promise<Metadata> {
-  const { page, letter } = await searchParams;
+  const { page } = await searchParams;
   const currentPage = Math.max(1, parseInt(page || "1", 10) || 1);
-  const activeLetter = letter ? letter.toUpperCase() : undefined;
-  const filterDesc = activeLetter ? ` starting with letter '${activeLetter}'` : "";
 
   const title = `Naat & Kalam Lyrics Directory${currentPage > 1 ? ` (Page ${currentPage})` : ""}`;
-  const description = `Alphabetical directory of Islamic Naat, Hamd, and Sufi Kalam lyrics${filterDesc}. Read each poem in Roman English, Urdu Nastaliq, Hindi, and Bangla.`;
+  const description =
+    "Alphabetical directory of Islamic Naat, Hamd, and Sufi Kalam lyrics. Read each poem in Roman English, Urdu Nastaliq, Hindi, and Bangla.";
 
   const queryParams: Record<string, string | number> = {};
   if (currentPage > 1) queryParams.page = currentPage;
@@ -37,7 +34,7 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
     title,
     description,
     robots:
-      activeLetter || currentPage > 1
+      currentPage > 1
         ? { index: false, follow: true, googleBot: { index: false, follow: true } }
         : undefined,
     alternates: {
@@ -67,11 +64,9 @@ export async function generateMetadata({ searchParams }: PageProps): Promise<Met
 }
 
 export default async function KalamsBrowsePage({ searchParams }: PageProps) {
-  const { page, letter } = await searchParams;
+  const { page } = await searchParams;
   const currentPage = Math.max(1, parseInt(page || "1", 10) || 1);
-  const activeLetter = letter ? letter.toUpperCase() : null;
 
-  // Build query
   let query = supabase
     .from("kalams")
     .select("*, authors(*)", { count: "exact" })
@@ -80,10 +75,6 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
     .not("primary_title_roman", "ilike", "Radeef%")
     .not("primary_title_roman", "ilike", "Tareekh-e-Tab%")
     .not("slug", "ilike", "deegar%");
-
-  if (activeLetter) {
-    query = query.ilike("primary_title_roman", `${activeLetter}%`);
-  }
 
   const from = (currentPage - 1) * PAGE_SIZE;
   const to = from + PAGE_SIZE - 1;
@@ -99,7 +90,7 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
     "@type": "CollectionPage",
     "name": "Kalam Library - All Naat Lyrics Directory",
     "description": "Complete alphabetical directory of digitized Islamic Naats, Hamd, and devotional Sufi poetry.",
-    "url": buildCanonicalUrl("/kalams", { page: currentPage > 1 ? currentPage : undefined, letter: activeLetter || undefined }),
+    "url": buildCanonicalUrl("/kalams", { page: currentPage > 1 ? currentPage : undefined }),
     "mainEntity": {
       "@type": "ItemList",
       "numberOfItems": kalams.length,
@@ -155,51 +146,10 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
           </div>
         </header>
 
-        {/* Alphabet Filter Quick Jump */}
-        <div className="mb-8 overflow-x-auto pb-2 scrollbar-none">
-          <div className="flex items-center justify-start md:justify-center gap-1.5 min-w-max px-2">
-            <Link
-              href="/kalams"
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
-                !activeLetter
-                  ? "bg-gold-500 text-black shadow-md"
-                  : "bg-emerald-950/60 border border-emerald-500/10 text-gray-300 hover:text-white hover:bg-emerald-900/40"
-              }`}
-            >
-              ALL
-            </Link>
-            {ALPHABET.map((char) => (
-              <Link
-                key={char}
-                href={`/kalams?letter=${char}`}
-                className={`w-8 h-8 rounded-lg text-xs font-bold flex items-center justify-center transition-all ${
-                  activeLetter === char
-                    ? "bg-gold-500 text-black shadow-md scale-105"
-                    : "bg-emerald-950/60 border border-emerald-500/10 text-gray-300 hover:text-white hover:bg-emerald-900/40"
-                }`}
-              >
-                {char}
-              </Link>
-            ))}
-          </div>
-        </div>
-
         {/* Kalam Grid */}
         {error || kalams.length === 0 ? (
           <div className="text-center py-16 bg-emerald-900/10 border border-dashed border-emerald-500/15 rounded-2xl">
-            <p className="text-gray-400 text-sm">
-              {activeLetter
-                ? `No Kalams found starting with '${activeLetter}'.`
-                : "No Kalams found."}
-            </p>
-            {activeLetter && (
-              <Link
-                href="/kalams"
-                className="mt-4 inline-block text-xs font-semibold text-gold-500 hover:underline"
-              >
-                Clear filter &rarr;
-              </Link>
-            )}
+            <p className="text-gray-400 text-sm">No Kalams found.</p>
           </div>
         ) : (
           <section aria-label="Kalam List" className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -245,7 +195,7 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
           <nav aria-label="Pagination" className="flex items-center justify-center gap-2 mt-12 pt-8 border-t border-emerald-500/10 flex-wrap">
             {currentPage > 1 && (
               <Link
-                href={`/kalams?page=${currentPage - 1}${activeLetter ? `&letter=${activeLetter}` : ""}`}
+                href={`/kalams?page=${currentPage - 1}`}
                 className="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-950/60 border border-emerald-500/10 text-gray-300 hover:text-white hover:bg-emerald-900/40 transition-all"
               >
                 &larr; Previous
@@ -262,7 +212,7 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
                   <span key={p} className="flex items-center gap-2">
                     {showEllipsis && <span className="text-gray-500 text-xs px-1">...</span>}
                     <Link
-                      href={`/kalams?page=${p}${activeLetter ? `&letter=${activeLetter}` : ""}`}
+                      href={`/kalams?page=${p}`}
                       aria-current={p === currentPage ? "page" : undefined}
                       className={`w-9 h-9 rounded-xl text-xs font-semibold flex items-center justify-center transition-all ${
                         p === currentPage
@@ -278,7 +228,7 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
 
             {currentPage < totalPages && (
               <Link
-                href={`/kalams?page=${currentPage + 1}${activeLetter ? `&letter=${activeLetter}` : ""}`}
+                href={`/kalams?page=${currentPage + 1}`}
                 className="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-950/60 border border-emerald-500/10 text-gray-300 hover:text-white hover:bg-emerald-900/40 transition-all"
               >
                 Next &rarr;
