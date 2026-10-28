@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { SEARCH_SUGGESTIONS, kalamHref } from "@/utils/kalam";
+import { SEARCH_SUGGESTIONS, kalamHref, kalamHrefFromDbLanguage } from "@/utils/kalam";
 
 interface SearchResult {
   kalam_id: string;
@@ -112,10 +112,6 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
     if (query.trim().length < 2) {
       setAnnouncement(`${SEARCH_SUGGESTIONS.length} popular Naats suggested`);
     }
-  };
-
-  const getLanguagePath = (dbLang: string) => {
-    return dbLang.replace("_", "-");
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -238,7 +234,7 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
               {results.map((result) => (
                 <Link
                   key={result.kalam_id}
-                  href={`/kalam/${result.slug}/${getLanguagePath(result.language)}`}
+                  href={kalamHrefFromDbLanguage(result.slug, result.language)}
                   onClick={() => setIsOpen(false)}
                   className="flex flex-col px-5 py-3 hover:bg-emerald-50 dark:hover:bg-emerald-900/50 border-b border-emerald-500/10 dark:border-emerald-500/5 last:border-0 group transition-colors"
                   aria-label={

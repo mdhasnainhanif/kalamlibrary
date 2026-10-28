@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useTheme } from "next-themes";
-import { normalizeSharePageUrl } from "@/utils/exportShareCard";
 import { getShareContactDefaults } from "@/utils/shareKalamPost";
+import { normalizeSharePageUrl } from "@/utils/exportShareCard";
 import {
-  getSharePostSurface,
-  resolveSharePostTheme,
-  type SharePostTheme,
-} from "@/utils/sharePostTheme";
+  buildPostBackgroundStyle,
+  getPostThemeCaptureBackground,
+  POST_ASPECT_CSS,
+  postThemeFontClass,
+  textAlignClass,
+  withAlpha,
+  type PostTheme,
+} from "@/utils/postTheme";
 
 export type SharePostCardProps = {
   title: string;
@@ -18,6 +20,7 @@ export type SharePostCardProps = {
   pageUrl: string;
   lang: string;
   dir: "ltr" | "rtl";
+  design: PostTheme;
   exportId?: string;
   compact?: boolean;
 };
@@ -29,102 +32,148 @@ export default function SharePostCard({
   pageUrl,
   lang,
   dir,
+  design,
   exportId = "kalam-share-card",
   compact = false,
 }: SharePostCardProps) {
   const isUrdu = lang === "urdu";
-  const { resolvedTheme } = useTheme();
-  const [theme, setTheme] = useState<SharePostTheme>(() => resolveSharePostTheme(null));
-
-  useEffect(() => {
-    setTheme(resolveSharePostTheme(resolvedTheme));
-  }, [resolvedTheme]);
-
   const canonical = normalizeSharePageUrl(pageUrl);
   const displayUrl = canonical.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
   const contactPhone = getShareContactDefaults().whatsappDisplay;
-  const surface = getSharePostSurface(theme);
+
+  const fontClass = postThemeFontClass(design.typography.fontFamily, isUrdu);
+  const align = textAlignClass(design.typography.textAlign);
+  const fs = design.typography.fontSize;
+  const titleSize = Math.round(fs * 1.15);
+  const footerSize = Math.max(9, Math.round(fs * 0.72));
+  const poetSize = Math.max(10, Math.round(fs * 0.78));
+
+  const sherBg = withAlpha(design.sherCard.background, design.sherCard.opacity / 100);
+  const rootBg = buildPostBackgroundStyle(design);
+  const captureBg = getPostThemeCaptureBackground(design);
 
   return (
     <div
       id={exportId}
-      data-share-theme={theme}
-      className={`relative overflow-hidden rounded-2xl border text-center shadow-lg ${surface.borderClass}`}
-      style={surface.rootStyle}
+      data-share-capture-bg={captureBg}
+      className={`relative mx-auto flex w-full max-w-md flex-col overflow-hidden border text-center shadow-lg ${align}`}
+      style={{
+        ...rootBg,
+        aspectRatio: POST_ASPECT_CSS[design.layout.aspectRatio],
+        borderColor: design.colors.border,
+        borderWidth: 1,
+        borderStyle: "solid",
+      }}
     >
-      <div
-        aria-hidden
-        className={`pointer-events-none absolute inset-0 bg-dot-grid ${surface.dotGridOpacity}`}
-      />
+      {design.background.pattern === "dot-grid" ? (
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-dot-grid opacity-[0.08]"
+        />
+      ) : null}
 
-      <div className="relative z-[1] px-4 pb-5 pt-4 sm:px-5 sm:pb-6 sm:pt-5">
-        <div className="mb-4 flex items-center justify-between gap-2">
+      <div className="relative z-[1] flex min-h-0 flex-1 flex-col px-4 pb-5 pt-4 sm:px-5 sm:pb-6 sm:pt-5">
+        <div className="mb-3 flex shrink-0 items-center justify-between gap-2">
           <div className="flex items-center gap-1.5">
-            <span className={`h-1.5 w-1.5 rounded-full ${surface.brandDot}`} aria-hidden />
             <span
-              className={`text-[9px] font-bold uppercase tracking-[0.18em] sm:text-[10px] ${surface.brandLabel}`}
+              className="h-1.5 w-1.5 rounded-full"
+              style={{ backgroundColor: design.colors.brandLabel }}
+              aria-hidden
+            />
+            <span
+              className="font-sans text-[9px] font-bold uppercase tracking-[0.18em] sm:text-[10px]"
+              style={{ color: design.colors.brandLabel }}
             >
               Kalam Library
             </span>
           </div>
-          <span className={`text-[9px] font-medium sm:text-[10px] ${surface.siteHost}`}>
+          <span
+            className="font-sans text-[9px] font-medium sm:text-[10px]"
+            style={{ color: design.colors.siteHost }}
+          >
             kalamlibrary.me
           </span>
         </div>
 
         <h3
           lang={isUrdu ? "ur" : undefined}
-          dir={isUrdu ? "rtl" : "ltr"}
-          className={
-            isUrdu
-              ? `font-urdu text-lg font-semibold leading-relaxed sm:text-xl ${surface.titleUrdu}`
-              : `font-sans text-sm font-bold leading-snug sm:text-base ${surface.titleLatin}`
-          }
+          dir={isUrdu ? "rtl" : dir}
+          className={`${fontClass} font-bold leading-snug ${align}`}
+          style={{ color: design.colors.title, fontSize: titleSize }}
         >
           {title}
         </h3>
-        {author ? (
-          <p className={`mt-1 font-sans text-[10px] sm:text-[11px] ${surface.author}`}>{author}</p>
+        {design.visibility.poetName && author ? (
+          <p
+            className={`mt-1 font-sans ${align}`}
+            style={{ color: design.colors.poet, fontSize: poetSize }}
+          >
+            {author}
+          </p>
         ) : null}
 
-        <div className={`mx-auto my-3 h-px w-10 ${surface.divider}`} aria-hidden />
+        <div
+          className="mx-auto my-2 h-px w-10 shrink-0"
+          style={{ backgroundColor: design.colors.divider }}
+          aria-hidden
+        />
 
-        {stanzas.length > 0 ? (
-          <div
-            lang={isUrdu ? "ur" : undefined}
-            dir={dir}
-            className={`share-post-lyrics mx-auto max-w-md space-y-2.5 ${
-              isUrdu ? "font-urdu" : "font-sans"
-            } ${surface.lyrics} ${
-              compact ? "text-[13px] leading-[1.75]" : "text-[13px] leading-[1.78] sm:text-sm sm:leading-[1.85]"
-            }`}
-          >
-            {stanzas.map((block, i) => (
-              <div
-                key={i}
-                className={`whitespace-pre-wrap break-words rounded-xl border px-3 py-2.5 sm:px-3.5 sm:py-3 ${surface.stanzaBox}`}
-              >
-                {block.split("\n").map((line, j) => (
-                  <p key={j} className={j > 0 ? "mt-1.5" : ""}>
-                    {line}
-                  </p>
-                ))}
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className={`py-4 font-sans text-xs ${surface.emptyHint}`}>
-            Tap couplets above to add them to this post
-          </p>
-        )}
-
-        <div className="mt-4 space-y-1 font-sans text-[9px] leading-relaxed sm:text-[10px]">
-          <p className={surface.footerLead}>Read full naat on Kalam Library</p>
-          <p className={`break-all ${surface.footerUrl}`}>{displayUrl}</p>
-          <p className={`pt-1 ${surface.footerContact}`}>
-            Contact me: <span className={surface.footerPhone}>{contactPhone}</span>
-          </p>
+        <div className="flex min-h-0 flex-1 flex-col justify-center">
+          {stanzas.length > 0 ? (
+            <div
+              lang={isUrdu ? "ur" : undefined}
+              dir={dir}
+              className={`share-post-lyrics mx-auto w-full max-w-md space-y-2 ${fontClass} ${align} ${
+                compact ? "leading-[1.75]" : "leading-[1.78] sm:leading-[1.85]"
+              }`}
+              style={{ color: design.colors.sher, fontSize: fs }}
+            >
+              {stanzas.map((block, i) => (
+                <div
+                  key={i}
+                  className="whitespace-pre-wrap break-words border px-3 py-2.5 sm:px-3.5 sm:py-3"
+                  style={{
+                    backgroundColor: sherBg,
+                    borderColor: design.sherCard.border,
+                    borderRadius: design.sherCard.radius,
+                  }}
+                >
+                  {block.split("\n").map((line, j) => (
+                    <p key={j} className={j > 0 ? "mt-1.5" : ""}>
+                      {line}
+                    </p>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="py-4 font-sans text-xs" style={{ color: design.colors.footer }}>
+              Tap couplets above to add them to this post
+            </p>
+          )}
         </div>
+
+        {(design.visibility.websiteLink || design.visibility.contactNumber) && (
+          <div
+            className={`mt-3 shrink-0 space-y-1 font-sans leading-relaxed ${align}`}
+            style={{ fontSize: footerSize }}
+          >
+            {design.visibility.websiteLink ? (
+              <>
+                <p style={{ color: design.colors.footer }}>Read full naat on Kalam Library</p>
+                <p className="break-all" style={{ color: design.colors.footerUrl }}>
+                  {displayUrl}
+                </p>
+              </>
+            ) : null}
+            {design.visibility.contactNumber ? (
+              <p className={design.visibility.websiteLink ? "pt-1" : ""} style={{ color: design.colors.footer }}>
+                Contact me:{" "}
+                <span style={{ color: design.colors.footerPhone }}>{contactPhone}</span>
+              </p>
+            ) : null}
+          </div>
+        )}
       </div>
     </div>
   );

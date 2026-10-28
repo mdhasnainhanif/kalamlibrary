@@ -198,7 +198,7 @@ export default async function KalamPage({ params }: PageProps) {
     { name: "Home", url: "/" },
     { name: "Poets", url: "/authors" },
     ...(authorSlug ? [{ name: authorName, url: `/author/${authorSlug}` }] : []),
-    { name: `${kalam.primary_title_roman} (${langConfig.label})`, url: `/kalam/${slug}/${lang}` },
+    { name: `${kalam.primary_title_roman} (${langConfig.label})`, url: kalamHref(cleanSlug, lang) },
   ]);
 
   return (

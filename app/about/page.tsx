@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import ContactPrefillLink from "@/components/ContactPrefillLink";
 import { SITE_CONFIG, buildBreadcrumbJsonLd, buildCanonicalUrl } from "@/utils/seoConfig";
 
 export const metadata: Metadata = {
@@ -116,7 +117,11 @@ export default function AboutPage() {
             Instead of typing thousands of pages by hand, we scan printed editions and run an AI-assisted OCR pipeline that transcribes each line and produces matching Roman English, Hindi, and Bangla readings.
           </p>
           <p className="text-sm md:text-base text-gray-300 leading-relaxed mb-4">
-            This is a reading archive, not a certified critical edition. OCR and machine translation of religious poetry can introduce errors. Please use <Link href="/contact?subject=Report%20an%20error" className="text-emerald-400 hover:text-gold-500 underline underline-offset-2">Report an error</Link> if you find a mistake.
+            This is a reading archive, not a certified critical edition. OCR and machine translation of religious poetry can introduce errors. Please use{" "}
+            <ContactPrefillLink subject="Report an error" className="text-emerald-400 hover:text-gold-500 underline underline-offset-2">
+              Report an error
+            </ContactPrefillLink>{" "}
+            if you find a mistake.
           </p>
           <p className="text-sm md:text-base text-gray-300 leading-relaxed">
             Human review is welcome. Contemporary collections remain the copyright of their authors and publishers; we transcribe printed copies for study and will remove material on a valid request.

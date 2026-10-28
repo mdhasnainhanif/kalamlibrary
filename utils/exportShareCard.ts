@@ -26,13 +26,14 @@ async function captureShareCardFromDom(): Promise<Blob> {
   if (!node) {
     throw new Error("Share preview card not found");
   }
-  const themeAttr = node.getAttribute("data-share-theme");
-  const theme: SharePostTheme = themeAttr === "light" ? "light" : "dark";
+  const captureBg =
+    node.getAttribute("data-share-capture-bg") ||
+    shareCardCaptureBackground(node.getAttribute("data-share-theme") === "light" ? "light" : "dark");
   const { toPng } = await import("html-to-image");
   const dataUrl = await toPng(node, {
     pixelRatio: 2,
     cacheBust: true,
-    backgroundColor: shareCardCaptureBackground(theme),
+    backgroundColor: captureBg,
     skipFonts: false,
     style: {
       transform: "none",

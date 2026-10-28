@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import ContactPrefillLink from "@/components/ContactPrefillLink";
 import { SITE_CONFIG, buildBreadcrumbJsonLd, buildCanonicalUrl } from "@/utils/seoConfig";
 import {
   Smartphone,
@@ -111,7 +112,19 @@ export default function ServicesPage() {
     },
   ];
 
-  const libraryServices = [
+  type LibraryServiceAction =
+    | { contactSubject: string; actionHref?: never }
+    | { actionHref: string; contactSubject?: never };
+
+  const libraryServices: Array<
+    {
+      title: string;
+      icon: typeof BookOpen;
+      description: string;
+      extra: string;
+      actionLabel: string;
+    } & LibraryServiceAction
+  > = [
     {
       title: "1. Book Digitization Request",
       icon: BookOpen,
@@ -119,7 +132,7 @@ export default function ServicesPage() {
         "Do you have a scanned collection of classic Naats, Hamds, or Manqabats that is not available online? Submit your scanned PDF or images to our team.",
       extra: "We utilize custom transcription pipelines to index and publish odes to the Kalam Library repository.",
       actionLabel: "Request Digitization",
-      actionHref: "/contact?subject=Digitization%20Request",
+      contactSubject: "Digitization Request",
     },
     {
       title: "2. Lyric Correction Submission",
@@ -128,7 +141,7 @@ export default function ServicesPage() {
         "Accuracy is our highest priority. If you identify a typo, missing couplet, or incorrect transliteration in any of our Urdu, Roman, Hindi, or Bangla lyrics, let us know.",
       extra: "Submit the corrected verses along with the Kalam title, and our reviewers will verify and update the records.",
       actionLabel: "Submit a Correction",
-      actionHref: "/contact?subject=Lyric%20Correction",
+      contactSubject: "Lyric Correction",
     },
     {
       title: "3. Multi-Lingual Translations",
@@ -137,7 +150,7 @@ export default function ServicesPage() {
         "We continuously expand cross-language accessibility. If you have an ode that exists in Urdu, but lacks Devanagari Hindi or Bengali transliterations, we can generate them.",
       extra: "Our models verify phonetic accuracy so reciters can effortlessly read in their native script.",
       actionLabel: "Request Translation",
-      actionHref: "/contact?subject=Translation%20Addition",
+      contactSubject: "Translation Addition",
     },
     {
       title: "4. Licensing & Attribution",
@@ -330,12 +343,21 @@ export default function ServicesPage() {
                       {service.extra}
                     </p>
                   </div>
-                  <Link
-                    href={service.actionHref}
-                    className="mt-6 inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-emerald-950 border border-emerald-500/20 text-gold-500 font-bold text-xs hover:bg-emerald-900/40 hover:text-white transition-colors w-fit"
-                  >
-                    {service.actionLabel}
-                  </Link>
+                  {"contactSubject" in service && service.contactSubject ? (
+                    <ContactPrefillLink
+                      subject={service.contactSubject}
+                      className="mt-6 inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-emerald-950 border border-emerald-500/20 text-gold-500 font-bold text-xs hover:bg-emerald-900/40 hover:text-white transition-colors w-fit"
+                    >
+                      {service.actionLabel}
+                    </ContactPrefillLink>
+                  ) : (
+                    <Link
+                      href="/terms-and-conditions"
+                      className="mt-6 inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-emerald-950 border border-emerald-500/20 text-gold-500 font-bold text-xs hover:bg-emerald-900/40 hover:text-white transition-colors w-fit"
+                    >
+                      {service.actionLabel}
+                    </Link>
+                  )}
                 </div>
               );
             })}

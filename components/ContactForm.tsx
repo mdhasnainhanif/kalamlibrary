@@ -1,12 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
+import { CONTACT_PREFILL_COOKIE, CONTACT_PREFILL_STORAGE_KEY } from "@/utils/contactPrefill";
 
 export default function ContactForm({ defaultSubject = "" }: { defaultSubject?: string }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [subject, setSubject] = useState(defaultSubject);
+
+  useEffect(() => {
+    if (defaultSubject.trim()) return;
+
+    try {
+      const fromStorage = sessionStorage.getItem(CONTACT_PREFILL_STORAGE_KEY);
+      if (fromStorage) {
+        setSubject(fromStorage);
+        sessionStorage.removeItem(CONTACT_PREFILL_STORAGE_KEY);
+        return;
+      }
+    } catch {
+      /* ignore */
+    }
+
+    const match = document.cookie.match(new RegExp(`(?:^|; )${CONTACT_PREFILL_COOKIE}=([^;]*)`));
+    if (match?.[1]) {
+      try {
+        setSubject(decodeURIComponent(match[1]));
+      } catch {
+        setSubject(match[1]);
+      }
+      document.cookie = `${CONTACT_PREFILL_COOKIE}=; Max-Age=0; path=/contact; SameSite=Lax`;
+    }
+  }, [defaultSubject]);
   const [message, setMessage] = useState("");
   const [company, setCompany] = useState("");
   const [loading, setLoading] = useState(false);

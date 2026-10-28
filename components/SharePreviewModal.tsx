@@ -1,15 +1,22 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ImageDown, Loader2, X } from "lucide-react";
 import { toast } from "react-hot-toast";
 import SharePostCard from "@/components/SharePostCard";
+import SharePostCustomizePanel from "@/components/SharePostCustomizePanel";
 import {
   downloadBlob,
   fetchShareCardBlob,
   normalizeSharePageUrl,
   sharePostOnWhatsApp,
 } from "@/utils/exportShareCard";
+import {
+  DEFAULT_POST_THEME,
+  loadPostThemeFromStorage,
+  savePostThemeToStorage,
+  type PostTheme,
+} from "@/utils/postTheme";
 
 type SharePreviewPanelProps = {
   open: boolean;
@@ -33,6 +40,10 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
+function cloneDefaultTheme(): PostTheme {
+  return JSON.parse(JSON.stringify(DEFAULT_POST_THEME)) as PostTheme;
+}
+
 export default function SharePreviewModal({
   open,
   onClose,
@@ -48,9 +59,28 @@ export default function SharePreviewModal({
 }: SharePreviewPanelProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [imageBusy, setImageBusy] = useState(false);
+  const [postTheme, setPostTheme] = useState<PostTheme>(() => cloneDefaultTheme());
+  const themeHydrated = useRef(false);
 
   const pageUrl =
     typeof window !== "undefined" ? normalizeSharePageUrl(window.location.href) : "";
+
+  useEffect(() => {
+    if (themeHydrated.current) return;
+    themeHydrated.current = true;
+    setPostTheme(loadPostThemeFromStorage());
+  }, []);
+
+  const handleThemeChange = useCallback((next: PostTheme) => {
+    setPostTheme(next);
+    savePostThemeToStorage(next);
+  }, []);
+
+  const handleResetTheme = useCallback(() => {
+    const next = cloneDefaultTheme();
+    setPostTheme(next);
+    savePostThemeToStorage(next);
+  }, []);
 
   useEffect(() => {
     if (!open) return;
@@ -161,7 +191,7 @@ export default function SharePreviewModal({
         </button>
       </div>
 
-      <div className="px-3 py-4 sm:px-4">
+      <div className="space-y-3 px-3 py-4 sm:px-4">
         <SharePostCard
           title={title}
           author={author || undefined}
@@ -169,7 +199,10 @@ export default function SharePreviewModal({
           pageUrl={pageUrl}
           lang={lang}
           dir={dir}
+          design={postTheme}
         />
+
+        <SharePostCustomizePanel theme={postTheme} onChange={handleThemeChange} onReset={handleResetTheme} />
       </div>
 
       <div className="flex flex-col gap-2 border-t border-emerald-500/15 p-4">

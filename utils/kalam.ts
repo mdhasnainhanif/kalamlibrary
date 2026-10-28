@@ -222,6 +222,18 @@ export function kalamHref(slug: string, lang?: string): string {
   return lang ? `/kalam/${cleaned}/${lang}` : `/kalam/${cleaned}`;
 }
 
+/** Search/API language codes (e.g. roman_english) → crawlable kalam path (no /roman-english segment). */
+export function kalamHrefFromDbLanguage(slug: string, dbLanguage: string): string {
+  const langPath = dbLanguage.replace("_", "-");
+  if (langPath === "roman-english") {
+    return kalamHref(slug);
+  }
+  if (langPath in LYRIC_LANGUAGES) {
+    return kalamHref(slug, langPath);
+  }
+  return kalamHref(slug);
+}
+
 export function truncateAtWord(text: string, max = 155): string {
   const normalized = text.replace(/\s+/g, " ").trim();
   if (normalized.length <= max) return normalized;

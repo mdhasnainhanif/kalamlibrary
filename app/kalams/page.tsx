@@ -3,7 +3,7 @@ import Link from "next/link";
 import { supabase } from "@/utils/supabase";
 import { SITE_CONFIG, buildCanonicalUrl, buildBreadcrumbJsonLd } from "@/utils/seoConfig";
 import SearchBar from "@/components/SearchBar";
-import { kalamHref } from "@/utils/kalam";
+import { cleanKalamSlug, kalamHref } from "@/utils/kalam";
 import { authorLabelFromRoman } from "@/utils/authorHelper";
 import { kalamGridCardClass, kalamGridCardFooterClass } from "@/utils/kalamCardStyles";
 
@@ -98,7 +98,7 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
         "@type": "ListItem",
         "position": from + index + 1,
         "name": k.primary_title_roman,
-        "url": `${SITE_CONFIG.url}/kalam/${k.slug}`,
+        "url": `${SITE_CONFIG.url}${kalamHref(cleanKalamSlug(k.slug))}`,
       })),
     },
   };
@@ -195,7 +195,7 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
           <nav aria-label="Pagination" className="flex items-center justify-center gap-2 mt-12 pt-8 border-t border-emerald-500/10 flex-wrap">
             {currentPage > 1 && (
               <Link
-                href={`/kalams?page=${currentPage - 1}`}
+                href={currentPage - 1 === 1 ? "/kalams" : `/kalams?page=${currentPage - 1}`}
                 className="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-950/60 border border-emerald-500/10 text-gray-300 hover:text-white hover:bg-emerald-900/40 transition-all"
               >
                 &larr; Previous
@@ -212,7 +212,7 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
                   <span key={p} className="flex items-center gap-2">
                     {showEllipsis && <span className="text-gray-500 text-xs px-1">...</span>}
                     <Link
-                      href={`/kalams?page=${p}`}
+                      href={p === 1 ? "/kalams" : `/kalams?page=${p}`}
                       aria-current={p === currentPage ? "page" : undefined}
                       className={`w-9 h-9 rounded-xl text-xs font-semibold flex items-center justify-center transition-all ${
                         p === currentPage

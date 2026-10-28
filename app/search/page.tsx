@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Metadata } from "next";
 import SearchBar from "@/components/SearchBar";
 import { searchKalams, SearchResultItem } from "@/utils/searchHelper";
+import { kalamHrefFromDbLanguage } from "@/utils/kalam";
 import { buildCanonicalUrl } from "@/utils/seoConfig";
 
 interface SearchPageProps {
@@ -89,12 +90,10 @@ export default async function SearchResultsPage({ searchParams }: SearchPageProp
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {results.map((result) => {
-                const langPath = result.language.replace("_", "-");
-                const kalamHref = langPath === "roman-english" ? `/kalam/${result.slug}` : `/kalam/${result.slug}/${langPath}`;
                 return (
                   <Link
                     key={result.kalam_id}
-                    href={kalamHref}
+                    href={kalamHrefFromDbLanguage(result.slug, result.language)}
                     aria-label={`Read ${result.matched_title} lyrics by ${result.author_name} in ${result.language.replace("_", " ")}`}
                     className="kalam-list-card p-5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex flex-col justify-between min-h-36 group"
                   >

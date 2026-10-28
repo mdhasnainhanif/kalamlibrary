@@ -39,9 +39,6 @@ export const metadata: Metadata = {
   publisher: SITE_CONFIG.publisher,
   applicationName: SITE_CONFIG.name,
   category: SITE_CONFIG.category,
-  alternates: {
-    canonical: "/",
-  },
   manifest: "/manifest.webmanifest",
   icons: {
     icon: [

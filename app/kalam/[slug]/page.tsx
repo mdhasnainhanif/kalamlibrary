@@ -200,7 +200,7 @@ export default async function KalamSlugPage({ params }: PageProps) {
     { name: "Home", url: "/" },
     { name: "Poets", url: "/authors" },
     ...(authorSlug ? [{ name: authorName, url: `/author/${authorSlug}` }] : []),
-    { name: kalam.primary_title_roman, url: `/kalam/${slug}` },
+    { name: kalam.primary_title_roman, url: kalamHref(cleanSlug) },
   ]);
 
   return (
