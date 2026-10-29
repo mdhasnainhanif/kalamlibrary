@@ -1,6 +1,6 @@
 import { SITE_CONFIG } from "@/utils/seoConfig";
 import { buildWhatsAppForwardUrl } from "@/utils/shareKalamPost";
-import { shareCardCaptureBackground, type SharePostTheme } from "@/utils/sharePostTheme";
+import { captureShareCardNode } from "@/utils/shareCardDesign";
 
 export type ShareCardPayload = {
   title: string;
@@ -21,62 +21,14 @@ export function normalizeSharePageUrl(href: string): string {
   }
 }
 
-async function captureShareCardFromDom(): Promise<Blob> {
+/** Capture the on-screen #kalam-share-card (matches preview). */
+export async function fetchShareCardBlob(_payload: ShareCardPayload): Promise<Blob> {
   const node = document.getElementById("kalam-share-card");
   if (!node) {
     throw new Error("Share preview card not found");
   }
-  const captureBg =
-    node.getAttribute("data-share-capture-bg") ||
-    shareCardCaptureBackground(node.getAttribute("data-share-theme") === "light" ? "light" : "dark");
-  const { toPng } = await import("html-to-image");
-  const dataUrl = await toPng(node, {
-    pixelRatio: 2,
-    cacheBust: true,
-    backgroundColor: captureBg,
-    skipFonts: false,
-    style: {
-      transform: "none",
-    },
-  });
-  const res = await fetch(dataUrl);
-  return res.blob();
-}
-
-/** Prefer on-screen card (pattern + Urdu fonts match preview); API is fallback. */
-export async function fetchShareCardBlob(_payload: ShareCardPayload): Promise<Blob> {
-  if (typeof document !== "undefined" && document.getElementById("kalam-share-card")) {
-    try {
-      return await captureShareCardFromDom();
-    } catch {
-      /* fall through */
-    }
-  }
-
-  let theme: SharePostTheme = "dark";
-  if (typeof document !== "undefined") {
-    const el = document.getElementById("kalam-share-card");
-    if (el?.getAttribute("data-share-theme") === "light") theme = "light";
-    else if (document.documentElement.classList.contains("light")) theme = "light";
-  }
-
-  const res = await fetch("/api/share-card", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      ..._payload,
-      pageUrl: normalizeSharePageUrl(_payload.pageUrl),
-      theme,
-    }),
-  });
-  if (!res.ok) {
-    throw new Error("Could not generate share image");
-  }
-  const blob = await res.blob();
-  if (blob.size < 800) {
-    throw new Error("Could not generate share image");
-  }
-  return blob;
+  const bg = node.getAttribute("data-share-capture-bg") || "#031510";
+  return captureShareCardNode(node, bg);
 }
 
 export function downloadBlob(blob: Blob, filename: string) {
@@ -90,11 +42,6 @@ export function downloadBlob(blob: Blob, filename: string) {
 
 export type WhatsAppShareResult = "native-with-image" | "whatsapp-text" | "text-plus-download";
 
-/**
- * Share the composed post on WhatsApp (any contact).
- * Mobile: system share with image+caption when supported; else WhatsApp app + text.
- * Desktop: WhatsApp Web with caption; downloads PNG to attach when image exists.
- */
 export async function sharePostOnWhatsApp(params: {
   caption: string;
   title: string;

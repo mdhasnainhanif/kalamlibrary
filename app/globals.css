@@ -25,7 +25,8 @@
   --color-emerald-950: hsl(160, 50%, 4%);
   
   --font-sans: var(--font-sans-premium), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-urdu: var(--font-noto-nastaliq), "Noto Naskh Arabic", "Noto Sans Arabic", serif;
+  --font-display: var(--font-display-premium), Georgia, "Times New Roman", serif;
+  --font-urdu: var(--font-noto-nastaliq), "Jameel Noori Nastaleeq", "Noto Naskh Arabic", "Noto Sans Arabic", serif;
   --font-devanagari: var(--font-noto-devanagari), "Nirmala UI", "Mangal", sans-serif;
   --font-bengali: var(--font-noto-bengali), "Nirmala UI", "Vrinda", sans-serif;
 }
@@ -804,11 +805,28 @@ ins.adsbygoogle[data-ad-status="unfilled"] {
   border-color: rgba(217, 119, 6, 0.4);
 }
 
+.font-display {
+  font-family: var(--font-display);
+}
+
 .font-urdu,
 .kalam-urdu-lyrics {
   font-family: var(--font-urdu);
   /* Nastaliq is taller than Latin fallbacks — reserve space to stop CLS */
   line-height: 1.8;
+}
+
+#kalam-share-card .share-post-lyrics--urdu,
+#kalam-share-card .share-post-lyrics--urdu p {
+  line-height: 2.2;
+  word-spacing: 2px;
+}
+
+@media (min-width: 768px) {
+  #kalam-share-card .share-post-lyrics--urdu,
+  #kalam-share-card .share-post-lyrics--urdu p {
+    line-height: 2.4;
+  }
 }
 
 .kalam-urdu-lyrics {

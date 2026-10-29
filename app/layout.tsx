@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Cormorant_Garamond, Figtree } from "next/font/google";
 import "./globals.css";
 
 import NavbarWithPoets from "@/components/NavbarWithPoets";
@@ -12,12 +12,24 @@ import SiteBackground from "@/components/ui/SiteBackground";
 import { SITE_CONFIG, buildWebSiteSchema } from "@/utils/seoConfig";
 import { ADSENSE_CLIENT } from "@/utils/adsConfig";
 
-const plusJakarta = Plus_Jakarta_Sans({
+const figtree = Figtree({
   variable: "--font-sans-premium",
   subsets: ["latin"],
   display: "swap",
   preload: true,
+  weight: ["400", "500", "600", "700"],
   fallback: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+  adjustFontFallback: true,
+});
+
+const cormorant = Cormorant_Garamond({
+  variable: "--font-display-premium",
+  subsets: ["latin"],
+  display: "swap",
+  preload: true,
+  weight: ["500", "600", "700"],
+  style: ["normal", "italic"],
+  fallback: ["Georgia", "Times New Roman", "serif"],
   adjustFontFallback: true,
 });
 
@@ -104,7 +116,7 @@ export default function RootLayout({
       lang="en"
       dir="ltr"
       suppressHydrationWarning
-      className={`${plusJakarta.variable} min-h-full scroll-smooth antialiased`}
+      className={`${figtree.variable} ${cormorant.variable} min-h-full scroll-smooth antialiased`}
     >
       <head>
         <meta name="google-adsense-account" content={ADSENSE_CLIENT} />

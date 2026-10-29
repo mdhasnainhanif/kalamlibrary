@@ -36,7 +36,6 @@ export default function KalamShareToolbar({
   onClearSelection,
 }: KalamShareToolbarProps) {
   const [copiedFull, setCopiedFull] = useState(false);
-  const [copyPostDone, setCopyPostDone] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
 
   const displayAuthor = useMemo(
@@ -73,17 +72,6 @@ export default function KalamShareToolbar({
       setTimeout(() => setCopiedFull(false), 2000);
     } catch {
       toast.error("Could not copy lyrics");
-    }
-  };
-
-  const handleCopyCaption = async () => {
-    try {
-      await navigator.clipboard.writeText(buildShareCaption(shareInput()));
-      setCopyPostDone(true);
-      toast.success("Caption copied");
-      setTimeout(() => setCopyPostDone(false), 2000);
-    } catch {
-      toast.error("Could not copy");
     }
   };
 
@@ -154,8 +142,6 @@ export default function KalamShareToolbar({
           stanzaCount={selectionCount}
           lang={lang}
           dir={dir}
-          onCopyCaption={handleCopyCaption}
-          copyDone={copyPostDone}
         />
       </div>
 

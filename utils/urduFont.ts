@@ -4,9 +4,9 @@ import { Noto_Nastaliq_Urdu } from "next/font/google";
 export const notoNastaliqUrdu = Noto_Nastaliq_Urdu({
   variable: "--font-noto-nastaliq",
   subsets: ["arabic"],
-  weight: ["400", "700"],
+  weight: ["400", "600", "700"],
   display: "swap",
   preload: false,
   adjustFontFallback: true,
-  fallback: ["Noto Naskh Arabic", "serif"],
+  fallback: ["Jameel Noori Nastaleeq", "Noto Naskh Arabic", "serif"],
 });
