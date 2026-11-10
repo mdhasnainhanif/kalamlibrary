@@ -32,8 +32,14 @@ export type TranslationRecord = {
  * nothing caches (and ISR keeps serving the last good copy). Read as missing, it would be
  * a 404, or a page with sections dropped, cached like a real result.
  */
-function throwIfFailed(error: { message: string } | null, what: string) {
+export function throwIfFailed(error: { message: string } | null, what: string) {
   if (error) throw new Error(`Supabase ${what} failed: ${error.message}`);
+}
+
+/** PostgREST 416. The page starts past the last row, so this is a missing page, not an outage. */
+export function isRangeNotSatisfiable(error: { code?: string; message?: string } | null): boolean {
+  if (!error) return false;
+  return error.code === "PGRST103" || /range not satisfiable/i.test(error.message ?? "");
 }
 
 export async function findKalamBySlug(rawSlug: string): Promise<KalamRecord | null> {

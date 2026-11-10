@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { isRangeNotSatisfiable, throwIfFailed } from "@/utils/kalamData";
 import { supabase } from "@/utils/supabase";
 import { SITE_CONFIG, buildBreadcrumbJsonLd, buildCanonicalUrl } from "@/utils/seoConfig";
 import SearchBar from "@/components/SearchBar";
@@ -104,6 +105,9 @@ export default async function LyricsLanguagePage({ params, searchParams }: PageP
   const to = from + PAGE_SIZE - 1;
 
   const { data: kalams, count, error } = await indexableKalamQuery(activeLetter).range(from, to);
+  // Past the last row is a 404. Any other failure must not render a cacheable empty page.
+  if (isRangeNotSatisfiable(error)) notFound();
+  throwIfFailed(error, "lyrics list");
 
   const totalCount = count || 0;
   const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
@@ -116,11 +120,12 @@ export default async function LyricsLanguagePage({ params, searchParams }: PageP
   const urduTitleByKalamId = new Map<string, string>();
   if (rows.length > 0) {
     const ids = rows.map((k) => k.id);
-    const { data: urduTranslations } = await supabase
+    const { data: urduTranslations, error: urduError } = await supabase
       .from("kalam_translations")
       .select("kalam_id, title")
       .eq("language", "urdu")
       .in("kalam_id", ids);
+    throwIfFailed(urduError, "lyrics urdu titles");
     for (const row of urduTranslations || []) {
       const title = (row.title || "").trim();
       if (title) urduTitleByKalamId.set(row.kalam_id, title);

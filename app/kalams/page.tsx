@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
+import { isRangeNotSatisfiable, throwIfFailed } from "@/utils/kalamData";
 import { supabase } from "@/utils/supabase";
 import { SITE_CONFIG, buildCanonicalUrl, buildBreadcrumbJsonLd } from "@/utils/seoConfig";
 import SearchBar from "@/components/SearchBar";
@@ -80,6 +82,9 @@ export default async function KalamsBrowsePage({ searchParams }: PageProps) {
   const to = from + PAGE_SIZE - 1;
 
   const { data: rawKalams, count, error } = await query.range(from, to);
+  // Past the last row is a 404. Any other failure must not render a cacheable empty page.
+  if (isRangeNotSatisfiable(error)) notFound();
+  throwIfFailed(error, "kalams list");
   const kalams = rawKalams || [];
 
   const totalCount = count || 0;

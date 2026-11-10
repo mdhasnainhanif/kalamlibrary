@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { throwIfFailed } from "@/utils/kalamData";
 import { supabase } from "@/utils/supabase";
 import { filterListedAuthors, getAuthorUrduName } from "@/utils/authorHelper";
 import { filterIndexableKalams } from "@/utils/kalam";
@@ -49,11 +50,13 @@ export default async function AuthorsPage() {
     .select("*")
     .order("name_roman", { ascending: true });
 
+  throwIfFailed(authorsError, "authors list");
   const authors = filterListedAuthors(authorsRaw);
 
-  const { data: allKalams } = await supabase
+  const { data: allKalams, error: kalamsError } = await supabase
     .from("kalams")
     .select("id, author_id, slug, primary_title_roman, primary_title_urdu");
+  throwIfFailed(kalamsError, "author kalam counts");
 
   const authorKalamCounts: Record<string, number> = {};
   filterIndexableKalams(allKalams).forEach((k) => {

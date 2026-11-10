@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import HomePageView from "@/components/home/HomePageView";
+import { throwIfFailed } from "@/utils/kalamData";
 import { supabase } from "@/utils/supabase";
 import { SITE_CONFIG, buildCanonicalUrl, buildWebSiteSchema } from "@/utils/seoConfig";
 import { FEATURED_KALAM_SLUGS, filterIndexableKalams } from "@/utils/kalam";
@@ -53,12 +54,16 @@ export default async function Home() {
           .from("kalams")
           .select("author_id, slug, primary_title_roman")
           .in("author_id", authorIds)
-      : Promise.resolve({ data: null as null, error: null });
+      : Promise.resolve({ data: null as null, error: null as null });
 
-  const [{ data: featuredRows, error: kalamsError }, { data: countRows }] = await Promise.all([
+  const [{ data: featuredRows, error: kalamsError }, { data: countRows, error: countsError }] = await Promise.all([
     featuredPromise,
     countsPromise,
   ]);
+
+  throwIfFailed(authorsError, "home authors");
+  throwIfFailed(kalamsError, "home kalams");
+  throwIfFailed(countsError, "home kalam counts");
 
   const featuredBySlug = new Map((featuredRows || []).map((row) => [row.slug, row]));
   const kalams = FEATURED_KALAM_SLUGS.map((slug) => featuredBySlug.get(slug)).filter(

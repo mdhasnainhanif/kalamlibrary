@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Link from "next/link";
+import { throwIfFailed } from "@/utils/kalamData";
 import { supabase } from "@/utils/supabase";
 import { SITE_CONFIG, buildBreadcrumbJsonLd, buildCanonicalUrl } from "@/utils/seoConfig";
 import { filterIndexableKalams, kalamHref } from "@/utils/kalam";
@@ -28,10 +29,11 @@ export const metadata: Metadata = {
 export default async function DuroodOSalamPage() {
   const slugs = [...DUROOD_SALAM_SLUGS];
 
-  const { data: rawKalams } = await supabase
+  const { data: rawKalams, error } = await supabase
     .from("kalams")
     .select("id, slug, primary_title_roman, primary_title_urdu, authors(name_roman)")
     .in("slug", slugs);
+  throwIfFailed(error, "durood kalams");
 
   const bySlug = new Map(filterIndexableKalams(rawKalams || []).map((k) => [k.slug, k]));
 
