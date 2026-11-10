@@ -2,6 +2,9 @@ import { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import LyricsDisplay from "@/components/LyricsDisplay";
+import PagedKalamReader from "@/components/PagedKalamReader";
+import { KHATM_E_QADRIA_PAGES } from "@/utils/khatmEQadriaPages";
+import { KHATM_E_QADRIA_SLUG } from "@/utils/khatmEQadriaSlug";
 import KalamPageAdLayout from "@/components/KalamPageAdLayout";
 import KalamLangScrollAnchor from "@/components/KalamLangScrollAnchor";
 import KalamLangTabLink from "@/components/KalamLangTabLink";
@@ -16,18 +19,24 @@ import {
   inferredSourceCollection,
   kalamHeaderSubtitle,
   kalamHref,
-  truncateAtWord,
   type KalamTranslationLanguage,
 } from "@/utils/kalam";
 import {
   SITE_CONFIG,
   buildCanonicalUrl,
-  buildOgImageUrl,
   buildKalamJsonLd,
   buildBreadcrumbJsonLd,
 } from "@/utils/seoConfig";
 import { buildKalamLanguageAlternates } from "@/utils/kalamAlternates";
 import { buildKalamReaderIntro } from "@/utils/kalamReaderIntro";
+import { planKalamRoutes } from "@/utils/kalamRouting";
+import {
+  availableLanguages,
+  buildKalamDescription,
+  buildKalamHeading,
+  buildKalamSeoTitle,
+} from "@/utils/kalamSeo";
+import { langAttrFromLocale } from "@/utils/htmlLang";
 import { KALAM_LANG_TABLIST_CLASS, kalamLangTabClassName } from "@/utils/kalamLangTabStyles";
 
 // Helper to slugify author names in code for routing
@@ -48,7 +57,7 @@ interface LanguageConfig {
 }
 
 const LANGUAGES_MAP: Record<string, LanguageConfig> = {
-  "roman-english": { code: "roman_english", label: "Roman English", dir: "ltr", locale: "en-US" },
+  "roman-english": { code: "roman_english", label: "Roman English", dir: "ltr", locale: "ur-Latn" },
   "urdu": { code: "urdu", label: "اردو (Urdu)", dir: "rtl", locale: "ur-PK" },
   "hindi": { code: "hindi", label: "हिन्दी (Hindi)", dir: "ltr", locale: "hi-IN" },
   "bangla": { code: "bangla", label: "বাংলা (Bangla)", dir: "ltr", locale: "bn-BD" }
@@ -62,6 +71,11 @@ interface PageProps {
 }
 
 export const revalidate = 604800;
+
+/** Empty list: nothing is prerendered at build, but each language URL is cached on its first visit (ISR). */
+export async function generateStaticParams() {
+  return [];
+}
 
 async function getKalamData(rawSlug: string) {
   return getKalamPageData(rawSlug);
@@ -80,29 +94,32 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const { kalam, author, translations, cleanSlug } = data;
+  const routePlan = planKalamRoutes(cleanSlug, translations);
+  if (lang === "urdu" && routePlan.urduRedirectsToBase) permanentRedirect(routePlan.basePath);
+  if (lang === "roman-english") permanentRedirect(routePlan.baseRedirectPath ?? routePlan.basePath);
   const currentTranslation = translations.find((t) => t.language === langConfig.code);
   const titleText = currentTranslation ? currentTranslation.title : kalam.primary_title_roman;
   const authorName = author && !isPlaceholderAuthorName(author.name_roman) ? displayAuthorName(author.name_roman) : "";
   const opening = firstCouplet(currentTranslation?.lyrics);
-  const seoTitle = `${titleText} – Naat Lyrics in ${langConfig.label}`;
-  const seoDesc = truncateAtWord(
-    opening
-      ? authorName
-        ? `${opening}. ${titleText} by ${authorName} in ${langConfig.label}.`
-        : `${opening}. ${titleText} in ${langConfig.label}.`
-      : authorName
-        ? `Naat lyrics of ${titleText} by ${authorName} in ${langConfig.label}.`
-        : `Naat lyrics of ${titleText} in ${langConfig.label}.`
-  );
+  const seoTitle = buildKalamSeoTitle(kalam.primary_title_roman, langConfig.code, authorName);
+  const seoDesc = buildKalamDescription({
+    titleRoman: kalam.primary_title_roman,
+    lang: langConfig.code,
+    available: routePlan.baseRedirectLang ? [routePlan.baseRedirectLang] : availableLanguages(translations),
+    poet: authorName,
+    scriptTitle:
+      langConfig.code === "urdu"
+        ? kalam.primary_title_urdu || currentTranslation?.title
+        : langConfig.code === "roman_english"
+          ? null
+          : currentTranslation?.title,
+    opening,
+  });
   const canonicalUrl = buildCanonicalUrl(kalamHref(cleanSlug, lang));
 
   const languageAlternates = buildKalamLanguageAlternates(cleanSlug, translations);
 
-  const ogImageUrl = buildOgImageUrl({
-    title: titleText,
-    poet: authorName,
-    sub: `Lyrics in ${langConfig.label} Script`,
-  });
+  const ogImageUrl = buildCanonicalUrl(SITE_CONFIG.pageOgImage);
 
   return {
     title: seoTitle,
@@ -154,8 +171,12 @@ export default async function KalamPage({ params }: PageProps) {
     notFound();
   }
 
+  const routePlan = planKalamRoutes(cleanSlug, translations);
+  if (lang === "urdu" && routePlan.urduRedirectsToBase) {
+    permanentRedirect(routePlan.basePath);
+  }
   if (lang === "roman-english") {
-    permanentRedirect(kalamHref(cleanSlug));
+    permanentRedirect(routePlan.baseRedirectPath ?? routePlan.basePath);
   }
 
   if (cleanKalamSlug(slug) !== slug && cleanSlug === cleanKalamSlug(slug)) {
@@ -186,11 +207,10 @@ export default async function KalamPage({ params }: PageProps) {
   const kalamSchema = buildKalamJsonLd({
     title: activeTranslation.title || kalam.primary_title_roman,
     url: pageUrl,
-    lyrics: activeTranslation.lyrics,
     authorName: authorName,
     authorUrl: authorSlug ? buildCanonicalUrl(`/author/${authorSlug}`) : undefined,
     language: activeTranslation.language,
-    inLanguageLocale: langConfig.locale.split("-")[0],
+    inLanguageLocale: langAttrFromLocale(langConfig.locale),
     dateCreated: kalam.created_at || undefined,
   });
 
@@ -232,7 +252,7 @@ export default async function KalamPage({ params }: PageProps) {
         {/* Kalam Heading Panel */}
         <header className="text-center mb-8 border-b border-emerald-500/15 dark:border-emerald-500/10 pb-6 max-w-3xl mx-auto w-full">
           <h1 className="kalam-page-title text-2xl md:text-4xl font-bold text-amber-700 dark:text-gold-500 mb-3 tracking-wide leading-relaxed font-sans">
-            {kalam.primary_title_roman} – Naat Lyrics in {langConfig.label}
+            {buildKalamHeading(kalam.primary_title_roman, langConfig.code)}
           </h1>
           {headerSubtitle && (
             <p
@@ -274,6 +294,7 @@ export default async function KalamPage({ params }: PageProps) {
                 const hasLanguageTranslation = translations.some((t) => t.language === config.code);
 
                 if (!hasLanguageTranslation) return null;
+                if (routePlan.baseRedirectLang && key !== routePlan.baseRedirectLang) return null;
 
                 const tabHref = key === "roman-english" ? kalamHref(cleanSlug) : kalamHref(cleanSlug, key);
 
@@ -283,7 +304,7 @@ export default async function KalamPage({ params }: PageProps) {
                     id={`tab-${key}`}
                     href={tabHref}
                     role="tab"
-                    lang={config.locale.split("-")[0]}
+                    lang={langAttrFromLocale(config.locale)}
                     dir={config.dir}
                     aria-selected={isSelected}
                     aria-controls="lyrics-panel"
@@ -301,13 +322,17 @@ export default async function KalamPage({ params }: PageProps) {
 
         <KalamPageAdLayout
           lyrics={
-            <LyricsDisplay 
-              lyrics={activeTranslation.lyrics} 
-              title={activeTranslation.title} 
-              author={authorName} 
-              lang={lang} 
-              dir={langConfig.dir} 
-            />
+            lang === "urdu" && cleanSlug === KHATM_E_QADRIA_SLUG ? (
+              <PagedKalamReader titleUrdu={activeTranslation.title} pages={KHATM_E_QADRIA_PAGES} />
+            ) : (
+              <LyricsDisplay 
+                lyrics={activeTranslation.lyrics} 
+                title={activeTranslation.title} 
+                author={authorName} 
+                lang={lang} 
+                dir={langConfig.dir} 
+              />
+            )
           }
         >
           <ReportErrorLink title={kalam.primary_title_roman} />

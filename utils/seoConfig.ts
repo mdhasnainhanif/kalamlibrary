@@ -35,6 +35,8 @@ export const SITE_CONFIG = {
   publisher: "Kalam Library",
   category: "Islamic Devotional Poetry, Naat & Kalam",
   defaultOgImage: "/og-default.jpg",
+  /** 1200×630, ~110 KB. Kalam, language and poet pages share it instead of /api/og. */
+  pageOgImage: "/og-kalam.jpg",
   supportEmail: "md.hasnain.developer@gmail.com",
 };
 
@@ -53,25 +55,6 @@ export function buildCanonicalUrl(path: string, queryParams?: Record<string, str
     });
   }
 
-  return url.toString();
-}
-
-/**
- * Generates dynamic OpenGraph preview URL via Next.js OG API
- */
-export function buildOgImageUrl(params: {
-  title: string;
-  poet?: string;
-  sub?: string;
-}): string {
-  const url = new URL("/api/og", SITE_CONFIG.url);
-  url.searchParams.set("title", params.title);
-  if (params.poet) {
-    url.searchParams.set("poet", params.poet);
-  }
-  if (params.sub) {
-    url.searchParams.set("sub", params.sub);
-  }
   return url.toString();
 }
 
@@ -130,7 +113,6 @@ export function buildBreadcrumbJsonLd(items: Array<{ name: string; url: string }
 export function buildKalamJsonLd(params: {
   title: string;
   url: string;
-  lyrics: string;
   authorName: string;
   authorUrl?: string;
   language: string;
@@ -146,7 +128,6 @@ export function buildKalamJsonLd(params: {
     url: params.url,
     genre: "Islamic Devotional Poetry",
     inLanguage: params.inLanguageLocale || "ur",
-    text: params.lyrics,
     author: {
       "@type": "Person",
       name: params.authorName,

@@ -1,6 +1,16 @@
 import { authorLabelFromRoman } from "@/utils/authorHelper";
 import { supabase } from "@/utils/supabase";
 
+export const MIN_SEARCH_LENGTH = 2;
+export const MAX_KALAM_RESULTS = 10;
+export const MAX_POET_RESULTS = 5;
+export const MAX_POET_SAMPLE = 3;
+const LYRIC_MATCH_LIMIT = 8;
+const SNIPPET_CHARS = 120;
+
+/** Edge-only, two minutes. s-maxage disables stale-while-revalidate on Workers Caching. */
+export const SEARCH_CACHE_CONTROL = "public, max-age=0, s-maxage=120";
+
 export interface SearchResultItem {
   kalam_id: string;
   title: string;
@@ -9,7 +19,35 @@ export interface SearchResultItem {
   slug: string;
   author_name: string;
   author_slug: string;
-  score?: number;
+  /** Short excerpt, only when the match was inside the lyrics. Never the full text. */
+  snippet?: string;
+}
+
+export interface SearchPoetResult {
+  name: string;
+  slug: string;
+  kalam_count: number;
+  /** At most MAX_POET_SAMPLE titles. Not the poet's whole catalogue. */
+  kalams: Array<{ title: string; slug: string }>;
+}
+
+export interface SearchResponse {
+  kalams: SearchResultItem[];
+  poets: SearchPoetResult[];
+}
+
+const EMPTY: SearchResponse = { kalams: [], poets: [] };
+
+/**
+ * Makes a query safe to interpolate into a PostgREST `.or()` filter.
+ * Commas, parentheses and quotes are filter syntax; % and _ are LIKE wildcards.
+ */
+export function sanitizeSearchQuery(raw: string): string {
+  return (raw || "")
+    .replace(/[,()"'\\%_*]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, 80);
 }
 
 function slugify(text: string): string {
@@ -23,316 +61,177 @@ function slugify(text: string): string {
 export function stripUrduAerab(text: string): string {
   if (!text) return "";
   return text
-    .replace(/[\u064B-\u065F\u0670\u0671\u0640\u0654]/g, "") // Aerab / diacritics / tatweel / hamza above
-    .replace(/[\u0622\u0623\u0625]/g, "\u0627") // Alif variants -> Alif
-    .replace(/[\u06C1\u06C2\u06D5]/g, "\u06C1") // Heh variants
-    .replace(/[\u0649\u064A]/g, "\u06CC") // Arabic Yeh -> Urdu Ye
+    .replace(/[\u064B-\u065F\u0670\u0671\u0640\u0654]/g, "")
+    .replace(/[\u0622\u0623\u0625]/g, "\u0627")
+    .replace(/[\u06C1\u06C2\u06D5]/g, "\u06C1")
+    .replace(/[\u0649\u064A]/g, "\u06CC")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-export async function searchKalams(rawQuery: string, limit = 40): Promise<SearchResultItem[]> {
-  const query = rawQuery.trim();
-  if (!query) return [];
+function one<T>(value: T | T[] | null | undefined): T | null {
+  if (!value) return null;
+  return Array.isArray(value) ? (value[0] ?? null) : value;
+}
 
-  const lowerQuery = query.toLowerCase();
-  const normQuery = stripUrduAerab(lowerQuery);
+function relationCount(value: unknown): number {
+  const row = one(value as { count?: number } | Array<{ count?: number }> | null);
+  return typeof row?.count === "number" ? row.count : 0;
+}
 
-  // Extract individual words for multi-term matching
-  const queryWords = lowerQuery
-    .replace(/[^\w\s\u0600-\u06FF\u0900-\u097F\u0980-\u09FF]/g, " ")
-    .split(/\s+/)
-    .filter((w) => w.length > 0);
+function snippetAround(lyrics: string, query: string): string {
+  const flat = lyrics.replace(/\s+/g, " ").trim();
+  const at = flat.toLowerCase().indexOf(query.toLowerCase());
+  const start = at < 0 ? 0 : Math.max(0, at - 30);
+  const slice = flat.slice(start, start + SNIPPET_CHARS).trim();
+  return `${start > 0 ? "…" : ""}${slice}${start + SNIPPET_CHARS < flat.length ? "…" : ""}`;
+}
 
-  const normQueryWords = queryWords.map((w) => stripUrduAerab(w)).filter((w) => w.length > 0);
+type KalamJoin = {
+  primary_title_roman: string;
+  primary_title_urdu?: string | null;
+  slug: string;
+  authors?: { name_roman?: string } | Array<{ name_roman?: string }> | null;
+};
 
-  const resultMap = new Map<string, SearchResultItem>();
+function isJunk(title: string, slug: string): boolean {
+  const t = title.toLowerCase().trim();
+  return !title || !slug || t === "deegar" || t === "دیگر" || slug.startsWith("deegar") || slug.startsWith("digar");
+}
 
-  const processKalamRecord = (
-    kalamId: string,
-    primaryTitleRoman: string,
-    primaryTitleUrdu: string | null,
-    slug: string,
-    matchedTitle: string,
-    language: string,
-    authorName: string,
-    lyricsSample = ""
-  ) => {
-    if (
-      !kalamId ||
-      !primaryTitleRoman ||
-      primaryTitleRoman.toLowerCase().trim() === "deegar" ||
-      matchedTitle.toLowerCase().trim() === "deegar" ||
-      matchedTitle.trim() === "دیگر" ||
-      slug.startsWith("deegar") ||
-      slug.startsWith("digar")
-    ) {
-      return;
-    }
+export async function searchKalams(rawQuery: string): Promise<SearchResponse> {
+  const query = sanitizeSearchQuery(rawQuery);
+  if (query.length < MIN_SEARCH_LENGTH) return EMPTY;
 
-    const titleLower = (matchedTitle || "").toLowerCase();
-    const primaryLower = (primaryTitleRoman || "").toLowerCase();
-    const urduLower = (primaryTitleUrdu || "").toLowerCase();
-    const authorLower = (authorName || "").toLowerCase();
-    const lyrics = lyricsSample || "";
+  const lower = query.toLowerCase();
+  const norm = stripUrduAerab(lower);
+  const like = `%${query}%`;
+  // Quoted so spaces and dots stay inside the value and cannot start a new filter.
+  const orValue = `"${like}"`;
+  const kalams = new Map<string, SearchResultItem & { score: number }>();
 
-    const titleNorm = stripUrduAerab(titleLower);
-    const primaryNorm = stripUrduAerab(primaryLower);
-    const urduNorm = stripUrduAerab(urduLower);
-    const lyricsNorm = stripUrduAerab(lyrics.toLowerCase());
+  const add = (item: Omit<SearchResultItem, "snippet"> & { snippet?: string }, score: number) => {
+    if (isJunk(item.title, item.slug) || isJunk(item.matched_title, item.slug)) return;
+    const prev = kalams.get(item.kalam_id);
+    if (!prev || score > prev.score) kalams.set(item.kalam_id, { ...item, score });
+  };
 
+  const fromJoin = (join: KalamJoin | null, fallbackTitle: string, language: string, kalamId: string) => {
+    if (!join) return null;
+    const authorName = authorLabelFromRoman(one(join.authors)?.name_roman);
+    return {
+      kalam_id: kalamId,
+      title: join.primary_title_roman,
+      matched_title: fallbackTitle || join.primary_title_roman,
+      language: language || "roman_english",
+      slug: join.slug,
+      author_name: authorName || "",
+      author_slug: authorName ? slugify(authorName) : "",
+    };
+  };
+
+  const scoreTitle = (title: string, primary: string, urdu: string, author: string) => {
+    const fields = [stripUrduAerab(title.toLowerCase()), primary.toLowerCase(), stripUrduAerab((urdu || "").toLowerCase())];
     let score = 0;
-
-    // 1. Exact match in title (with aerab normalization)
-    if (titleNorm === normQuery || primaryNorm === lowerQuery || urduNorm === normQuery) {
-      score += 300;
-    }
-    // 2. Starts with query
-    else if (titleNorm.startsWith(normQuery) || primaryNorm.startsWith(lowerQuery) || urduNorm.startsWith(normQuery)) {
-      score += 200;
-    }
-    // 3. Substring match in title
-    else if (titleNorm.includes(normQuery) || primaryNorm.includes(lowerQuery) || urduNorm.includes(normQuery)) {
-      score += 150;
-    }
-
-    // 4. Author match
-    if (authorLower === lowerQuery) {
-      score += 180;
-    } else if (authorLower.includes(lowerQuery)) {
-      score += 80;
-    }
-
-    // 5. Check lyrics line-by-line for full phrase or verse match
-    if (lyricsNorm.includes(normQuery)) {
-      score += 140;
-    }
-
-    // 6. Word-by-word matching (words must co-occur in the SAME LINE or TITLE)
-    if (normQueryWords.length > 1) {
-      let matchedInTitleCount = 0;
-      let maxMatchedInSingleLine = 0;
-
-      normQueryWords.forEach((w) => {
-        if (titleNorm.includes(w) || primaryNorm.includes(w) || urduNorm.includes(w) || authorLower.includes(w)) {
-          matchedInTitleCount++;
-        }
-      });
-
-      const lines = lyricsNorm.split("\n");
-      for (const line of lines) {
-        if (!line.trim()) continue;
-        let count = 0;
-        for (const w of normQueryWords) {
-          if (line.includes(w)) count++;
-        }
-        if (count > maxMatchedInSingleLine) {
-          maxMatchedInSingleLine = count;
-        }
-      }
-
-      const bestCount = Math.max(matchedInTitleCount, maxMatchedInSingleLine);
-      const ratio = bestCount / normQueryWords.length;
-
-      // STRICT RULES FOR SENTENCES / MULTI-WORD QUERIES:
-      // If user typed 4+ words (e.g. a full verse), do NOT match unless at least 65% of words co-occur in the same line or title!
-      if (normQueryWords.length >= 4) {
-        if (score === 0 && ratio < 0.65) {
-          return; // Ignore false positives
-        }
-      } else if (normQueryWords.length >= 2) {
-        if (score === 0 && ratio < 0.6) {
-          return; // Ignore weak partials
-        }
-      }
-
-      if (bestCount === normQueryWords.length) {
-        score += 110;
-      } else {
-        score += Math.round(ratio * 75);
-      }
-    }
-
-    // Minimum score threshold to prevent showing random noise for full line queries
-    const minScore = normQueryWords.length >= 4 ? 80 : 30;
-
-    if (score >= minScore) {
-      const existing = resultMap.get(kalamId);
-      if (!existing || (existing.score || 0) < score) {
-        resultMap.set(kalamId, {
-          kalam_id: kalamId,
-          title: primaryTitleRoman,
-          matched_title: matchedTitle,
-          language: language || "roman_english",
-          slug,
-          author_name: authorName || "",
-          author_slug: authorName ? slugify(authorName) : "",
-          score,
-        });
-      }
-    }
+    if (fields.some((f) => f === norm || f === lower)) score = 300;
+    else if (fields.some((f) => f.startsWith(norm) || f.startsWith(lower))) score = 200;
+    else if (fields.some((f) => f.includes(norm) || f.includes(lower))) score = 150;
+    const authorLower = author.toLowerCase();
+    if (authorLower === lower) score += 80;
+    else if (authorLower.includes(lower)) score += 40;
+    return score;
   };
 
   try {
-    // STAGE 1: Direct search in kalam_translations on full query or normalized query
-    const { data: translationData } = await supabase
+    const { data: byTitle } = await supabase
       .from("kalam_translations")
-      .select("kalam_id, title, language, lyrics, kalams(primary_title_roman, primary_title_urdu, slug, authors(name_roman, name_urdu))")
-      .or(`title.ilike.%${query}%,lyrics.ilike.%${query}%`)
-      .limit(100);
+      .select("kalam_id, title, language, kalams!inner(primary_title_roman, primary_title_urdu, slug, authors(name_roman))")
+      .ilike("title", like)
+      .limit(20);
 
-    if (translationData) {
-      for (const item of translationData) {
-        const kalam = (Array.isArray(item.kalams) ? item.kalams[0] : item.kalams) as { primary_title_roman: string; primary_title_urdu?: string; slug: string; authors?: { name_roman: string } | { name_roman: string }[] } | null;
-        if (!kalam) continue;
-        const authorData = kalam.authors;
-        const authorName = authorLabelFromRoman(
-          Array.isArray(authorData) ? authorData[0]?.name_roman : authorData?.name_roman
-        );
-
-        processKalamRecord(
-          item.kalam_id,
-          kalam.primary_title_roman,
-          kalam.primary_title_urdu || null,
-          kalam.slug,
-          item.title,
-          item.language,
-          authorName,
-          item.lyrics
-        );
-      }
+    for (const row of byTitle ?? []) {
+      const join = one(row.kalams as KalamJoin | KalamJoin[] | null);
+      const item = fromJoin(join, row.title, row.language, row.kalam_id);
+      if (!item) continue;
+      add(item, scoreTitle(row.title, item.title, join?.primary_title_urdu || "", item.author_name));
     }
 
-    // STAGE 2: Direct search in kalams table (primary titles or slug)
-    const { data: kalamsData } = await supabase
+    const { data: byKalam } = await supabase
       .from("kalams")
-      .select("id, primary_title_roman, primary_title_urdu, slug, authors(name_roman, name_urdu), kalam_translations(id, title, language, lyrics)")
-      .or(`primary_title_roman.ilike.%${query}%,primary_title_urdu.ilike.%${query}%,slug.ilike.%${query}%`)
-      .limit(80);
+      .select("id, primary_title_roman, primary_title_urdu, slug, authors(name_roman)")
+      .or(`primary_title_roman.ilike.${orValue},primary_title_urdu.ilike.${orValue},slug.ilike.${orValue}`)
+      .limit(20);
 
-    if (kalamsData) {
-      for (const item of kalamsData) {
-        const authorData = item.authors as { name_roman: string } | { name_roman: string }[] | null;
-        const authorName = authorLabelFromRoman(
-          Array.isArray(authorData) ? authorData[0]?.name_roman : authorData?.name_roman
-        );
-        const translations = (item.kalam_translations || []) as { id: string; title: string; language: string; lyrics: string }[];
-        const primaryTrans = translations[0] || {};
-
-        processKalamRecord(
-          item.id,
-          item.primary_title_roman,
-          item.primary_title_urdu || null,
-          item.slug,
-          primaryTrans.title || item.primary_title_roman,
-          primaryTrans.language || "roman_english",
-          authorName,
-          primaryTrans.lyrics || ""
-        );
-      }
+    for (const row of byKalam ?? []) {
+      const authorName = authorLabelFromRoman(one(row.authors as KalamJoin["authors"])?.name_roman);
+      add(
+        {
+          kalam_id: row.id,
+          title: row.primary_title_roman,
+          matched_title: row.primary_title_roman,
+          language: "roman_english",
+          slug: row.slug,
+          author_name: authorName || "",
+          author_slug: authorName ? slugify(authorName) : "",
+        },
+        scoreTitle(row.primary_title_roman, row.primary_title_roman, row.primary_title_urdu || "", authorName || "")
+      );
     }
 
-    // STAGE 3: Search by Author Name
-    const { data: authorsData } = await supabase
+    // Lyrics are fetched only for this small set, and only a snippet leaves the server.
+    const { data: byLyrics } = await supabase
+      .from("kalam_translations")
+      .select("kalam_id, title, language, lyrics, kalams!inner(primary_title_roman, primary_title_urdu, slug, authors(name_roman))")
+      .ilike("lyrics", like)
+      .limit(LYRIC_MATCH_LIMIT);
+
+    for (const row of byLyrics ?? []) {
+      const join = one(row.kalams as KalamJoin | KalamJoin[] | null);
+      const item = fromJoin(join, row.title, row.language, row.kalam_id);
+      if (!item || !row.lyrics) continue;
+      const base = scoreTitle(row.title, item.title, join?.primary_title_urdu || "", item.author_name);
+      add({ ...item, snippet: snippetAround(row.lyrics, query) }, base + 140);
+    }
+
+    const { data: authors } = await supabase
       .from("authors")
-      .select("id, name_roman, name_urdu, kalams(id, primary_title_roman, primary_title_urdu, slug, kalam_translations(id, title, language, lyrics))")
-      .or(`name_roman.ilike.%${query}%,name_urdu.ilike.%${query}%`)
-      .limit(40);
+      .select("id, name_roman, name_urdu, kalams(count)")
+      .or(`name_roman.ilike.${orValue},name_urdu.ilike.${orValue}`)
+      .limit(MAX_POET_RESULTS);
 
-    if (authorsData) {
-      for (const author of authorsData) {
-        const authorName = author.name_roman;
-        const kalams = (author.kalams || []) as { id: string; primary_title_roman: string; primary_title_urdu?: string; slug: string; kalam_translations?: { id: string; title: string; language: string; lyrics: string }[] }[];
-        for (const kalam of kalams) {
-          const translations = kalam.kalam_translations || [];
-          const primaryTrans = translations[0] || {};
-          processKalamRecord(
-            kalam.id,
-            kalam.primary_title_roman,
-            kalam.primary_title_urdu || null,
-            kalam.slug,
-            primaryTrans.title || kalam.primary_title_roman,
-            primaryTrans.language || "roman_english",
-            authorName,
-            primaryTrans.lyrics || ""
-          );
-        }
-      }
-    }
-
-    // STAGE 4: Multi-word query fallback using distinctive content keywords (e.g. for Urdu verses with aerab)
-    const commonUrduStopwords = new Set(["ہے", "ہیں", "تھا", "تھی", "تھے", "اور", "کا", "کی", "کے", "کو", "سے", "میں", "پر", "نہ", "نہیں", "جو", "وہ", "یہ", "تو", "ہم", "تم", "آپ", "ان", "اس", "کہ", "kar", "mein", "hai", "hain", "ko", "se", "ka", "ki", "ke"]);
-    const distinctiveWords = normQueryWords
-      .filter((w) => !commonUrduStopwords.has(w) && w.length >= 3)
-      .sort((a, b) => b.length - a.length);
-
-    if (resultMap.size < 5 && distinctiveWords.length > 0) {
-      // 4a. Query kalams table for top distinctive keywords
-      const orFiltersKalams = distinctiveWords.slice(0, 3).map((w) => `primary_title_roman.ilike.%${w}%,primary_title_urdu.ilike.%${w}%`).join(",");
-      const { data: wordKalams } = await supabase
+    const poets: SearchPoetResult[] = [];
+    for (const author of authors ?? []) {
+      const name = authorLabelFromRoman(author.name_roman) || author.name_roman;
+      if (!name) continue;
+      const { data: sample } = await supabase
         .from("kalams")
-        .select("id, primary_title_roman, primary_title_urdu, slug, authors(name_roman, name_urdu), kalam_translations(id, title, language, lyrics)")
-        .or(orFiltersKalams)
-        .limit(60);
-
-      if (wordKalams) {
-        for (const k of wordKalams) {
-          const authorData = k.authors as { name_roman: string } | { name_roman: string }[] | null;
-          const authorName = authorLabelFromRoman(
-          Array.isArray(authorData) ? authorData[0]?.name_roman : authorData?.name_roman
-        );
-          const translations = (k.kalam_translations || []) as { id: string; title: string; language: string; lyrics: string }[];
-          for (const t of translations) {
-            processKalamRecord(
-              k.id,
-              k.primary_title_roman,
-              k.primary_title_urdu || null,
-              k.slug,
-              t.title,
-              t.language,
-              authorName,
-              t.lyrics
-            );
-          }
-        }
-      }
-
-      // 4b. Query kalam_translations table for top distinctive keywords
-      const orFiltersTrans = distinctiveWords.slice(0, 3).map((w) => `title.ilike.%${w}%,lyrics.ilike.%${w}%`).join(",");
-      const { data: wordTrans } = await supabase
-        .from("kalam_translations")
-        .select("kalam_id, title, language, lyrics, kalams(primary_title_roman, primary_title_urdu, slug, authors(name_roman, name_urdu))")
-        .or(orFiltersTrans)
-        .limit(60);
-
-      if (wordTrans) {
-        for (const item of wordTrans) {
-          const kalam = (Array.isArray(item.kalams) ? item.kalams[0] : item.kalams) as { primary_title_roman: string; primary_title_urdu?: string; slug: string; authors?: { name_roman: string } | { name_roman: string }[] } | null;
-          if (!kalam) continue;
-          const authorData = kalam.authors;
-          const authorName = authorLabelFromRoman(
-          Array.isArray(authorData) ? authorData[0]?.name_roman : authorData?.name_roman
-        );
-
-          processKalamRecord(
-            item.kalam_id,
-            kalam.primary_title_roman,
-            kalam.primary_title_urdu || null,
-            kalam.slug,
-            item.title,
-            item.language,
-            authorName,
-            item.lyrics
-          );
-        }
-      }
+        .select("primary_title_roman, slug")
+        .eq("author_id", author.id)
+        .order("primary_title_roman", { ascending: true })
+        .limit(MAX_POET_SAMPLE);
+      poets.push({
+        name,
+        slug: slugify(author.name_roman),
+        kalam_count: relationCount(author.kalams),
+        kalams: (sample ?? [])
+          .filter((k) => !isJunk(k.primary_title_roman, k.slug))
+          .map((k) => ({ title: k.primary_title_roman, slug: k.slug })),
+      });
     }
 
-    // Sort all results by relevance score descending
-    const sorted = Array.from(resultMap.values()).sort((a, b) => (b.score || 0) - (a.score || 0));
-    return sorted.slice(0, limit);
+    const ranked = [...kalams.values()].sort((a, b) => b.score - a.score).slice(0, MAX_KALAM_RESULTS);
+    const response: SearchResponse = {
+      kalams: ranked.map(({ score: _score, ...item }) => item),
+      poets,
+    };
+
+    // Hard cap so a surprise column can never balloon the payload.
+    if (Buffer.byteLength(JSON.stringify(response)) > 24_000) {
+      response.kalams = response.kalams.map(({ snippet: _snippet, ...item }) => item);
+    }
+    return response;
   } catch (err) {
-    console.error("Multi-stage search execution error:", err);
-    return Array.from(resultMap.values()).slice(0, limit);
+    console.error("Search execution error:", err);
+    return EMPTY;
   }
 }

@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, Menu, X } from "lucide-react";
-import HeroIslamicPattern from "@/components/ui/HeroIslamicPattern";
 
 export type NavPoet = {
   nameRoman: string;
@@ -21,6 +20,7 @@ const navLinks = [
   { href: "/kalams", label: "Browse Kalams" },
   { href: "/trending", label: "Trending" },
   { href: "/durood-o-salam", label: "Durood o Salam" },
+  { href: "/aurad-o-wazaif", label: "Aurad o Wazaif" },
   { href: "/about", label: "About" },
   { href: "/services", label: "Services" },
   { href: "/contact", label: "Contact" },
@@ -35,9 +35,12 @@ const linkClass = (active: boolean) =>
 
 export default function Navbar({ poets }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [poetsMobileOpen, setPoetsMobileOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  // The mobile poets list is open only for the path it was opened on, so it closes on navigation
+  // without an effect that sets state.
+  const [poetsOpenAt, setPoetsOpenAt] = useState<string | null>(null);
+  const poetsMobileOpen = poetsOpenAt === pathname;
+  const [scrolled, setScrolled] = useState(false);
 
   const isActive = (path: string) => {
     if (path === "/") return pathname === "/";
@@ -50,16 +53,12 @@ export default function Navbar({ poets }: NavbarProps) {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         if (isOpen) setIsOpen(false);
-        setPoetsMobileOpen(false);
+        setPoetsOpenAt(null);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen]);
-
-  useEffect(() => {
-    setPoetsMobileOpen(false);
-  }, [pathname]);
 
   useEffect(() => {
     const onScroll = () => {
@@ -109,10 +108,6 @@ export default function Navbar({ poets }: NavbarProps) {
           : "border-b border-emerald-100/60 bg-white/50 backdrop-blur-md dark:border-emerald-500/10 dark:bg-emerald-950/35 dark:backdrop-blur-[2px]"
       }`}
     >
-      <HeroIslamicPattern
-        fullPage
-        className="hero-islamic-pattern-tone absolute inset-0 hidden text-gold-500/18 opacity-90 dark:block"
-      />
       <div
         aria-hidden
         className={`navbar-glass-tint pointer-events-none absolute inset-0 transition-colors duration-300 ${
@@ -232,7 +227,7 @@ export default function Navbar({ poets }: NavbarProps) {
                   type="button"
                   aria-expanded={poetsMobileOpen}
                   aria-label="Expand poets list"
-                  onClick={() => setPoetsMobileOpen((o) => !o)}
+                  onClick={() => setPoetsOpenAt(poetsMobileOpen ? null : pathname)}
                   className="border-l border-emerald-500/10 px-3 dark:border-emerald-500/15"
                 >
                   <ChevronDown className={`h-5 w-5 ${poetsMobileOpen ? "rotate-180" : ""}`} aria-hidden />

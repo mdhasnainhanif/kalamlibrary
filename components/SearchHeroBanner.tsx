@@ -2,7 +2,6 @@
 
 import dynamic from "next/dynamic";
 import { usePathname } from "next/navigation";
-import HeroIslamicPattern from "@/components/ui/HeroIslamicPattern";
 import { useMainContentBusy } from "@/components/useMainContentBusy";
 
 const SearchBar = dynamic(() => import("./SearchBar"), {
@@ -34,10 +33,6 @@ export default function SearchHeroBanner() {
       className="search-hero-banner relative isolate z-[90] w-full overflow-visible"
     >
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-        <HeroIslamicPattern
-          fullPage
-          className="hero-islamic-pattern-tone absolute inset-0 hidden h-full w-full text-gold-500/16 opacity-90 dark:block"
-        />
         <div className="search-hero-banner__tint" />
         <div className="search-hero-banner__glow absolute inset-0 overflow-hidden">
           <div className="absolute -top-20 left-1/2 h-44 w-80 -translate-x-1/2 rounded-full bg-emerald-500/12 blur-3xl" />

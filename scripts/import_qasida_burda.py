@@ -29,7 +29,7 @@ def main() -> None:
     parser.add_argument("--update", action="store_true", help="Replace lyrics on existing slug from manifest")
     args = parser.parse_args()
 
-    manifest_path = repo_path("public", "imports", "qasida-burda-imam-busiri.json")
+    manifest_path = repo_path("data", "imports", "qasida-burda-imam-busiri.json")
     if not os.path.exists(manifest_path):
         print(f"Missing {manifest_path}. Run: python scripts/build_qasida_burda_import.py")
         sys.exit(1)

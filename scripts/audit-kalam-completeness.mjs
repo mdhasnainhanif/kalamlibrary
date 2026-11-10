@@ -56,7 +56,7 @@ if (!url || !key) {
 }
 
 const supabase = createClient(url, key);
-const publicDir = join(__dirname, "..", "public");
+const publicDir = join(__dirname, "..", "data", "extracted");
 const files = readdirSync(publicDir).filter((f) => f.endsWith("_extracted.json"));
 
 const { data: kalams } = await supabase.from("kalams").select("id, slug, primary_title_roman");

@@ -13,6 +13,13 @@ interface SearchResult {
   slug: string;
   author_name: string;
   author_slug: string;
+  snippet?: string;
+}
+
+interface PoetResult {
+  name: string;
+  slug: string;
+  kalam_count: number;
 }
 
 function TrendingIcon() {
@@ -37,6 +44,7 @@ interface SearchBarProps {
 export default function SearchBar({ className = "" }: SearchBarProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [poets, setPoets] = useState<PoetResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
   const [announcement, setAnnouncement] = useState("");
@@ -71,30 +79,41 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
       return;
     }
 
+    const controller = new AbortController();
     const timer = setTimeout(async () => {
       setLoading(true);
       setAnnouncement("Searching...");
       try {
-        const res = await fetch(`/api/search?q=${encodeURIComponent(trimmedQuery)}`);
+        const res = await fetch(`/api/search?q=${encodeURIComponent(trimmedQuery)}`, {
+          signal: controller.signal,
+        });
         if (res.ok) {
-          const data: SearchResult[] = await res.json();
-          setResults(data);
+          const data: { kalams?: SearchResult[]; poets?: PoetResult[] } = await res.json();
+          const kalams = data.kalams ?? [];
+          const poetHits = data.poets ?? [];
+          setResults(kalams);
+          setPoets(poetHits);
           setIsOpen(true);
-          if (data.length === 0) {
-            setAnnouncement(`No Naats found matching "${trimmedQuery}"`);
-          } else {
-            setAnnouncement(`${data.length} search result${data.length === 1 ? "" : "s"} found`);
-          }
+          const total = kalams.length + poetHits.length;
+          setAnnouncement(
+            total === 0
+              ? `No Naats found matching "${trimmedQuery}"`
+              : `${total} search result${total === 1 ? "" : "s"} found`
+          );
         }
       } catch (err) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
         console.error("Search fetch error:", err);
         setAnnouncement("Search error occurred.");
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     }, 250);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      controller.abort();
+    };
   }, [query]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,6 +121,7 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
     setQuery(val);
     if (val.trim().length < 2) {
       setResults([]);
+      setPoets([]);
       setIsOpen(true);
       setAnnouncement("");
     }
@@ -171,6 +191,7 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
             onClick={() => {
               setQuery("");
               setResults([]);
+              setPoets([]);
               setIsOpen(true);
               setAnnouncement(`${SEARCH_SUGGESTIONS.length} popular Naats suggested`);
             }}
@@ -225,12 +246,27 @@ export default function SearchBar({ className = "" }: SearchBarProps) {
           id="search-dropdown"
           className="absolute left-0 right-0 top-full z-[120] mt-2 max-h-[min(20rem,55vh)] w-full overflow-hidden overflow-y-auto rounded-2xl border border-emerald-500/20 bg-white shadow-xl dark:bg-emerald-950 dark:shadow-2xl"
         >
-          {results.length === 0 && !loading ? (
+          {results.length === 0 && poets.length === 0 && !loading ? (
             <div className="px-5 py-4 text-sm text-gray-500 dark:text-gray-400 text-center">
               No Naats found matching &quot;{query}&quot;
             </div>
           ) : (
             <div className="py-2" role="list">
+              {poets.map((poet) => (
+                <Link
+                  key={poet.slug}
+                  href={`/author/${poet.slug}`}
+                  onClick={() => setIsOpen(false)}
+                  className="flex flex-col px-5 py-3 hover:bg-emerald-50 dark:hover:bg-emerald-900/50 border-b border-emerald-500/10 dark:border-emerald-500/5 group transition-colors"
+                >
+                  <span className="font-medium text-gray-900 dark:text-gray-100 group-hover:text-amber-700 dark:group-hover:text-gold-500">
+                    {poet.name}
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Poet · {poet.kalam_count} kalam{poet.kalam_count === 1 ? "" : "s"}
+                  </span>
+                </Link>
+              ))}
               {results.map((result) => (
                 <Link
                   key={result.kalam_id}

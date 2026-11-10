@@ -112,6 +112,11 @@ export default function Footer() {
               </Link>
             </li>
             <li>
+              <Link href="/aurad-o-wazaif" className="hover:text-gold-500 transition-colors">
+                Aurad o Wazaif
+              </Link>
+            </li>
+            <li>
               <Link href="/contact" className="hover:text-gold-500 transition-colors">Contact Us</Link>
             </li>
           </ul>

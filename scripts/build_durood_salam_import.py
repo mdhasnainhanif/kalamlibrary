@@ -1,5 +1,5 @@
 """
-Build public/imports/durood-o-salam-kalams.json and enrich 4 languages via Gemini.
+Build data/imports/durood-o-salam-kalams.json and enrich 4 languages via Gemini.
 
 Usage:
   python scripts/build_durood_salam_import.py
@@ -125,13 +125,13 @@ def main() -> None:
     mod = _load_data_module()
     records = [complete_record(dict(r), args.enrich) for r in mod.KALAMS]
 
-    out_path = repo_path("public", "imports", "durood-o-salam-kalams.json")
+    out_path = repo_path("data", "imports", "durood-o-salam-kalams.json")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(records, f, ensure_ascii=False, indent=2)
 
     updates = getattr(mod, "UPDATE_KALAMS", [])
-    upd_path = repo_path("public", "imports", "durood-o-salam-updates.json")
+    upd_path = repo_path("data", "imports", "durood-o-salam-updates.json")
     with open(upd_path, "w", encoding="utf-8") as f:
         json.dump([complete_record(dict(r), args.enrich) for r in updates], f, ensure_ascii=False, indent=2)
 

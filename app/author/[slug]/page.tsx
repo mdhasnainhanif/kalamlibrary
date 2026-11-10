@@ -7,7 +7,6 @@ import { displayAuthorName, filterIndexableKalams, kalamHref, truncateAtWord } f
 import {
   SITE_CONFIG,
   buildCanonicalUrl,
-  buildOgImageUrl,
   buildAuthorJsonLd,
   buildBreadcrumbJsonLd,
 } from "@/utils/seoConfig";
@@ -34,9 +33,9 @@ async function getAuthorData(slug: string) {
     .from("authors")
     .select("*");
 
-  if (authorsError || !authors) {
-    return null;
-  }
+  // Throw on a failed query: a 500 is not cached, a 404 would be.
+  if (authorsError) throw new Error(`Supabase authors failed: ${authorsError.message}`);
+  if (!authors) return null;
 
   const author = authors.find((a) => slugify(a.name_roman) === slug);
   if (!author) {
@@ -50,9 +49,7 @@ async function getAuthorData(slug: string) {
     .eq("author_id", author.id)
     .order("primary_title_roman", { ascending: true });
 
-  if (kalamsError) {
-    return null;
-  }
+  if (kalamsError) throw new Error(`Supabase author kalams failed: ${kalamsError.message}`);
 
   const kalams = filterIndexableKalams(rawKalams);
 
@@ -75,10 +72,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   );
   const canonicalUrl = buildCanonicalUrl(`/author/${slug}`);
 
-  const ogImageUrl = buildOgImageUrl({
-    title: author.name_roman,
-    sub: "Poet & Scholar Profile – All Kalam & Naats",
-  });
+  const ogImageUrl = buildCanonicalUrl(SITE_CONFIG.pageOgImage);
 
   return {
     title: seoTitle,

@@ -5,6 +5,10 @@ import nodemailer from "nodemailer";
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const MAX = { name: 120, email: 254, subject: 200, message: 5000 } as const;
 
+export function GET() {
+  return NextResponse.json({ error: "Method not allowed" }, { status: 405, headers: { "Cache-Control": "private, no-store" } });
+}
+
 export async function POST(request: Request) {
   try {
     const body = await request.json();

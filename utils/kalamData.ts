@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { supabase } from "@/utils/supabase";
 import { cleanKalamSlug, filterIndexableKalams, isIndexableKalam } from "@/utils/kalam";
 
@@ -26,6 +27,15 @@ export type TranslationRecord = {
   lyrics: string;
 };
 
+/**
+ * A failed query throws instead of reading as "missing". Thrown, the render is a 500 that
+ * nothing caches (and ISR keeps serving the last good copy). Read as missing, it would be
+ * a 404, or a page with sections dropped, cached like a real result.
+ */
+function throwIfFailed(error: { message: string } | null, what: string) {
+  if (error) throw new Error(`Supabase ${what} failed: ${error.message}`);
+}
+
 export async function findKalamBySlug(rawSlug: string): Promise<KalamRecord | null> {
   let decodedSlug = rawSlug;
   try {
@@ -37,20 +47,22 @@ export async function findKalamBySlug(rawSlug: string): Promise<KalamRecord | nu
 
   for (const candidate of [decodedSlug, rawSlug, cleaned]) {
     if (!candidate) continue;
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("kalams")
       .select("*, authors(*)")
       .eq("slug", candidate)
       .maybeSingle();
+    throwIfFailed(error, "kalam lookup");
     if (data) return data as KalamRecord;
   }
 
   if (cleaned) {
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from("kalams")
       .select("*, authors(*)")
       .ilike("slug", `${cleaned}%`)
       .limit(8);
+    throwIfFailed(error, "kalam prefix lookup");
 
     const match = (data || []).find(
       (row) => cleanKalamSlug(row.slug) === cleaned || row.slug.startsWith(cleaned)
@@ -61,7 +73,27 @@ export async function findKalamBySlug(rawSlug: string): Promise<KalamRecord | nu
   return null;
 }
 
-export async function getKalamPageData(rawSlug: string) {
+export const getKalamPageData = cache(async function getKalamPageData(rawSlug: string) {
+  // Dev-only fixture so the Urdu-only redirect can be requested locally. Not in the database.
+  if (process.env.NODE_ENV === "development" && cleanKalamSlug(rawSlug) === "fixture-urdu-only") {
+    return {
+      kalam: {
+        id: "fixture-urdu-only",
+        slug: "fixture-urdu-only",
+        primary_title_roman: "Fixture Urdu Only",
+        primary_title_urdu: "فکسچر",
+        created_at: "2026-11-10T00:00:00.000Z",
+      },
+      author: null,
+      translations: [
+        { id: "fixture-urdu", kalam_id: "fixture-urdu-only", language: "urdu", title: "فکسچر", lyrics: "فکسچر" },
+      ],
+      relatedKalams: [],
+      shouldNoindex: false,
+      cleanSlug: "fixture-urdu-only",
+    };
+  }
+
   const kalam = await findKalamBySlug(rawSlug);
   if (!kalam) return null;
 
@@ -70,7 +102,8 @@ export async function getKalamPageData(rawSlug: string) {
     .select("*")
     .eq("kalam_id", kalam.id);
 
-  if (transError || !translations || translations.length === 0) {
+  throwIfFailed(transError, "translations");
+  if (!translations || translations.length === 0) {
     return null;
   }
 
@@ -82,12 +115,13 @@ export async function getKalamPageData(rawSlug: string) {
   }> = [];
 
   if (kalam.author_id) {
-    const { data: siblings } = await supabase
+    const { data: siblings, error: siblingsError } = await supabase
       .from("kalams")
       .select("id, slug, primary_title_roman, primary_title_urdu")
       .eq("author_id", kalam.author_id)
       .neq("id", kalam.id)
       .limit(12);
+    throwIfFailed(siblingsError, "related kalams");
 
     relatedKalams = filterIndexableKalams(siblings).slice(0, 6);
   }
@@ -102,4 +136,4 @@ export async function getKalamPageData(rawSlug: string) {
     shouldNoindex: !isIndexableKalam(kalam),
     cleanSlug: cleanKalamSlug(kalam.slug),
   };
-}
+});

@@ -1,5 +1,5 @@
 """
-Build public/imports/qasida-burda-imam-busiri.json from Salawat-style Arabic + roman pairs.
+Build data/imports/qasida-burda-imam-busiri.json from Salawat-style Arabic + roman pairs.
 
 Source: scripts/in/qasida-burda-salawat-source.txt (from salawat.com page export)
 Optional Hindi/Bangla: set GEMINI_API_KEY and pass --enrich-indic
@@ -269,7 +269,7 @@ def main() -> None:
     args = parser.parse_args()
 
     record = build_record(args.enrich_indic)
-    out_dir = repo_path("public", "imports")
+    out_dir = repo_path("data", "imports")
     os.makedirs(out_dir, exist_ok=True)
     out_path = os.path.join(out_dir, "qasida-burda-imam-busiri.json")
     with open(out_path, "w", encoding="utf-8") as f:

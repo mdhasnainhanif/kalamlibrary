@@ -13,7 +13,7 @@ import {
 import SharePreviewModal from "@/components/SharePreviewModal";
 
 type KalamShareToolbarProps = {
-  lyrics: string;
+  getFullLyrics: () => string;
   title: string;
   author: string;
   lang: string;
@@ -25,7 +25,7 @@ type KalamShareToolbarProps = {
 };
 
 export default function KalamShareToolbar({
-  lyrics,
+  getFullLyrics,
   title,
   author,
   lang,
@@ -67,7 +67,7 @@ export default function KalamShareToolbar({
   const handleCopyFull = async () => {
     const header = displayAuthor ? `${title} — ${displayAuthor}` : title;
     try {
-      await navigator.clipboard.writeText(`${header}\n\n${lyrics}`);
+      await navigator.clipboard.writeText(`${header}\n\n${getFullLyrics()}`);
       setCopiedFull(true);
       toast.success("Full lyrics copied");
       setTimeout(() => setCopiedFull(false), 2000);

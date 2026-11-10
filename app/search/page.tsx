@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Metadata } from "next";
 import SearchBar from "@/components/SearchBar";
-import { searchKalams, SearchResultItem } from "@/utils/searchHelper";
+import { searchKalams, type SearchResponse } from "@/utils/searchHelper";
 import { kalamHrefFromDbLanguage } from "@/utils/kalam";
 import { buildCanonicalUrl } from "@/utils/seoConfig";
 
@@ -32,12 +32,12 @@ export default async function SearchResultsPage({ searchParams }: SearchPageProp
   const { q = "" } = await searchParams;
   const query = q.trim();
 
-  let results: SearchResultItem[] = [];
+  let results: SearchResponse = { kalams: [], poets: [] };
   let errorMsg = "";
 
-  if (query.length >= 1) {
+  if (query.length >= 2) {
     try {
-      results = await searchKalams(query, 40);
+      results = await searchKalams(query);
     } catch (err) {
       console.error("Search query database error:", err);
       errorMsg = "Something went wrong while querying the database.";
@@ -73,7 +73,7 @@ export default async function SearchResultsPage({ searchParams }: SearchPageProp
           <div className="text-center py-12 text-rose-400 font-medium" role="alert">
             {errorMsg}
           </div>
-        ) : results.length === 0 ? (
+        ) : results.kalams.length === 0 && results.poets.length === 0 ? (
           <div className="text-center py-12" aria-live="polite">
             <p className="text-gray-300 text-lg font-medium mb-2">No results found</p>
             <p className="text-sm text-gray-400">
@@ -83,13 +83,34 @@ export default async function SearchResultsPage({ searchParams }: SearchPageProp
         ) : (
           <div className="flex flex-col gap-4">
             <div className="sr-only" aria-live="polite" aria-atomic="true">
-              {results.length} search results found for &quot;{query}&quot;
+              {results.kalams.length} kalam and {results.poets.length} poet results for &quot;{query}&quot;
             </div>
+            {results.poets.length > 0 && (
+              <div className="mb-6">
+                <p className="text-xs text-gray-400 uppercase tracking-wider mb-2 font-semibold">Poets</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {results.poets.map((poet) => (
+                    <Link
+                      key={poet.slug}
+                      href={`/author/${poet.slug}`}
+                      className="rounded-xl border border-emerald-500/10 bg-emerald-900/10 p-4 hover:bg-emerald-900/20"
+                    >
+                      <span className="block font-semibold text-gray-100">{poet.name}</span>
+                      <span className="mt-1 block text-xs text-gray-400">
+                        {poet.kalam_count} kalam{poet.kalam_count === 1 ? "" : "s"}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+            {results.kalams.length > 0 && (
+            <>
             <p className="text-xs text-gray-400 uppercase tracking-wider mb-2 font-semibold">
-              Found {results.length} matching Kalam{results.length !== 1 ? "s" : ""}
+              Found {results.kalams.length} matching Kalam{results.kalams.length !== 1 ? "s" : ""}
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {results.map((result) => {
+              {results.kalams.map((result) => {
                 return (
                   <Link
                     key={result.kalam_id}
@@ -106,6 +127,9 @@ export default async function SearchResultsPage({ searchParams }: SearchPageProp
                           Original: {result.title}
                         </p>
                       )}
+                      {result.snippet && (
+                        <p className="text-xs text-gray-500 mt-2 line-clamp-2">{result.snippet}</p>
+                      )}
                     </div>
                     <div className="flex justify-between items-center mt-4">
                       <span className="text-xs text-gray-400 font-medium">
@@ -119,6 +143,8 @@ export default async function SearchResultsPage({ searchParams }: SearchPageProp
                 );
               })}
             </div>
+            </>
+            )}
           </div>
         )}
       </div>

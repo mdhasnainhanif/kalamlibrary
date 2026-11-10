@@ -300,8 +300,8 @@ export const LYRIC_LANGUAGES = {
     code: "roman_english",
     label: "Roman English",
     dir: "ltr" as const,
-    locale: "en-US",
-    htmlLang: "en",
+    locale: "ur-Latn",
+    htmlLang: "ur-Latn",
     path: "roman-english",
   },
   urdu: {

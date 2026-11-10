@@ -8,6 +8,8 @@ import Footer from "@/components/Footer";
 import FooterGate from "@/components/FooterGate";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import DeferredClientWidgets from "@/components/DeferredClientWidgets";
+import HtmlLangSync from "@/components/HtmlLangSync";
+import { HTML_LANG_INIT_SCRIPT } from "@/utils/htmlLang";
 import SiteBackground from "@/components/ui/SiteBackground";
 import { SITE_CONFIG, buildWebSiteSchema } from "@/utils/seoConfig";
 import { ADSENSE_CLIENT } from "@/utils/adsConfig";
@@ -110,6 +112,8 @@ export default function RootLayout({
         <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
         <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="" />
         <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossOrigin="" />
+        {/* Sets <html lang/dir> per page before first paint (see utils/htmlLang.ts) */}
+        <script dangerouslySetInnerHTML={{ __html: HTML_LANG_INIT_SCRIPT }} />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.classList.add(t);else document.documentElement.classList.add("dark");}catch(e){document.documentElement.classList.add("dark");}})();`,
@@ -121,7 +125,10 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
       </head>
-      <body className="relative flex min-h-full flex-col overflow-x-hidden">
+      {/* dir="ltr" keeps the site chrome (navbar, footer, ads) un-mirrored when <html dir="rtl"> is set on Urdu pages;
+          the lyrics/reader elements declare their own dir. */}
+      <body dir="ltr" className="relative flex min-h-full flex-col overflow-x-hidden">
+        <HtmlLangSync />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

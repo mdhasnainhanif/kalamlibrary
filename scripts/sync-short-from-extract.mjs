@@ -68,7 +68,7 @@ if (!url || !key) {
   process.exit(1);
 }
 
-const publicDir = join(__dirname, "..", "public");
+const publicDir = join(__dirname, "..", "data", "extracted");
 let files = readdirSync(publicDir).filter((f) => f.endsWith("_extracted.json"));
 if (fileArg) {
   if (!files.includes(fileArg)) {

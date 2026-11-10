@@ -1,26 +1,44 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { CONTACT_PREFILL_COOKIE } from "@/utils/contactPrefill";
-import { cleanKalamSlug, isJunkKalamPathname } from "@/utils/kalam";
+import { isJunkKalamPathname } from "@/utils/kalam";
+import { contentRedirect } from "@/utils/contentRedirect";
+
+/** Redirects stay fresh for two minutes, then the Worker decides again. */
+const SHORT_REDIRECT = "public, max-age=0, s-maxage=120";
+/** A gone URL can be cached briefly. A newly added kalam replaces it within three minutes. */
+const SHORT_GONE = "public, max-age=0, s-maxage=180";
+const NEVER_CACHE = "private, no-store";
 
 const CANONICAL_HOST = "www.kalamlibrary.me";
 
 const GONE_410 = {
   status: 410,
-  headers: { "Cache-Control": "public, max-age=86400" },
+  headers: { "Cache-Control": SHORT_GONE },
 } as const;
 
+function redirectTo(url: URL, status: 301 | 308, cacheControl = SHORT_REDIRECT) {
+  return NextResponse.redirect(url, { status, headers: { "Cache-Control": cacheControl } });
+}
+
 export function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // These two files must be 200 on the apex and on www. Every other path,
+  // including /sitemap.xml, still redirects the apex host below.
+  if (pathname === "/ads.txt" || pathname === "/robots.txt") {
+    return NextResponse.next();
+  }
+
   const host = request.headers.get("host")?.split(":")[0]?.toLowerCase() ?? "";
 
   if (host === "kalamlibrary.me") {
     const url = request.nextUrl.clone();
     url.protocol = "https:";
-    url.host = CANONICAL_HOST;
-    return NextResponse.redirect(url, 301);
+    url.hostname = CANONICAL_HOST;
+    url.port = "";
+    return redirectTo(url, 301);
   }
-
-  const pathname = request.nextUrl.pathname;
 
   if (pathname === "/$" || pathname === "/&" || pathname === "/%24" || pathname === "/%26") {
     return new NextResponse(null, GONE_410);
@@ -30,33 +48,33 @@ export function middleware(request: NextRequest) {
     return new NextResponse(null, GONE_410);
   }
 
-  const romanEnglishKalam = pathname.match(/^\/kalam\/([^/]+)\/roman-english\/?$/i);
-  if (romanEnglishKalam) {
+  const content = contentRedirect(pathname, request.nextUrl.search);
+  if (content) {
     const url = request.nextUrl.clone();
-    url.pathname = `/kalam/${cleanKalamSlug(romanEnglishKalam[1])}`;
-    return NextResponse.redirect(url, 301);
+    url.pathname = content.pathname;
+    url.search = "";
+    return redirectTo(url, content.status);
   }
 
-  if (pathname === "/kalams" && request.nextUrl.searchParams.has("letter")) {
+  if (pathname === "/poets" || pathname === "/poets/") {
     const url = request.nextUrl.clone();
-    url.searchParams.delete("letter");
-    return NextResponse.redirect(url, 301);
+    url.pathname = "/authors";
+    return redirectTo(url, 308);
   }
 
-  if (pathname === "/kalams") {
-    const page = request.nextUrl.searchParams.get("page");
-    if (page === "1" || page === "01") {
-      const url = request.nextUrl.clone();
-      url.searchParams.delete("page");
-      return NextResponse.redirect(url, 301);
-    }
+  const oldPoet = pathname.match(/^\/poet\/(.+)$/);
+  if (oldPoet) {
+    const url = request.nextUrl.clone();
+    url.pathname = `/author/${oldPoet[1]}`;
+    url.search = "";
+    return redirectTo(url, 308);
   }
 
   if (pathname === "/contact" && request.nextUrl.searchParams.has("subject")) {
     const subject = request.nextUrl.searchParams.get("subject")?.trim();
     const url = request.nextUrl.clone();
     url.searchParams.delete("subject");
-    const response = NextResponse.redirect(url, 301);
+    const response = redirectTo(url, 301, NEVER_CACHE);
     if (subject) {
       response.cookies.set(CONTACT_PREFILL_COOKIE, encodeURIComponent(subject.slice(0, 500)), {
         maxAge: 120,
@@ -74,8 +92,10 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Skip static assets and well-known crawler files.
+     * Skip static assets. ads.txt and robots.txt are named so both hosts
+     * return 200 with no redirect. sitemap.xml still runs, so the apex
+     * host redirects to www.
      */
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|txt|xml|webmanifest)$).*)",
+    "/((?!_next/static|_next/image|favicon.ico|ads\\.txt|robots\\.txt|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|webmanifest)$).*)",
   ],
 };

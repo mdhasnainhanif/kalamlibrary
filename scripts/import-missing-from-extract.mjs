@@ -1,5 +1,5 @@
 /**
- * Import kalams from public/*_extracted.json that are not yet in Supabase.
+ * Import kalams from data/extracted/*_extracted.json that are not yet in Supabase.
  *
  * Usage (repo root):
  *   node scripts/import-missing-from-extract.mjs          # dry-run
@@ -179,7 +179,7 @@ async function main() {
 
   const titles = new Set((kalams || []).map((k) => norm(k.primary_title_roman)));
   const slugs = new Set((kalams || []).map((k) => k.slug.toLowerCase()));
-  const publicDir = join(__dirname, "..", "public");
+  const publicDir = join(__dirname, "..", "data", "extracted");
   const candidates = collectCandidates(publicDir, titles, slugs);
 
   console.log(`Mode: ${apply ? "APPLY (insert)" : "dry-run"}`);

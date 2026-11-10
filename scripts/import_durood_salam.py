@@ -1,5 +1,5 @@
 """
-Import / update Durood o Salam kalams from public/imports/durood-o-salam-*.json
+Import / update Durood o Salam kalams from data/imports/durood-o-salam-*.json
 
 Usage:
   python scripts/import_durood_salam.py --import
@@ -48,8 +48,8 @@ def main() -> None:
     parser.add_argument("--update", action="store_true", help="Refresh lyrics for slugs in updates manifest")
     args = parser.parse_args()
 
-    new_path = repo_path("public", "imports", "durood-o-salam-kalams.json")
-    upd_path = repo_path("public", "imports", "durood-o-salam-updates.json")
+    new_path = repo_path("data", "imports", "durood-o-salam-kalams.json")
+    upd_path = repo_path("data", "imports", "durood-o-salam-updates.json")
 
     supabase = get_supabase_client()
     checker = KalamDuplicateChecker()

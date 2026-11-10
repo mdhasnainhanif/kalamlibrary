@@ -33,25 +33,48 @@ try {
   const robotsContent = fs.readFileSync(robotsPath, "utf8");
   assert(fs.existsSync(robotsPath), "Robots", "robots.ts file exists");
   assert(robotsContent.includes("sitemap.xml"), "Robots", "robots.txt references sitemap.xml");
-  assert(robotsContent.includes("/api/") && robotsContent.includes("/_next/") && robotsContent.includes("/search"), "Robots", "robots.txt disallows /api/, /_next/, and /search");
+  assert(robotsContent.includes("/api/") && robotsContent.includes("/search") && robotsContent.includes('"/api/og"'), "Robots", "robots.txt disallows /api/ and /search, and allows /api/og");
   assert(robotsContent.includes('userAgent: "*"') || robotsContent.includes("userAgent: '*'"), "Robots", "robots.txt configures wild card userAgent '*'");
   assert(robotsContent.includes("GPTBot") && robotsContent.includes("ClaudeBot"), "Robots", "robots.txt protects content from aggressive AI scrapers");
 } catch (e) {
   assert(false, "Robots", "Failed to check robots.ts", e.message);
 }
 
-// 2. Sitemap.ts verification
 try {
-  const sitemapPath = path.join(rootDir, "app", "sitemap.ts");
-  const sitemapContent = fs.readFileSync(sitemapPath, "utf8");
-  assert(fs.existsSync(sitemapPath), "Sitemap", "sitemap.ts file exists");
-  assert(sitemapContent.includes("SITE_CONFIG"), "Sitemap", "sitemap uses centralized SITE_CONFIG");
-  assert(sitemapContent.includes("/kalam/") && sitemapContent.includes("${lang}"), "Sitemap", "sitemap includes multilingual translation URLs (urdu, hindi, bangla, roman-english)");
-  assert(sitemapContent.includes("/author/"), "Sitemap", "sitemap includes author profile URLs");
-  assert(sitemapContent.includes("changeFrequency: \"weekly\"") || sitemapContent.includes("changeFrequency: 'weekly'"), "Sitemap", "sitemap includes changeFrequency");
-  assert(sitemapContent.includes("priority: 1.0"), "Sitemap", "sitemap sets homepage priority to 1.0");
+  const adsRoute = path.join(rootDir, "app", "ads.txt", "route.ts");
+  const adsContent = fs.readFileSync(adsRoute, "utf8");
+  const middlewareContent = fs.readFileSync(path.join(rootDir, "middleware.ts"), "utf8");
+  assert(fs.existsSync(adsRoute), "Ads", "app/ads.txt/route.ts is the ads.txt source");
+  assert(adsContent.includes("google.com, pub-4716378596479015, DIRECT, f08c47fec0942fa0"), "Ads", "ads.txt route contains the publisher line");
+  assert(!fs.existsSync(path.join(rootDir, "public", "ads.txt")), "Ads", "public/ads.txt is not a second source");
+  assert(!fs.existsSync(path.join(rootDir, "components", "ads.txt")), "Ads", "components/ads.txt is not a second source");
+  assert(
+    middlewareContent.includes('pathname === "/ads.txt" || pathname === "/robots.txt"'),
+    "Ads",
+    "middleware serves /ads.txt and /robots.txt before the apex redirect"
+  );
+  assert(middlewareContent.includes('host === "kalamlibrary.me"'), "Ads", "other apex paths still redirect to www");
 } catch (e) {
-  assert(false, "Sitemap", "Failed to check sitemap.ts", e.message);
+  assert(false, "Ads", "Failed to check ads.txt", e.message);
+}
+
+// 2. Sitemap index (app/sitemap.xml) and chunks (app/sitemaps/[chunk]), built from utils/sitemapData.ts
+try {
+  const indexRoute = path.join(rootDir, "app", "sitemap.xml", "route.ts");
+  const chunkRoute = path.join(rootDir, "app", "sitemaps", "[chunk]", "route.ts");
+  const sitemapContent = fs.readFileSync(path.join(rootDir, "utils", "sitemapData.ts"), "utf8");
+  const sitemapConfig = fs.readFileSync(path.join(rootDir, "utils", "sitemapConfig.ts"), "utf8");
+  assert(fs.existsSync(indexRoute), "Sitemap", "app/sitemap.xml/route.ts serves the sitemap index");
+  assert(fs.existsSync(chunkRoute), "Sitemap", "app/sitemaps/[chunk]/route.ts serves the sitemap chunks");
+  assert(!fs.existsSync(path.join(rootDir, "app", "sitemap.ts")), "Sitemap", "no app/sitemap.ts competes with the sitemap.xml route");
+  assert(sitemapContent.includes("SITE_CONFIG"), "Sitemap", "sitemap uses centralized SITE_CONFIG");
+  assert(sitemapContent.includes("SITEMAP_LANGUAGES"), "Sitemap", "language URLs are gated by SITEMAP_LANGUAGES");
+  assert(/SITEMAP_LANGUAGES[^=]*=\s*\[\s*\]/.test(sitemapConfig), "Sitemap", "SITEMAP_LANGUAGES is empty (base kalam URLs only)");
+  assert(sitemapContent.includes("/author/"), "Sitemap", "sitemap includes author profile URLs");
+  assert(sitemapContent.includes('changeFrequency: "weekly"'), "Sitemap", "sitemap includes changeFrequency");
+  assert(sitemapContent.includes('{ path: "", changeFrequency: "daily", priority: 1.0 }'), "Sitemap", "sitemap sets homepage priority to 1.0");
+} catch (e) {
+  assert(false, "Sitemap", "Failed to check the sitemap routes", e.message);
 }
 
 // 3. Centralized SEO Config & Helper Functions
@@ -79,10 +102,19 @@ try {
   assert(layoutContent.includes("openGraph: {"), "Root Layout", "OpenGraph metadata configured globally");
   assert(layoutContent.includes("twitter: {"), "Root Layout", "Twitter card configured as summary_large_image");
   assert(layoutContent.includes("buildWebSiteSchema()"), "Root Layout", "WebSite structured data schema with SearchAction injected");
-  assert(layoutContent.includes("Noto_Sans_Devanagari"), "Root Layout", "Multi-script web fonts (Devanagari) loaded");
-  assert(layoutContent.includes("Noto_Sans_Bengali"), "Root Layout", "Multi-script web fonts (Bengali) loaded");
 } catch (e) {
   assert(false, "Root Layout", "Failed to check app/layout.tsx", e.message);
+}
+
+// 4b. Devanagari and Bengali fonts are scoped to /kalam/* (app/kalam/layout.tsx), not the root layout
+try {
+  const fontsContent = fs.readFileSync(path.join(rootDir, "components", "LanguageFonts.tsx"), "utf8");
+  const kalamLayout = fs.readFileSync(path.join(rootDir, "app", "kalam", "layout.tsx"), "utf8");
+  assert(fontsContent.includes("Noto_Sans_Devanagari") && fontsContent.includes("--font-noto-devanagari"), "Fonts", "Noto Sans Devanagari is defined");
+  assert(fontsContent.includes("Noto_Sans_Bengali") && fontsContent.includes("--font-noto-bengali"), "Fonts", "Noto Sans Bengali is defined");
+  assert(kalamLayout.includes("<LanguageFonts>"), "Fonts", "app/kalam/layout.tsx wraps kalam pages in LanguageFonts");
+} catch (e) {
+  assert(false, "Fonts", "Failed to check language fonts", e.message);
 }
 
 // 5. Individual Pages Metadata & Schemas
@@ -123,14 +155,15 @@ for (const p of pageChecks) {
   }
 }
 
-// 6. Next.js Routing & Rewrites
+// 6. Routing redirects live in middleware.ts
 try {
-  const nextConfigPath = path.join(rootDir, "next.config.ts");
-  const nextConfigContent = fs.readFileSync(nextConfigPath, "utf8");
-  assert(nextConfigContent.includes("source: \"/poets\""), "Routing", "Next config rewrites /poets to /authors");
-  assert(nextConfigContent.includes("source: \"/poet/:slug*\""), "Routing", "Next config rewrites /poet/:slug* to /author/:slug*");
+  const middlewarePath = path.join(rootDir, "middleware.ts");
+  const middlewareContent = fs.readFileSync(middlewarePath, "utf8");
+  assert(middlewareContent.includes('pathname === "/poets"'), "Routing", "middleware redirects /poets to /authors");
+  assert(middlewareContent.includes("\\/poet\\/"), "Routing", "middleware redirects /poet/:slug to /author/:slug");
+  assert(middlewareContent.includes("contentRedirect"), "Routing", "middleware strips query strings on kalam and author URLs");
 } catch (e) {
-  assert(false, "Routing", "Failed to check next.config.ts", e.message);
+  assert(false, "Routing", "Failed to check middleware.ts", e.message);
 }
 
 // 7. Error & Not-Found UI Handling
@@ -144,8 +177,10 @@ try {
   const errorPath = path.join(rootDir, "app", "error.tsx");
   assert(fs.existsSync(errorPath), "Error Pages", "app/error.tsx exists for graceful runtime error handling");
 
-  const loadingPath = path.join(rootDir, "app", "loading.tsx");
-  assert(fs.existsSync(loadingPath), "Error Pages", "app/loading.tsx exists for fast visual transitions");
+  // A loading.tsx boundary streams a 200 before notFound() or a redirect can set the status.
+  for (const file of ["app/loading.tsx", "app/kalam/[slug]/loading.tsx", "app/kalam/[slug]/[lang]/loading.tsx"]) {
+    assert(!fs.existsSync(path.join(rootDir, file)), "Error Pages", `${file} is absent, so 404s and redirects keep their status`);
+  }
 } catch (e) {
   assert(false, "Error Pages", "Failed to check error handling pages", e.message);
 }
