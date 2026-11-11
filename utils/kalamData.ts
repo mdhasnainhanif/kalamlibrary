@@ -27,20 +27,39 @@ export type TranslationRecord = {
   lyrics: string;
 };
 
+function isRunningNextBuild(): boolean {
+  const phase = process.env.NEXT_PHASE;
+  if (phase === "phase-production-build" || phase === "phase-export") return true;
+  // Static-generation workers inherit this from `npm run build` (Cloudflare, CI, local).
+  return process.env.npm_lifecycle_event === "build";
+}
+
+function isLikelyBuildTimeConnectivityError(message: string): boolean {
+  const msg = message.toLowerCase();
+  return (
+    msg.includes("fetch failed") ||
+    msg.includes("econnrefused") ||
+    msg.includes("enotfound") ||
+    msg.includes("network") ||
+    msg.includes("socket hang up")
+  );
+}
+
 /**
  * A failed query throws instead of reading as "missing". Thrown, the render is a 500 that
  * nothing caches (and ISR keeps serving the last good copy). Read as missing, it would be
  * a 404, or a page with sections dropped, cached like a real result.
  *
- * During `next build`, missing Supabase env (stub client) must not abort the whole deploy.
+ * During `next build`, stub/missing env or unreachable Supabase must not abort deploy.
  * Set NEXT_PUBLIC_SUPABASE_* on the Cloudflare **build** so prerender gets real data.
  */
 export function throwIfFailed(error: { message: string } | null, what: string) {
   if (!error) return;
-  const isProdBuild = process.env.NEXT_PHASE === "phase-production-build";
-  if (isProdBuild && !isSupabaseConfigured()) {
-    console.warn(`[build] Skipping Supabase error for ${what}: ${error.message}`);
-    return;
+  if (isRunningNextBuild()) {
+    if (!isSupabaseConfigured() || isLikelyBuildTimeConnectivityError(error.message)) {
+      console.warn(`[build] Skipping Supabase error for ${what}: ${error.message}`);
+      return;
+    }
   }
   throw new Error(`Supabase ${what} failed: ${error.message}`);
 }
