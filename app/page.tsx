@@ -119,7 +119,7 @@ export default async function Home() {
       <HomePageView
         authors={authors}
         authorsError={Boolean(authorsError)}
-        kalams={kalams}
+        kalams={kalams as import("@/components/home/HomePageView").HomeKalam[]}
         kalamsError={Boolean(kalamsError)}
         authorKalamCounts={authorKalamCounts}
         faqItems={faqItems}

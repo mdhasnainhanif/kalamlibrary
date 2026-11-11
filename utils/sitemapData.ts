@@ -112,7 +112,9 @@ export async function buildSitemapEntries(): Promise<SitemapEntry[]> {
   // ---- authors
   let authorEntries: SitemapEntry[] = [];
   try {
-    const { data: authors } = await supabase.from("authors").select("name_roman, created_at");
+    const { data: authors } = await supabase
+      .from("authors")
+      .select("name_roman, created_at");
     if (authors) {
       authorEntries = filterListedAuthors(authors).map((author) => ({
         url: `${baseUrl}/author/${slugify(author.name_roman)}`,

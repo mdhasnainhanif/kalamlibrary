@@ -125,9 +125,11 @@ export const ROBOTS_DISALLOW_KALAM_PREFIXES = [
 ] as const;
 
 export type KalamLike = {
+  id?: string;
   slug?: string | null;
   primary_title_roman?: string | null;
   primary_title_urdu?: string | null;
+  author_id?: string | null;
 };
 
 /** OCR/junk slugs — used for middleware 410 and routing guards. */

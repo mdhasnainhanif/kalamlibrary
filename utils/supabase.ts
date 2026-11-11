@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 function readSupabaseEnv() {
   const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
@@ -18,10 +18,10 @@ export function isSupabaseConfigured() {
   return readSupabaseEnv().configured;
 }
 
-let cachedClient = null;
+let cachedClient: SupabaseClient | null = null;
 let cachedSignature = "";
 
-function getSupabaseClient() {
+function getSupabaseClient(): SupabaseClient {
   const { supabaseUrl, supabaseAnonKey, configured } = readSupabaseEnv();
   const signature = configured ? `${supabaseUrl}\0${supabaseAnonKey}` : "stub";
 
@@ -32,7 +32,7 @@ function getSupabaseClient() {
   if (!configured) {
     if (process.env.NODE_ENV === "development") {
       console.warn(
-        "WARNING: Supabase is not configured (NEXT_PUBLIC_SUPABASE_URL / key). DB features will no-op until env vars are set."
+        "WARNING: Supabase is not configured (NEXT_PUBLIC_SUPABASE_URL / key). DB features will no-op until env vars are set.",
       );
     }
     cachedClient = createClient("http://127.0.0.1:1", "build-stub-key", {
@@ -47,13 +47,10 @@ function getSupabaseClient() {
 }
 
 /** Lazy client — env is read on first query, not at bundle load (fixes local dev 404s). */
-export const supabase = new Proxy(
-  {},
-  {
-    get(_target, prop) {
-      const client = getSupabaseClient();
-      const value = client[prop];
-      return typeof value === "function" ? value.bind(client) : value;
-    },
-  }
-);
+export const supabase: SupabaseClient = new Proxy({} as SupabaseClient, {
+  get(_target, prop) {
+    const client = getSupabaseClient();
+    const value = client[prop as keyof SupabaseClient];
+    return typeof value === "function" ? (value as (...args: unknown[]) => unknown).bind(client) : value;
+  },
+});

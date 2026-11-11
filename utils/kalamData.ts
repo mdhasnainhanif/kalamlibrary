@@ -129,7 +129,7 @@ export const getKalamPageData = cache(async function getKalamPageData(rawSlug: s
       .limit(12);
     throwIfFailed(siblingsError, "related kalams");
 
-    relatedKalams = filterIndexableKalams(siblings).slice(0, 6);
+    relatedKalams = filterIndexableKalams(siblings ?? []).slice(0, 6) as typeof relatedKalams;
   }
 
   const author = Array.isArray(kalam.authors) ? kalam.authors[0] : kalam.authors;

@@ -134,8 +134,8 @@ export default async function AuthorPage({ params }: PageProps) {
     bio: getAuthorBio(author),
     kalamCount: kalams.length,
     featuredWorks: kalams.slice(0, 10).map((k) => ({
-      title: k.primary_title_roman,
-      url: buildCanonicalUrl(kalamHref(k.slug)),
+      title: k.primary_title_roman ?? k.slug ?? "Kalam",
+      url: buildCanonicalUrl(kalamHref(k.slug ?? "")),
     })),
   });
 
@@ -210,8 +210,8 @@ export default async function AuthorPage({ params }: PageProps) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
             {kalams.map((kalam) => (
               <Link
-                key={kalam.id}
-                href={kalamHref(kalam.slug)}
+                key={kalam.id ?? kalam.slug ?? "kalam"}
+                href={kalamHref(kalam.slug ?? "")}
                 aria-label={`Read ${kalam.primary_title_roman} lyrics by ${author.name_roman}`}
                 className="kalam-list-card group p-5 rounded-xl bg-emerald-900/10 hover:bg-emerald-900/20 border border-emerald-500/10 hover-gold-glow transition-all flex justify-between items-center gap-3"
               >
