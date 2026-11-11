@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { supabase } from "@/utils/supabase";
+import { isSupabaseConfigured, supabase } from "@/utils/supabase";
 import { cleanKalamSlug, filterIndexableKalams, isIndexableKalam } from "@/utils/kalam";
 
 export type AuthorRecord = {
@@ -31,9 +31,18 @@ export type TranslationRecord = {
  * A failed query throws instead of reading as "missing". Thrown, the render is a 500 that
  * nothing caches (and ISR keeps serving the last good copy). Read as missing, it would be
  * a 404, or a page with sections dropped, cached like a real result.
+ *
+ * During `next build`, missing Supabase env (stub client) must not abort the whole deploy.
+ * Set NEXT_PUBLIC_SUPABASE_* on the Cloudflare **build** so prerender gets real data.
  */
 export function throwIfFailed(error: { message: string } | null, what: string) {
-  if (error) throw new Error(`Supabase ${what} failed: ${error.message}`);
+  if (!error) return;
+  const isProdBuild = process.env.NEXT_PHASE === "phase-production-build";
+  if (isProdBuild && !isSupabaseConfigured()) {
+    console.warn(`[build] Skipping Supabase error for ${what}: ${error.message}`);
+    return;
+  }
+  throw new Error(`Supabase ${what} failed: ${error.message}`);
 }
 
 /** PostgREST 416. The page starts past the last row, so this is a missing page, not an outage. */

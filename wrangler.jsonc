@@ -1,6 +1,8 @@
 // Cloudflare Workers & Pages → Settings → Build (required):
 //   Build command:  npx opennextjs-cloudflare build
 //   Deploy command: npx opennextjs-cloudflare deploy
+// Build environment variables (Production): NEXT_PUBLIC_SUPABASE_URL,
+//   NEXT_PUBLIC_SUPABASE_ANON_KEY (or PUBLISHABLE_KEY) — required for prerendered content.
 // Avoid `npx wrangler deploy` — it re-runs migrate and can set WORKER_SELF_REFERENCE to the wrong name.
 {
   "$schema": "node_modules/wrangler/config-schema.json",
