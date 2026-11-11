@@ -12,6 +12,14 @@
   // turn workers.dev on and could change Preview URLs on the next deploy.
   "workers_dev": true,
   "preview_urls": true,
+  // Workers Caching: the edge checks this cache before running the Worker.
+  // cross_version_cache is off, so each deploy starts with a cold cache (cached HTML never
+  // outlives the build whose /_next/static chunks it references).
+  // Requires Wrangler >= 4.107 for cross_version_cache, 4.69 for cache.enabled.
+  "cache": {
+    "enabled": true,
+    "cross_version_cache": false
+  },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS",

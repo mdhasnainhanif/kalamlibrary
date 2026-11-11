@@ -3,12 +3,15 @@ import type { NextRequest } from "next/server";
 import { CONTACT_PREFILL_COOKIE } from "@/utils/contactPrefill";
 import { isJunkKalamPathname } from "@/utils/kalam";
 import { contentRedirect } from "@/utils/contentRedirect";
+import { listingPageExceedsCap, listingRedirectTarget } from "@/utils/listingPaths";
 
 /** Redirects stay fresh for two minutes, then the Worker decides again. */
 const SHORT_REDIRECT = "public, max-age=0, s-maxage=120";
 /** A gone URL can be cached briefly. A newly added kalam replaces it within three minutes. */
 const SHORT_GONE = "public, max-age=0, s-maxage=180";
 const NEVER_CACHE = "private, no-store";
+const LISTING_MISS = "private, no-cache, no-store, max-age=0, must-revalidate";
+const LISTING_NOT_FOUND_HTML = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="robots" content="noindex, follow"><title>Page Not Found | Kalam Library</title></head><body><main><h1>Page Not Found</h1><p>That listings page does not exist.</p><a href="/kalams">All Kalams</a></main></body></html>`;
 
 const CANONICAL_HOST = "www.kalamlibrary.me";
 
@@ -68,6 +71,34 @@ export function middleware(request: NextRequest) {
     url.pathname = `/author/${oldPoet[1]}`;
     url.search = "";
     return redirectTo(url, 308);
+  }
+
+  // Listing canonicalization only. The matcher stays broad because the apex, 410,
+  // kalam-slug, poet, and contact rules above and below still have to run.
+  // This branch is a prefix check plus, on a match, a query parse. No database.
+  if (
+    pathname === "/kalams" ||
+    pathname.startsWith("/kalams/") ||
+    pathname === "/lyrics" ||
+    pathname.startsWith("/lyrics/")
+  ) {
+    const target = listingRedirectTarget(pathname, request.nextUrl.searchParams);
+    if (target) {
+      const url = request.nextUrl.clone();
+      url.pathname = target;
+      url.search = "";
+      return redirectTo(url, 301);
+    }
+    if (listingPageExceedsCap(pathname)) {
+      return new NextResponse(LISTING_NOT_FOUND_HTML, {
+        status: 404,
+        headers: {
+          "Cache-Control": LISTING_MISS,
+          "Content-Type": "text/html; charset=utf-8",
+          "X-Robots-Tag": "noindex, follow",
+        },
+      });
+    }
   }
 
   if (pathname === "/contact" && request.nextUrl.searchParams.has("subject")) {

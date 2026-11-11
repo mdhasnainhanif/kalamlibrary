@@ -13,6 +13,14 @@ const rootDir = path.resolve(__dirname, "..");
 
 const results = [];
 
+function walk(dir, visit) {
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) walk(full, visit);
+    else visit(full);
+  }
+}
+
 function assert(condition, category, testName, details = "") {
   results.push({
     passed: Boolean(condition),
@@ -120,7 +128,7 @@ try {
 // 5. Individual Pages Metadata & Schemas
 const pageChecks = [
   { file: "app/page.tsx", name: "Homepage", canonical: "/", h1Check: true },
-  { file: "app/kalams/page.tsx", name: "Kalams Archive", canonical: "/kalams", schema: "buildBreadcrumbJsonLd" },
+  { file: "components/listings/KalamsBrowse.tsx", name: "Kalams Archive", canonical: "/kalams", schema: "buildBreadcrumbJsonLd" },
   { file: "app/kalam/[slug]/page.tsx", name: "Kalam Detail", schema: "buildKalamJsonLd", ogType: "article" },
   { file: "app/kalam/[slug]/[lang]/page.tsx", name: "Kalam Translation Detail", schema: "buildKalamJsonLd", ogType: "article" },
   { file: "app/authors/page.tsx", name: "Authors Archive", canonical: "/authors", schema: "buildBreadcrumbJsonLd" },
@@ -161,9 +169,39 @@ try {
   const middlewareContent = fs.readFileSync(middlewarePath, "utf8");
   assert(middlewareContent.includes('pathname === "/poets"'), "Routing", "middleware redirects /poets to /authors");
   assert(middlewareContent.includes("\\/poet\\/"), "Routing", "middleware redirects /poet/:slug to /author/:slug");
-  assert(middlewareContent.includes("contentRedirect"), "Routing", "middleware strips query strings on kalam and author URLs");
+  assert(middlewareContent.includes("listingRedirectTarget"), "Routing", "middleware canonicalizes /kalams and /lyrics query strings");
 } catch (e) {
   assert(false, "Routing", "Failed to check middleware.ts", e.message);
+}
+
+// 6b. Path pagination: old query URLs are not linked, and the route files exist
+try {
+  const routeFiles = [
+    "app/kalams/page/[page]/page.tsx",
+    "app/lyrics/[lang]/page/[page]/page.tsx",
+    "app/lyrics/[lang]/letter/[letter]/page.tsx",
+    "app/lyrics/[lang]/letter/[letter]/page/[page]/page.tsx",
+  ];
+  for (const file of routeFiles) {
+    assert(fs.existsSync(path.join(rootDir, file)), "Pagination", `${file} exists`);
+  }
+  const sitemap = fs.readFileSync(path.join(rootDir, "utils", "sitemapData.ts"), "utf8");
+  assert(!sitemap.includes("?page=") && !sitemap.includes("?letter="), "Pagination", "sitemap has no ?page= or ?letter= URLs");
+  assert(sitemap.includes('path: "/kalams"') && sitemap.includes('path: "/lyrics/hindi"'), "Pagination", "sitemap keeps the indexable listing URLs");
+
+  const queryLink = /\?(?:page|letter)=/;
+  const roots = ["app", "components"];
+  const offenders = [];
+  for (const dir of roots) {
+    walk(path.join(rootDir, dir), (file) => {
+      if (!/\.(tsx|ts)$/.test(file)) return;
+      const text = fs.readFileSync(file, "utf8");
+      if (queryLink.test(text)) offenders.push(path.relative(rootDir, file));
+    });
+  }
+  assert(offenders.length === 0, "Pagination", "no app or component link uses ?page= or ?letter=", offenders.join(", "));
+} catch (e) {
+  assert(false, "Pagination", "Failed to check pagination routes", e.message);
 }
 
 // 7. Error & Not-Found UI Handling

@@ -7,7 +7,13 @@ const DEFAULT_PATHS = ["/", "/kalams", "/lyrics", "/authors", "/trending", "/rev
 
 /** Page patterns under a purged prefix. revalidatePath needs the route shape for dynamic segments. */
 const NESTED_PAGE_PATTERNS: Record<string, string[]> = {
-  "/lyrics": ["/lyrics/[lang]"],
+  "/kalams": ["/kalams/page/[page]"],
+  "/lyrics": [
+    "/lyrics/[lang]",
+    "/lyrics/[lang]/page/[page]",
+    "/lyrics/[lang]/letter/[letter]",
+    "/lyrics/[lang]/letter/[letter]/page/[page]",
+  ],
 };
 const MAX_OPERATIONS = 100;
 
