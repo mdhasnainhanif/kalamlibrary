@@ -61,7 +61,7 @@ try {
     "Ads",
     "middleware serves /ads.txt and /robots.txt before the apex redirect"
   );
-  assert(middlewareContent.includes('host === "kalamlibrary.me"'), "Ads", "other apex paths still redirect to www");
+  assert(middlewareContent.includes('urlHost === "kalamlibrary.me"'), "Ads", "apex URL host still redirects to www");
 } catch (e) {
   assert(false, "Ads", "Failed to check ads.txt", e.message);
 }

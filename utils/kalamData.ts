@@ -33,7 +33,11 @@ function isRunningNextBuild(): boolean {
   if (phase === "phase-production-build" || phase === "phase-export") return true;
   if (process.env.npm_lifecycle_event === "build") return true;
   // Cloudflare Workers/Pages CI injects these during build only (not on live edge requests).
-  if (process.env.CI === "true" && (process.env.CF_PAGES === "1" || process.env.CF_PAGES_COMMIT_SHA)) {
+  if (
+    process.env.CI === "true" &&
+    process.env.KALAM_LIBRARY_NEXT_BUILD === "1" &&
+    (process.env.CF_PAGES === "1" || process.env.CF_PAGES_COMMIT_SHA)
+  ) {
     return true;
   }
   return false;

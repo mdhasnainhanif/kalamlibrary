@@ -33,9 +33,10 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const host = request.headers.get("host")?.split(":")[0]?.toLowerCase() ?? "";
-
-  if (host === "kalamlibrary.me") {
+  // Redirect apex → www using the request URL host only. Matching `Host: kalamlibrary.me`
+  // while the browser is on www caused a self-redirect loop at the edge.
+  const urlHost = request.nextUrl.hostname.toLowerCase();
+  if (urlHost === "kalamlibrary.me") {
     const url = request.nextUrl.clone();
     url.protocol = "https:";
     url.hostname = CANONICAL_HOST;
