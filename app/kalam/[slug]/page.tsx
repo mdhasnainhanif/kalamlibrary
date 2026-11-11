@@ -241,7 +241,7 @@ export default async function KalamSlugPage({ params }: PageProps) {
 
         {/* Header section */}
         <header className="text-center mb-8 border-b border-emerald-500/15 dark:border-emerald-500/10 pb-6 max-w-3xl mx-auto w-full">
-          <h1 className="kalam-page-title text-2xl md:text-4xl font-bold text-amber-700 dark:text-gold-500 mb-3 tracking-wide leading-relaxed font-sans">
+          <h1 className="kalam-page-title text-2xl md:text-4xl font-bold text-amber-700 dark:text-gold-500 mb-3 tracking-wide leading-relaxed">
             {buildKalamHeading(kalam.primary_title_roman, primaryTranslation.language as KalamTranslationLanguage)}
           </h1>
           {headerSubtitle && (

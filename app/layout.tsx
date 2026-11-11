@@ -1,11 +1,12 @@
 import type { Metadata, Viewport } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Cormorant_Garamond, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
 import NavbarWithPoets from "@/components/NavbarWithPoets";
 import SearchHeroBanner from "@/components/SearchHeroBanner";
 import Footer from "@/components/Footer";
 import FooterGate from "@/components/FooterGate";
+import SiteChromeGate from "@/components/SiteChromeGate";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import DeferredClientWidgets from "@/components/DeferredClientWidgets";
 import HtmlLangSync from "@/components/HtmlLangSync";
@@ -20,6 +21,17 @@ const plusJakarta = Plus_Jakarta_Sans({
   display: "swap",
   preload: true,
   fallback: ["system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
+  adjustFontFallback: true,
+});
+
+/** Site headings only — body/UI stays Plus Jakarta Sans */
+const cormorantDisplay = Cormorant_Garamond({
+  variable: "--font-cormorant",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  display: "swap",
+  preload: true,
+  fallback: ["ui-serif", "Georgia", "serif"],
   adjustFontFallback: true,
 });
 
@@ -106,7 +118,7 @@ export default function RootLayout({
       lang="en"
       dir="ltr"
       suppressHydrationWarning
-      className={`${plusJakarta.variable} min-h-full scroll-smooth antialiased`}
+      className={`${plusJakarta.variable} ${cormorantDisplay.variable} min-h-full scroll-smooth antialiased`}
     >
       <head>
         <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
@@ -144,16 +156,19 @@ export default function RootLayout({
 
           <SiteBackground />
 
-          <NavbarWithPoets />
-          <SearchHeroBanner />
+          <SiteChromeGate>
+            <NavbarWithPoets />
+            <SearchHeroBanner />
+          </SiteChromeGate>
           <div id="app-main-slot" className="relative z-[1] flex min-h-0 w-full flex-1 flex-col">
             {children}
           </div>
-          <FooterGate>
-            <Footer />
-          </FooterGate>
-
-          <DeferredClientWidgets />
+          <SiteChromeGate>
+            <FooterGate>
+              <Footer />
+            </FooterGate>
+            <DeferredClientWidgets />
+          </SiteChromeGate>
         </ThemeProvider>
       </body>
     </html>

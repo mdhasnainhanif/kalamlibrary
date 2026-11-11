@@ -1,4 +1,4 @@
-import { supabase, supabaseConfigured } from "@/utils/supabase";
+import { isSupabaseConfigured, supabase } from "@/utils/supabase";
 import { SITE_CONFIG } from "@/utils/seoConfig";
 import { filterListedAuthors } from "@/utils/authorHelper";
 import {
@@ -104,7 +104,7 @@ export async function buildSitemapEntries(): Promise<SitemapEntry[]> {
     priority: r.priority,
   }));
 
-  if (!supabaseConfigured) {
+  if (!isSupabaseConfigured()) {
     console.warn("Sitemap: Supabase not configured — serving static routes only.");
     return staticEntries;
   }

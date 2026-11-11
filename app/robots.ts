@@ -27,6 +27,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/api/og",
         disallow: [
           "/api/",
+          "/admin",
           "/search",
           ...ROBOTS_DISALLOW_KALAM_PREFIXES,
         ],

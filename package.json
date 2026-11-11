@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:webpack": "next dev --webpack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
@@ -11,6 +12,7 @@
     "deploy": "opennextjs-cloudflare build && node scripts/opennext-postbuild.mjs && opennextjs-cloudflare deploy"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.110.5",
     "framer-motion": "12.43.0",
     "html-to-image": "^1.11.13",

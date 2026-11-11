@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronDown, Menu, X } from "lucide-react";
+import KalamLibraryWordmark from "@/components/KalamLibraryWordmark";
 
 export type NavPoet = {
   nameRoman: string;
@@ -16,7 +17,6 @@ type NavbarProps = {
 };
 
 const navLinks = [
-  { href: "/", label: "Home" },
   { href: "/kalams", label: "Browse Kalams" },
   { href: "/trending", label: "Trending" },
   { href: "/durood-o-salam", label: "Durood o Salam" },
@@ -120,13 +120,7 @@ export default function Navbar({ poets }: NavbarProps) {
       <nav aria-label="Main navigation" className="container relative z-[1]">
         <div className="flex h-16 items-center justify-between md:h-20">
           <Link href="/" aria-label="Kalam Library Home" className="group flex items-center">
-            <span
-              lang="ur"
-              dir="rtl"
-              className="font-urdu text-xl font-bold leading-none text-gold-500 transition-colors group-hover:text-gold-100 md:text-2xl"
-            >
-              کلام لائبریری
-            </span>
+            <KalamLibraryWordmark className="text-xl transition-colors group-hover:text-gold-100 md:text-2xl" />
           </Link>
 
           <div className="hidden lg:block">

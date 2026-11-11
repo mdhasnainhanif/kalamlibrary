@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import SearchBar from "@/components/SearchBar";
+import Button from "@/components/ui/Button";
 
 export const metadata: Metadata = {
   title: "Page Not Found | Kalam Library",
@@ -37,24 +37,15 @@ export default function NotFound() {
 
         {/* Helpful Quick Links */}
         <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4">
-          <Link
-            href="/kalams"
-            className="px-5 py-2.5 rounded-xl bg-gold-500 hover:bg-gold-600 text-slate-950 font-bold text-sm transition-all shadow-md hover:shadow-gold-500/20 hover:scale-105 active:scale-95"
-          >
+          <Button href="/kalams" variant="filled" size="md" className="hover:scale-105 active:scale-95">
             Explore All Kalams
-          </Link>
-          <Link
-            href="/authors"
-            className="px-5 py-2.5 rounded-xl bg-white dark:bg-emerald-900/60 hover:bg-emerald-50 dark:hover:bg-emerald-800/60 border border-emerald-500/30 dark:border-emerald-700/50 text-emerald-800 dark:text-emerald-200 font-semibold text-sm transition-all shadow-sm hover:scale-105 active:scale-95"
-          >
+          </Button>
+          <Button href="/authors" variant="outline" size="md" className="hover:scale-105 active:scale-95">
             Browse Poets &amp; Scholars
-          </Link>
-          <Link
-            href="/"
-            className="px-5 py-2.5 rounded-xl bg-slate-100 dark:bg-slate-900/60 hover:bg-slate-200 dark:hover:bg-slate-800/60 border border-slate-300 dark:border-slate-700/40 text-slate-700 dark:text-slate-300 font-medium text-sm transition-all shadow-sm hover:scale-105 active:scale-95"
-          >
+          </Button>
+          <Button href="/" variant="outline" size="md" className="hover:scale-105 active:scale-95">
             Return to Homepage
-          </Link>
+          </Button>
         </div>
 
         {/* Arabic/Urdu Calligraphy Motif */}

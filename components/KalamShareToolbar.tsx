@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "react-hot-toast";
 import { Share2 } from "lucide-react";
+import Button from "@/components/ui/Button";
 import { isPlaceholderAuthorName } from "@/utils/authorHelper";
 import { normalizeSharePageUrl } from "@/utils/exportShareCard";
 import {
@@ -80,7 +81,7 @@ export default function KalamShareToolbar({
     try {
       await navigator.clipboard.writeText(buildShareCaption(shareInput()));
       setCopyPostDone(true);
-      toast.success("Caption copied");
+      toast.success("Text copied");
       setTimeout(() => setCopyPostDone(false), 2000);
     } catch {
       toast.error("Could not copy");
@@ -124,26 +125,25 @@ export default function KalamShareToolbar({
         </div>
 
         <div className="flex flex-wrap justify-center gap-3">
-          <button
-            type="button"
-            onClick={handleCopyFull}
-            className="flex cursor-pointer items-center gap-2 rounded-full border border-emerald-500/30 bg-white px-5 py-2.5 text-sm font-medium text-emerald-800 shadow-sm hover:bg-emerald-50 dark:border-emerald-500/20 dark:bg-emerald-900/60 dark:text-emerald-100 dark:hover:bg-emerald-800/80 dark:hover:text-emerald-50"
-          >
+          <Button type="button" variant="outline" shape="pill" size="md" onClick={handleCopyFull}>
             {copiedFull ? "Copied!" : "Copy full lyrics"}
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="filled"
+            shape="pill"
+            size="md"
             onClick={openSharePreview}
             aria-expanded={previewOpen}
-            className="flex cursor-pointer items-center gap-2 rounded-full bg-gold-500 px-5 py-2.5 text-sm font-semibold text-black shadow-sm hover:bg-gold-400"
           >
             <Share2 className="h-4 w-4" aria-hidden />
-            {selectionCount > 0
-              ? `Create post (${selectionCount})`
-              : "Create share post"}
-          </button>
+            {selectionCount > 0 ? `Create post (${selectionCount})` : "Create share post"}
+          </Button>
         </div>
 
+      </div>
+
+      {previewOpen ? (
         <SharePreviewModal
           open={previewOpen}
           onClose={() => setPreviewOpen(false)}
@@ -157,18 +157,14 @@ export default function KalamShareToolbar({
           onCopyCaption={handleCopyCaption}
           copyDone={copyPostDone}
         />
-      </div>
+      ) : null}
 
       {selectionCount > 0 ? (
         <div className="fixed bottom-4 left-3 right-3 z-[95] flex items-center justify-between gap-3 rounded-xl border border-gold-500/30 bg-emerald-950/95 px-4 py-3 shadow-xl backdrop-blur-md md:hidden">
           <span className="text-sm font-medium text-gray-200">{selectionCount} selected</span>
-          <button
-            type="button"
-            onClick={() => setPreviewOpen(true)}
-            className="cursor-pointer rounded-lg bg-gold-500 px-4 py-2 text-sm font-bold text-black"
-          >
+          <Button type="button" variant="filled" size="sm" onClick={() => setPreviewOpen(true)}>
             Preview post
-          </button>
+          </Button>
         </div>
       ) : null}
     </>

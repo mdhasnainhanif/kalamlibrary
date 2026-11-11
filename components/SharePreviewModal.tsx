@@ -1,22 +1,31 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { ImageDown, Loader2, X } from "lucide-react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { Figtree } from "next/font/google";
+import { X } from "lucide-react";
 import { toast } from "react-hot-toast";
-import SharePostCard from "@/components/SharePostCard";
-import SharePostCustomizePanel from "@/components/SharePostCustomizePanel";
+import SharePostPreviewStage from "@/components/share/SharePostPreviewStage";
+import SharePostDesignerEditor from "@/components/share/SharePostDesignerEditor";
 import {
   downloadBlob,
   fetchShareCardBlob,
   normalizeSharePageUrl,
   sharePostOnWhatsApp,
 } from "@/utils/exportShareCard";
+import { getIslamicHeroPatternDataUri } from "@/utils/islamicHeroPatternDataUri";
 import {
-  DEFAULT_POST_THEME,
+  defaultPostThemeForLang,
   loadPostThemeFromStorage,
   savePostThemeToStorage,
   type PostTheme,
 } from "@/utils/postTheme";
+
+const uiFont = Figtree({
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  variable: "--font-share-ui",
+});
 
 type SharePreviewPanelProps = {
   open: boolean;
@@ -32,17 +41,8 @@ type SharePreviewPanelProps = {
   copyDone: boolean;
 };
 
-function WhatsAppIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
-      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
-    </svg>
-  );
-}
-
-function cloneDefaultTheme(): PostTheme {
-  return JSON.parse(JSON.stringify(DEFAULT_POST_THEME)) as PostTheme;
-}
+const girihPattern = getIslamicHeroPatternDataUri("#059669", 0.07);
+const girihPatternDark = getIslamicHeroPatternDataUri("#d97706", 0.06);
 
 export default function SharePreviewModal({
   open,
@@ -57,9 +57,10 @@ export default function SharePreviewModal({
   onCopyCaption,
   copyDone,
 }: SharePreviewPanelProps) {
-  const panelRef = useRef<HTMLDivElement>(null);
+  const titleId = useId();
+  const descId = useId();
   const [imageBusy, setImageBusy] = useState(false);
-  const [postTheme, setPostTheme] = useState<PostTheme>(() => cloneDefaultTheme());
+  const [postTheme, setPostTheme] = useState<PostTheme>(() => defaultPostThemeForLang(lang));
   const themeHydrated = useRef(false);
 
   const pageUrl =
@@ -68,7 +69,8 @@ export default function SharePreviewModal({
   useEffect(() => {
     if (themeHydrated.current) return;
     themeHydrated.current = true;
-    setPostTheme(loadPostThemeFromStorage());
+    const stored = loadPostThemeFromStorage();
+    setPostTheme(stored);
   }, []);
 
   const handleThemeChange = useCallback((next: PostTheme) => {
@@ -77,10 +79,10 @@ export default function SharePreviewModal({
   }, []);
 
   const handleResetTheme = useCallback(() => {
-    const next = cloneDefaultTheme();
+    const next = defaultPostThemeForLang(lang);
     setPostTheme(next);
     savePostThemeToStorage(next);
-  }, []);
+  }, [lang]);
 
   useEffect(() => {
     if (!open) return;
@@ -93,10 +95,11 @@ export default function SharePreviewModal({
 
   useEffect(() => {
     if (!open) return;
-    const t = window.setTimeout(() => {
-      panelRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }, 50);
-    return () => window.clearTimeout(t);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, [open]);
 
   const getImageBlob = async () => {
@@ -114,9 +117,9 @@ export default function SharePreviewModal({
       const blob = await getImageBlob();
       const slug = title.slice(0, 40).replace(/[^\w\u0600-\u06FF]+/g, "-");
       downloadBlob(blob, `kalam-${slug || "share"}.png`);
-      toast.success("Image saved");
+      toast.success("Image downloaded");
     } catch {
-      toast.error("Could not create image — post preview khula hona chahiye");
+      toast.error("Could not create image — keep the designer open and try again");
     } finally {
       setImageBusy(false);
     }
@@ -124,7 +127,7 @@ export default function SharePreviewModal({
 
   const handleWhatsAppShare = async () => {
     if (stanzaCount === 0) {
-      toast("Pehle upar se couplets select karein", { duration: 3000 });
+      toast("Select at least one couplet first", { duration: 3000 });
       return;
     }
 
@@ -144,101 +147,137 @@ export default function SharePreviewModal({
       });
 
       if (result === "native-with-image") {
-        toast.success("WhatsApp ya koi app choose karein");
+        toast.success("WhatsApp opened — attach the image if needed");
       } else if (result === "text-plus-download") {
-        toast.success("WhatsApp khul gaya — image download ho chuki hai, chat mein attach karein", {
-          duration: 5000,
-        });
+        toast.success("WhatsApp opened — attach the downloaded image", { duration: 5000 });
       } else {
-        toast.success("WhatsApp par contact choose karke bhejein");
+        toast.success("WhatsApp opened — attach the downloaded image");
       }
     } catch (err) {
       if ((err as Error).name !== "AbortError") {
-        toast.error("Share nahi ho saka");
+        toast.error("Share failed");
       }
     } finally {
       setImageBusy(false);
     }
   };
 
-  if (!open) return null;
+  const coupletLine =
+    stanzaCount === 1 ? "1 couplet selected" : `${stanzaCount} couplets selected`;
 
-  return (
+  if (!open || typeof document === "undefined") return null;
+
+  return createPortal(
     <div
-      ref={panelRef}
-      role="region"
-      aria-labelledby="share-preview-title"
-      className="mt-4 w-full overflow-hidden rounded-2xl border border-emerald-500/25 bg-white shadow-lg dark:border-emerald-500/20 dark:bg-emerald-950/95"
+      className={`share-designer ${uiFont.variable} fixed inset-0 z-[200] font-[family-name:var(--font-share-ui)]`}
+      style={{ fontFamily: "var(--font-share-ui), system-ui, sans-serif" }}
     >
-      <div className="flex items-center justify-between border-b border-emerald-500/15 px-4 py-3">
-        <div>
-          <h2 id="share-preview-title" className="text-sm font-bold text-gray-900 dark:text-gray-100">
-            Your post
-          </h2>
-          <p className="text-xs text-gray-500 dark:text-gray-400">
-            {stanzaCount > 0
-              ? "Neeche WhatsApp dabayein — contact choose karke yahi post bhejein"
-              : "Select couplets above, then share"}
+      <button
+        type="button"
+        aria-label="Close designer"
+        className="absolute inset-0 cursor-default bg-[color-mix(in_srgb,#0a1210_55%,transparent)] backdrop-blur-[6px] md:bg-[color-mix(in_srgb,#0a1210_62%,transparent)]"
+        onClick={onClose}
+      />
+
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={descId}
+        className="relative z-[1] flex h-[100dvh] w-full flex-col overflow-hidden bg-[var(--background)] text-[var(--foreground)] md:absolute md:left-1/2 md:top-1/2 md:h-[min(720px,92vh)] md:w-full md:max-w-[1024px] md:-translate-x-1/2 md:-translate-y-1/2 md:flex-row md:rounded-2xl md:border md:border-[var(--border)] md:shadow-2xl"
+      >
+        {/* Mobile top bar */}
+        <header className="share-designer-topbar flex shrink-0 items-start justify-between gap-3 border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--background)_88%,transparent)] px-4 py-3 backdrop-blur-md md:hidden">
+          <div>
+            <h2
+              id={titleId}
+              className="font-[family-name:var(--font-display)] text-lg font-semibold leading-tight text-[var(--foreground)]"
+            >
+              Design your post
+            </h2>
+            <p id={descId} className="mt-0.5 text-xs text-[var(--muted-foreground)]">
+              {coupletLine}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--muted)] hover:text-[var(--foreground)]"
+            aria-label="Close"
+          >
+            <X className="h-5 w-5" aria-hidden />
+          </button>
+        </header>
+
+        {/* Preview column — capped on mobile so editor + actions stay in view */}
+        <section className="flex h-[min(38dvh,340px)] min-h-0 shrink-0 flex-col overflow-hidden md:h-full md:min-w-0 md:flex-1">
+          <div className="share-designer-preview-pane flex min-h-0 flex-col">
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 opacity-[0.32] dark:hidden"
+              style={{
+                backgroundImage: `url("${girihPattern}")`,
+                backgroundSize: "112px 112px",
+              }}
+            />
+            <div
+              aria-hidden
+              className="pointer-events-none absolute inset-0 hidden opacity-25 dark:block"
+              style={{
+                backgroundImage: `url("${girihPatternDark}")`,
+                backgroundSize: "112px 112px",
+              }}
+            />
+            <SharePostPreviewStage
+              title={title}
+              author={author || undefined}
+              stanzas={selectedStanzas}
+              pageUrl={pageUrl}
+              lang={lang}
+              dir={dir}
+              design={postTheme}
+            />
+          </div>
+          <p className="hidden shrink-0 border-t border-[var(--border)] px-4 py-2 text-center text-[11px] text-[var(--muted-foreground)] md:block">
+            Live preview · the saved image is high resolution
           </p>
-        </div>
-        <button
-          type="button"
-          onClick={onClose}
-          className="cursor-pointer rounded-lg p-2 text-gray-500 hover:bg-emerald-50 dark:hover:bg-emerald-900/40"
-          aria-label="Close share preview"
-        >
-          <X className="h-5 w-5" aria-hidden />
-        </button>
+        </section>
+
+        {/* Editor column */}
+        <aside className="flex min-h-0 w-full flex-1 flex-col overflow-hidden border-t border-[var(--border)] bg-[var(--background)] pb-[env(safe-area-inset-bottom)] md:h-full md:flex-none md:w-[340px] md:pb-0 md:border-l md:border-t-0">
+          <header className="hidden shrink-0 items-start justify-between gap-3 border-b border-[var(--border)] px-4 py-4 md:flex">
+            <div>
+              <h2 className="font-[family-name:var(--font-display)] text-2xl font-semibold leading-tight text-[var(--foreground)]">
+                Design your post
+              </h2>
+              <p className="mt-1 text-sm text-[var(--muted-foreground)]">{coupletLine}</p>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--muted)]"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5" aria-hidden />
+            </button>
+          </header>
+
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden px-4 pb-1 pt-3 md:pb-2 md:pt-4">
+            <SharePostDesignerEditor
+              theme={postTheme}
+              onChange={handleThemeChange}
+              onReset={handleResetTheme}
+              imageBusy={imageBusy}
+              stanzaCount={stanzaCount}
+              onWhatsApp={handleWhatsAppShare}
+              onSaveImage={handleSaveImage}
+              onCopyText={onCopyCaption}
+              copyDone={copyDone}
+            />
+          </div>
+        </aside>
       </div>
-
-      <div className="space-y-3 px-3 py-4 sm:px-4">
-        <SharePostCard
-          title={title}
-          author={author || undefined}
-          stanzas={selectedStanzas}
-          pageUrl={pageUrl}
-          lang={lang}
-          dir={dir}
-          design={postTheme}
-        />
-
-        <SharePostCustomizePanel theme={postTheme} onChange={handleThemeChange} onReset={handleResetTheme} />
-      </div>
-
-      <div className="flex flex-col gap-2 border-t border-emerald-500/15 p-4">
-        <button
-          type="button"
-          disabled={imageBusy || stanzaCount === 0}
-          onClick={handleWhatsAppShare}
-          className="flex w-full cursor-pointer items-center justify-center gap-2.5 rounded-xl bg-[#25D366] px-4 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#20bd5a] disabled:cursor-not-allowed disabled:opacity-45"
-        >
-          {imageBusy ? (
-            <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
-          ) : (
-            <WhatsAppIcon className="h-5 w-5" />
-          )}
-          Share on WhatsApp
-        </button>
-
-        <div className="flex flex-col gap-2 sm:flex-row">
-          <button
-            type="button"
-            disabled={imageBusy || stanzaCount === 0}
-            onClick={handleSaveImage}
-            className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border border-emerald-500/25 bg-emerald-50 px-4 py-2.5 text-sm font-semibold text-emerald-900 hover:bg-emerald-100 dark:border-emerald-500/30 dark:bg-emerald-950/70 dark:text-emerald-100 dark:hover:bg-emerald-800/55 dark:hover:text-white disabled:cursor-not-allowed disabled:opacity-45"
-          >
-            <ImageDown className="h-4 w-4" aria-hidden />
-            Save image
-          </button>
-          <button
-            type="button"
-            onClick={onCopyCaption}
-            className="flex-1 cursor-pointer rounded-xl border border-emerald-500/25 px-4 py-2.5 text-sm font-semibold text-emerald-800 hover:bg-emerald-50 dark:border-emerald-500/30 dark:text-emerald-200 dark:hover:bg-emerald-900/50 dark:hover:text-emerald-50"
-          >
-            {copyDone ? "Caption copied!" : "Copy caption"}
-          </button>
-        </div>
-      </div>
-    </div>
+    </div>,
+    document.body
   );
 }

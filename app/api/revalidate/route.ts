@@ -3,7 +3,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { NextRequest, NextResponse } from "next/server";
 
 const NEVER = { "Cache-Control": "private, no-store" };
-const DEFAULT_PATHS = ["/", "/kalams", "/lyrics", "/authors", "/trending", "/sitemap.xml"];
+const DEFAULT_PATHS = ["/", "/kalams", "/lyrics", "/authors", "/trending", "/reviews", "/sitemap.xml"];
 
 /** Page patterns under a purged prefix. revalidatePath needs the route shape for dynamic segments. */
 const NESTED_PAGE_PATTERNS: Record<string, string[]> = {

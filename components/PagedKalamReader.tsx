@@ -163,7 +163,7 @@ export default function PagedKalamReader({ titleUrdu, pages, credit = "Compiled 
             <p lang="ur" dir="rtl" className="font-urdu text-[clamp(2.6rem,9cqw,5.5rem)] leading-[1.5] text-[#e9c46a]">
               {titleUrdu}
             </p>
-            <h2 className="font-sans text-[clamp(1.2rem,4.2cqw,2.6rem)] font-extrabold uppercase tracking-wide text-white">
+            <h2 className="text-[clamp(1.2rem,4.2cqw,2.6rem)] font-extrabold uppercase tracking-wide text-white">
               Khatme Qadriah
             </h2>
             <p className="font-sans text-[clamp(0.8rem,2cqw,1.2rem)] font-semibold leading-snug text-[#e9c46a]">

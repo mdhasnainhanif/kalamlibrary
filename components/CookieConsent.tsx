@@ -1,5 +1,7 @@
 "use client";
 
+import Button from "@/components/ui/Button";
+
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import AnalyticsScripts from "@/components/AnalyticsScripts";
@@ -75,20 +77,12 @@ export default function CookieConsent() {
               </p>
             </div>
             <div className="flex shrink-0 flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={() => save("essential")}
-                className="rounded-xl border border-emerald-500/25 px-4 py-2.5 text-sm font-medium text-gray-200 hover:bg-emerald-900/40"
-              >
+              <Button type="button" variant="outline" size="sm" onClick={() => save("essential")}>
                 Essential only
-              </button>
-              <button
-                type="button"
-                onClick={() => save("accepted")}
-                className="rounded-xl bg-gold-500 px-4 py-2.5 text-sm font-bold text-black hover:bg-gold-600"
-              >
+              </Button>
+              <Button type="button" variant="filled" size="sm" onClick={() => save("accepted")}>
                 Accept analytics
-              </button>
+              </Button>
             </div>
           </div>
         </div>

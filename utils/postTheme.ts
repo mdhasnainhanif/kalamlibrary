@@ -69,6 +69,15 @@ export const POST_ASPECT_CSS: Record<PostAspectRatio, string> = {
   story: "9 / 16",
 };
 
+/** Fixed artboard for share-card preview + PNG export (always 420px wide). */
+export const POST_ARTBOARD_WIDTH = 420;
+
+export const POST_ARTBOARD_HEIGHT: Record<PostAspectRatio, number> = {
+  square: 420,
+  portrait: 525,
+  story: 746,
+};
+
 export const DEFAULT_POST_THEME: PostTheme = {
   presetId: "emerald-green",
   background: {
@@ -389,6 +398,14 @@ export const GRADIENT_PRESETS = [
 export function getPostThemePreset(id: string): PostTheme | null {
   const found = POST_THEME_PRESETS.find((p) => p.id === id);
   return found ? themeClone(found.theme) : null;
+}
+
+export function defaultPostThemeForLang(lang: string): PostTheme {
+  const base = getPostThemePreset("emerald-green") ?? themeClone(DEFAULT_POST_THEME);
+  base.layout.aspectRatio = "portrait";
+  base.typography.fontSize = lang === "urdu" ? 17 : 15;
+  base.visibility.poetName = true;
+  return base;
 }
 
 export function loadPostThemeFromStorage(): PostTheme {

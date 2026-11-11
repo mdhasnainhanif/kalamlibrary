@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "react-hot-toast";
+import Button from "@/components/ui/Button";
 import { CONTACT_PREFILL_COOKIE, CONTACT_PREFILL_STORAGE_KEY } from "@/utils/contactPrefill";
 
 export default function ContactForm({ defaultSubject = "" }: { defaultSubject?: string }) {

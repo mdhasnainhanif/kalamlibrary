@@ -259,6 +259,29 @@ export default function PrivacyPolicyPage() {
             </ul>
           </section>
 
+          {/* Reader reviews */}
+          <section
+            id="reader-reviews"
+            className="bg-emerald-900/5 border border-emerald-500/10 rounded-2xl p-6 md:p-8"
+          >
+            <h2 className="text-xl md:text-2xl font-bold text-gold-500 mb-3 flex items-center gap-2.5">
+              <span className="w-7 h-7 rounded-lg bg-gold-500/10 border border-gold-500/25 flex items-center justify-center text-gold-500 text-xs font-bold">R</span>
+              Reader reviews &amp; testimonials
+            </h2>
+            <p className="mb-3 text-sm text-gray-300">
+              If you submit a review on our <Link href="/reviews" className="text-emerald-400 hover:underline">Reader reviews</Link> page, we collect:
+            </p>
+            <ul className="list-disc list-inside space-y-2 text-xs md:text-sm text-gray-300 pl-2 mb-3">
+              <li>Your display name and message (shown publicly only after manual approval).</li>
+              <li>Optional email (stored for moderation contact only — never shown on the website).</li>
+              <li>Optional city or country (shown publicly if you provide it and the review is approved).</li>
+              <li>A one-way salted hash of your IP address for spam prevention and rate limiting (we do not store your raw IP).</li>
+            </ul>
+            <p className="text-xs md:text-sm text-gray-400">
+              Reviews are moderated before publication. Sample placeholder testimonials are clearly labeled and are not presented as verified customers.
+            </p>
+          </section>
+
           {/* 8. Your Rights & Control */}
           <section className="bg-emerald-900/5 border border-emerald-500/10 rounded-2xl p-6 md:p-8">
             <h2 className="text-xl md:text-2xl font-bold text-gold-500 mb-3 flex items-center gap-2.5">

@@ -11,12 +11,12 @@ import {
 } from "lucide-react";
 import HomeSearchBar from "@/components/home/HomeSearchBar";
 import HomeFAQ from "@/components/home/HomeFAQ";
+import HomeTestimonialsSection from "@/components/reviews/HomeTestimonialsSection";
 import HomePageAd from "@/components/HomePageAd";
+import Button from "@/components/ui/Button";
 import { authorLabelFromRoman, getAuthorUrduName } from "@/utils/authorHelper";
 import { kalamHref } from "@/utils/kalam";
 import {
-  bentoCtaBlockClass,
-  bentoCtaClass,
   bentoInnerCardClass,
   bentoPanelClass,
   kalamGridCardClass,
@@ -121,19 +121,13 @@ export default function HomePageView({
             <HomeSearchBar />
           </div>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-            <Link
-              href="/kalams"
-              className={`inline-flex items-center gap-2 rounded-xl bg-gold-500 px-6 py-3 text-sm font-bold text-black shadow-lg shadow-gold-500/10 hover:bg-gold-600 ${cardHover}`}
-            >
+            <Button href="/kalams" variant="filled" size="lg" className={cardHover}>
               Browse All Kalams
               <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
-            <Link
-              href="/about"
-              className={`inline-flex items-center gap-2 rounded-xl border border-emerald-200/80 bg-white/90 px-6 py-3 text-sm font-bold text-slate-700 shadow-sm backdrop-blur-md hover:bg-emerald-50 hover:text-emerald-900 dark:border-emerald-500/10 dark:bg-emerald-950/60 dark:text-gray-200 dark:shadow-none dark:hover:bg-emerald-900/40 dark:hover:text-white ${cardHover}`}
-            >
+            </Button>
+            <Button href="/about" variant="outline" size="lg" className={cardHover}>
               Read Our Story
-            </Link>
+            </Button>
           </div>
         </div>
         </div>
@@ -210,9 +204,9 @@ export default function HomePageView({
                 })}
               </ul>
             )}
-            <Link href="/authors" className={`${bentoCtaClass} mt-4`}>
+            <Button href="/authors" variant="outline" size="sm" className="mt-4">
               View all poets <ArrowRight className="h-3.5 w-3.5" aria-hidden />
-            </Link>
+            </Button>
           </article>
 
           {/* Popular naats — wide bento */}
@@ -263,9 +257,9 @@ export default function HomePageView({
                 })}
               </div>
             )}
-            <Link href="/kalams" className={`${bentoCtaBlockClass} mt-4`}>
+            <Button href="/kalams" variant="outline" size="sm" fullWidth className="mt-4">
               Explore all 700+ Kalams <ArrowRight className="h-4 w-4" aria-hidden />
-            </Link>
+            </Button>
           </article>
 
           {/* Language bento strip */}
@@ -355,6 +349,8 @@ export default function HomePageView({
           </div>
         </div>
       </section>
+
+      <HomeTestimonialsSection />
 
       {/* FAQ — white band */}
       <section className="page-section w-full py-12 md:pb-16" aria-label="Frequently Asked Questions">

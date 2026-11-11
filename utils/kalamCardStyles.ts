@@ -16,11 +16,11 @@ export const kalamGridCardFooterClass =
 export const faqItemSurfaceClass =
   "kalam-card-surface glass-panel premium-card overflow-hidden rounded-xl border border-emerald-200/70 bg-white/90 transition-all duration-300 dark:border-emerald-500/10 dark:bg-emerald-900/10";
 
-/** Footer CTAs inside bento panels */
-export const bentoCtaClass =
-  "inline-flex items-center justify-center gap-1 rounded-xl border border-emerald-200/80 bg-white/90 py-2.5 text-xs font-semibold text-amber-800 transition-colors hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-900 dark:border-emerald-500/15 dark:bg-emerald-900/35 dark:text-gold-500 dark:hover:bg-emerald-900/50 dark:hover:text-white";
+/** @deprecated Use `Button` from `@/components/ui/Button` (variant="outline" size="sm"). */
+export const bentoCtaClass = "kalam-btn kalam-btn--outline kalam-btn--sm";
 
-export const bentoCtaBlockClass = `${bentoCtaClass} w-full gap-2 py-3`;
+/** @deprecated Use `Button` with `fullWidth`. */
+export const bentoCtaBlockClass = "kalam-btn kalam-btn--outline kalam-btn--sm kalam-btn--block";
 
 /** Poet avatar chip */
 export const poetAvatarClass =

@@ -5,6 +5,8 @@ import { normalizeSharePageUrl } from "@/utils/exportShareCard";
 import {
   buildPostBackgroundStyle,
   getPostThemeCaptureBackground,
+  POST_ARTBOARD_HEIGHT,
+  POST_ARTBOARD_WIDTH,
   POST_ASPECT_CSS,
   postThemeFontClass,
   textAlignClass,
@@ -23,6 +25,10 @@ export type SharePostCardProps = {
   design: PostTheme;
   exportId?: string;
   compact?: boolean;
+  /** Live editor preview: full card width, scroll inside frame when lyrics overflow. */
+  preview?: boolean;
+  /** Fixed 420px artboard (export + scaled preview). */
+  artboard?: boolean;
 };
 
 export default function SharePostCard({
@@ -35,6 +41,8 @@ export default function SharePostCard({
   design,
   exportId = "kalam-share-card",
   compact = false,
+  preview = false,
+  artboard = false,
 }: SharePostCardProps) {
   const isUrdu = lang === "urdu";
   const canonical = normalizeSharePageUrl(pageUrl);
@@ -51,15 +59,20 @@ export default function SharePostCard({
   const sherBg = withAlpha(design.sherCard.background, design.sherCard.opacity / 100);
   const rootBg = buildPostBackgroundStyle(design);
   const captureBg = getPostThemeCaptureBackground(design);
+  const artboardHeight = POST_ARTBOARD_HEIGHT[design.layout.aspectRatio];
 
   return (
     <div
       id={exportId}
       data-share-capture-bg={captureBg}
-      className={`relative mx-auto flex w-full max-w-md flex-col overflow-hidden border text-center shadow-lg ${align}`}
+      className={`relative mx-auto flex flex-col overflow-hidden border text-center ${align} ${
+        artboard ? "w-[420px] shadow-none" : preview ? "w-full max-w-[28rem] shadow-lg" : "w-full max-w-md shadow-lg"
+      }`}
       style={{
         ...rootBg,
-        aspectRatio: POST_ASPECT_CSS[design.layout.aspectRatio],
+        ...(artboard
+          ? { width: POST_ARTBOARD_WIDTH, height: artboardHeight, flexShrink: 0 }
+          : { aspectRatio: POST_ASPECT_CSS[design.layout.aspectRatio] }),
         borderColor: design.colors.border,
         borderWidth: 1,
         borderStyle: "solid",
@@ -98,7 +111,7 @@ export default function SharePostCard({
         <h3
           lang={isUrdu ? "ur" : undefined}
           dir={isUrdu ? "rtl" : dir}
-          className={`${fontClass} font-bold leading-snug ${align}`}
+          className={`shrink-0 ${fontClass} font-bold leading-snug ${align}`}
           style={{ color: design.colors.title, fontSize: titleSize }}
         >
           {title}
@@ -118,12 +131,16 @@ export default function SharePostCard({
           aria-hidden
         />
 
-        <div className="flex min-h-0 flex-1 flex-col justify-center">
+        <div
+          className={`flex min-h-0 flex-1 flex-col overflow-hidden ${
+            preview ? "justify-start" : "justify-center"
+          }`}
+        >
           {stanzas.length > 0 ? (
             <div
               lang={isUrdu ? "ur" : undefined}
               dir={dir}
-              className={`share-post-lyrics mx-auto w-full max-w-md space-y-2 ${fontClass} ${align} ${
+              className={`share-post-lyrics mx-auto w-full space-y-2 ${fontClass} ${align} ${
                 compact ? "leading-[1.75]" : "leading-[1.78] sm:leading-[1.85]"
               }`}
               style={{ color: design.colors.sher, fontSize: fs }}
