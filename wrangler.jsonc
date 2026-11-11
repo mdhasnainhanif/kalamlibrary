@@ -8,6 +8,10 @@
   "name": "kalamlibrary",
   "compatibility_date": "2026-09-26",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  // Match the dashboard. With no routes in this file, Wrangler would otherwise
+  // turn workers.dev on and could change Preview URLs on the next deploy.
+  "workers_dev": true,
+  "preview_urls": true,
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS",
@@ -23,6 +27,9 @@
     "binding": "IMAGES"
   },
   "observability": {
-    "enabled": true
+    "enabled": true,
+    "issues": {
+      "enabled": true
+    }
   }
 }
