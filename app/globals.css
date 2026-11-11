@@ -1016,6 +1016,11 @@ ins.adsbygoogle[data-ad-status="unfilled"] {
   border: 0 !important;
 }
 
+/* Pending homepage slot — avoid a tall empty gap before AdSense sets data-ad-status */
+.ad-slot-host:not([data-ad-status="filled"]) {
+  max-height: 120px;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

@@ -91,7 +91,7 @@ export default function HomePageView({
   return (
     <main id="main-content" className="relative flex flex-col items-stretch">
       {/* Hero — white band */}
-      <section className="page-section w-full py-8 md:py-12">
+      <section className="page-section w-full py-6 md:py-8">
         <div className="container relative mx-auto max-w-4xl text-center">
         <div className="relative z-10">
           <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-emerald-200/80 bg-white/75 px-3 py-1 text-xs font-medium tracking-wide text-slate-600 shadow-sm backdrop-blur-md dark:border-emerald-500/15 dark:bg-emerald-950/50 dark:text-gray-300 dark:shadow-none">
@@ -113,14 +113,14 @@ export default function HomePageView({
               Naat Lyrics in Urdu, Hindi, Roman &amp; Bangla
             </span>
           </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-sm leading-relaxed text-slate-600 md:text-lg dark:text-gray-300">
+          <p className="mx-auto mt-4 max-w-2xl text-sm leading-relaxed text-slate-600 md:mt-5 md:text-lg dark:text-gray-300">
             A digital archive of Islamic Naat, Hamd, and Sufi Kalam. Read classic and contemporary poems in Roman
             English, Urdu Nastaliq, Hindi, and Bangla.
           </p>
-          <div className="mx-auto mt-8 max-w-xl">
+          <div className="mx-auto mt-5 max-w-xl md:mt-6">
             <HomeSearchBar />
           </div>
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+          <div className="mt-5 flex flex-wrap items-center justify-center gap-3 md:mt-6">
             <Button href="/kalams" variant="filled" size="lg" className={cardHover}>
               Browse All Kalams
               <ArrowRight className="h-4 w-4" aria-hidden />
@@ -133,10 +133,8 @@ export default function HomePageView({
         </div>
       </section>
 
-      <HomePageAd />
-
       {/* Bento: Poets + Popular — soft gray-green band */}
-      <section className="page-section-alt w-full py-8 md:py-12" id="featured" aria-label="Featured content">
+      <section className="page-section-alt w-full py-6 md:py-10" id="featured" aria-label="Featured content">
         <div className="container mx-auto">
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
@@ -293,6 +291,8 @@ export default function HomePageView({
         </div>
         </div>
       </section>
+
+      <HomePageAd />
 
       {/* Mission bento — white band */}
       <section className="page-section w-full py-8 md:py-12" aria-label="Mission and services">
