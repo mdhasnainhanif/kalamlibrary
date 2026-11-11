@@ -1,7 +1,6 @@
 import { unstable_cache } from "next/cache";
-import { supabase } from "@/utils/supabase";
+import { isSupabaseConfigured, supabase } from "@/utils/supabase";
 import { PAGE_REVALIDATE_SECONDS } from "@/utils/cacheConfig";
-import { throwIfFailed } from "@/utils/kalamData";
 import { filterListedAuthors, getAuthorUrduName } from "@/utils/authorHelper";
 import Navbar, { type NavPoet } from "@/components/Navbar";
 
@@ -22,12 +21,15 @@ function kalamCount(row: { kalams?: Array<{ count: number }> | null }): number {
 
 const loadNavPoets = unstable_cache(
   async (): Promise<NavPoet[]> => {
-    const { data: authors, error } = await supabase
-      .from("authors")
-      .select("name_roman, name_urdu, kalams(count)");
-    throwIfFailed(error, "nav poets");
+    if (!isSupabaseConfigured()) return [];
 
-    return filterListedAuthors(authors)
+    try {
+      const { data: authors, error } = await supabase
+        .from("authors")
+        .select("name_roman, name_urdu, kalams(count)");
+      if (error || !authors?.length) return [];
+
+      return filterListedAuthors(authors)
       .sort((a, b) => kalamCount(b) - kalamCount(a) || a.name_roman.localeCompare(b.name_roman))
       .slice(0, NAV_TOP_POETS)
       .map((author) => ({
@@ -35,6 +37,9 @@ const loadNavPoets = unstable_cache(
         nameUrdu: getAuthorUrduName(author),
         href: `/author/${slugifyAuthorName(author.name_roman)}`,
       }));
+    } catch {
+      return [];
+    }
   },
   ["navbar-top-poets"],
   { revalidate: PAGE_REVALIDATE_SECONDS }
