@@ -28,10 +28,15 @@ export type TranslationRecord = {
 };
 
 function isRunningNextBuild(): boolean {
+  if (process.env.KALAM_LIBRARY_NEXT_BUILD === "1") return true;
   const phase = process.env.NEXT_PHASE;
   if (phase === "phase-production-build" || phase === "phase-export") return true;
-  // Static-generation workers inherit this from `npm run build` (Cloudflare, CI, local).
-  return process.env.npm_lifecycle_event === "build";
+  if (process.env.npm_lifecycle_event === "build") return true;
+  // Cloudflare Workers/Pages CI injects these during build only (not on live edge requests).
+  if (process.env.CI === "true" && (process.env.CF_PAGES === "1" || process.env.CF_PAGES_COMMIT_SHA)) {
+    return true;
+  }
+  return false;
 }
 
 function isLikelyBuildTimeConnectivityError(message: string): boolean {
@@ -56,10 +61,13 @@ function isLikelyBuildTimeConnectivityError(message: string): boolean {
 export function throwIfFailed(error: { message: string } | null, what: string) {
   if (!error) return;
   if (isRunningNextBuild()) {
-    if (!isSupabaseConfigured() || isLikelyBuildTimeConnectivityError(error.message)) {
+    const connectivity = isLikelyBuildTimeConnectivityError(error.message);
+    if (!isSupabaseConfigured() || connectivity) {
       console.warn(`[build] Skipping Supabase error for ${what}: ${error.message}`);
       return;
     }
+    // Misconfigured schema or query at build — still fail so we do not ship broken HTML.
+    throw new Error(`Supabase ${what} failed during build: ${error.message}`);
   }
   throw new Error(`Supabase ${what} failed: ${error.message}`);
 }
