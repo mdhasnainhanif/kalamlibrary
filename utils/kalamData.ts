@@ -64,9 +64,11 @@ function isLikelyBuildTimeConnectivityError(message: string): boolean {
  */
 export function throwIfFailed(error: { message: string } | null, what: string) {
   if (!error) return;
+  // Stub client when Workers env is missing — pages render empty sections, not 500.
+  if (!isSupabaseConfigured()) return;
   if (isRunningNextBuild()) {
     const connectivity = isLikelyBuildTimeConnectivityError(error.message);
-    if (!isSupabaseConfigured() || connectivity) {
+    if (connectivity) {
       console.warn(`[build] Skipping Supabase error for ${what}: ${error.message}`);
       return;
     }
