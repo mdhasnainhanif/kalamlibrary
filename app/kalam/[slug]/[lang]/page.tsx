@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
+import { supabase } from "@/utils/supabase";
 import LyricsDisplay from "@/components/LyricsDisplay";
 import PagedKalamReader from "@/components/PagedKalamReader";
 import { KHATM_E_QADRIA_PAGES } from "@/utils/khatmEQadriaPages";
@@ -17,6 +18,7 @@ import {
   displayAuthorName,
   firstCouplet,
   inferredSourceCollection,
+  isIndexableKalam,
   kalamHeaderSubtitle,
   kalamHref,
   type KalamTranslationLanguage,
@@ -72,9 +74,34 @@ interface PageProps {
 
 export const revalidate = 604800;
 
-/** Empty list: nothing is prerendered at build, but each language URL is cached on its first visit (ISR). */
+/** Same top slugs as /kalam/[slug]; prerender indexable language URLs only (skips redirect-only langs). */
 export async function generateStaticParams() {
-  return [];
+  try {
+    const { data: kalams } = await supabase
+      .from("kalams")
+      .select("slug, primary_title_roman")
+      .order("created_at", { ascending: false })
+      .limit(30);
+    if (!kalams?.length) return [];
+
+    const params: { slug: string; lang: string }[] = [];
+    for (const row of kalams.filter((k) => isIndexableKalam(k))) {
+      const slug = cleanKalamSlug(row.slug);
+      const data = await getKalamPageData(slug);
+      if (!data || data.shouldNoindex) continue;
+
+      const routePlan = planKalamRoutes(data.cleanSlug, data.translations);
+      for (const path of routePlan.indexPaths) {
+        const suffix = path.slice(`/kalam/${data.cleanSlug}/`.length);
+        if (suffix && !suffix.includes("/")) {
+          params.push({ slug: data.cleanSlug, lang: suffix });
+        }
+      }
+    }
+    return params;
+  } catch {
+    return [];
+  }
 }
 
 async function getKalamData(rawSlug: string) {

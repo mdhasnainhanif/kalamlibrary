@@ -142,9 +142,9 @@ export async function generateStaticParams() {
   try {
     const { data: kalams } = await supabase
       .from("kalams")
-      .select("slug")
+      .select("slug, primary_title_roman")
       .order("created_at", { ascending: false })
-      .limit(60);
+      .limit(30);
     if (!kalams) return [];
     return kalams
       .filter((k) => isIndexableKalam(k))
