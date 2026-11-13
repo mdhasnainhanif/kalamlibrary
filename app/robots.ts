@@ -23,8 +23,11 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
       },
       {
+        userAgent: "Amazonbot",
+        disallow: "/",
+      },
+      {
         userAgent: "*",
-        allow: "/api/og",
         disallow: [
           "/api/",
           "/admin",
