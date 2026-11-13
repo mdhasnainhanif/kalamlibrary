@@ -41,7 +41,19 @@ try {
   const robotsContent = fs.readFileSync(robotsPath, "utf8");
   assert(fs.existsSync(robotsPath), "Robots", "robots.ts file exists");
   assert(robotsContent.includes("sitemap.xml"), "Robots", "robots.txt references sitemap.xml");
-  assert(robotsContent.includes("/api/") && robotsContent.includes("/search") && robotsContent.includes('"/api/og"'), "Robots", "robots.txt disallows /api/ and /search, and allows /api/og");
+  assert(
+    robotsContent.includes("/api/") &&
+      robotsContent.includes("/search") &&
+      !robotsContent.includes('allow: "/api/og"') &&
+      !robotsContent.match(/allow:\s*["']\/api\/og["']/),
+    "Robots",
+    "robots.txt disallows /api/ (no /api/og allow override) and /search"
+  );
+  assert(
+    robotsContent.includes("Amazonbot") && robotsContent.includes('disallow: "/"'),
+    "Robots",
+    "robots.txt blocks Amazonbot"
+  );
   assert(robotsContent.includes('userAgent: "*"') || robotsContent.includes("userAgent: '*'"), "Robots", "robots.txt configures wild card userAgent '*'");
   assert(robotsContent.includes("GPTBot") && robotsContent.includes("ClaudeBot"), "Robots", "robots.txt protects content from aggressive AI scrapers");
 } catch (e) {
