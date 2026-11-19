@@ -132,7 +132,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const seoDesc = buildKalamDescription({
     titleRoman: kalam.primary_title_roman,
     lang: langConfig.code,
-    available: routePlan.baseRedirectLang ? [routePlan.baseRedirectLang] : availableLanguages(translations),
+    // Only list this language — no "Also in …" on language-specific pages.
+    // Each URL must have a unique, language-focused description so Google treats
+    // /urdu, /hindi, /bangla and the base (Roman) URL as separate indexed pages.
+    available: [langConfig.code],
     poet: authorName,
     scriptTitle:
       langConfig.code === "urdu"

@@ -94,11 +94,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const pageDescription = buildKalamDescription({
     titleRoman: kalam.primary_title_roman,
     lang: primaryLang,
-    available: availableLanguages(translations),
+    // Only list the primary language — no "Also in …" on this page either.
+    // Google should index each language version separately; mentioning all languages
+    // on every page signals duplicate content and prevents individual ranking.
+    available: [primaryLang],
     poet: authorName,
     scriptTitle: primaryLang === "roman_english" ? null : primaryTranslation.title,
     opening,
-    mentionAllLanguages: true,
   });
   const canonicalUrl = buildCanonicalUrl(kalamHref(cleanSlug));
 
