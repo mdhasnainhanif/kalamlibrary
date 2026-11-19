@@ -33,15 +33,25 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Redirect apex → www using the request URL host only. Matching `Host: kalamlibrary.me`
-  // while the browser is on www caused a self-redirect loop at the edge.
+  // Redirect apex → www safely without edge-caching loops.
+  const forwardedHost = request.headers.get("x-forwarded-host")?.toLowerCase().split(":")[0];
+  const hostHeader = request.headers.get("host")?.toLowerCase().split(":")[0];
   const urlHost = request.nextUrl.hostname.toLowerCase();
-  if (urlHost === "kalamlibrary.me") {
+
+  const isAlreadyWww =
+    forwardedHost === CANONICAL_HOST ||
+    hostHeader === CANONICAL_HOST ||
+    urlHost === CANONICAL_HOST;
+
+  // If not already on www, and requested host is apex, redirect to www.
+  // CRITICAL: NEVER cache apex redirect with s-maxage, otherwise Cloudflare edge
+  // caches the redirect response and serves it to www requests, causing ERR_TOO_MANY_REDIRECTS!
+  if (!isAlreadyWww && (urlHost === "kalamlibrary.me" || hostHeader === "kalamlibrary.me" || forwardedHost === "kalamlibrary.me")) {
     const url = request.nextUrl.clone();
     url.protocol = "https:";
     url.hostname = CANONICAL_HOST;
     url.port = "";
-    return redirectTo(url, 301);
+    return redirectTo(url, 301, "private, no-cache, no-store, must-revalidate");
   }
 
   if (pathname === "/$" || pathname === "/&" || pathname === "/%24" || pathname === "/%26") {
