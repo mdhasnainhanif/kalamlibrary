@@ -13,7 +13,8 @@ import HtmlLangSync from "@/components/HtmlLangSync";
 import { HTML_LANG_INIT_SCRIPT } from "@/utils/htmlLang";
 import SiteBackground from "@/components/ui/SiteBackground";
 import { SITE_CONFIG, buildWebSiteSchema } from "@/utils/seoConfig";
-import { ADSENSE_CLIENT } from "@/utils/adsConfig";
+// import { ADSENSE_CLIENT } from "@/utils/adsConfig"; // AdSense disabled – using Adsterra
+import Script from "next/script";
 
 const plusJakarta = Plus_Jakarta_Sans({
   variable: "--font-sans-premium",
@@ -121,11 +122,26 @@ export default function RootLayout({
       className={`${plusJakarta.variable} ${cormorantDisplay.variable} min-h-full scroll-smooth antialiased`}
     >
       <head>
-        <meta name="google-adsense-account" content={ADSENSE_CLIENT} />
-        <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="" />
-        <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossOrigin="" />
+        {/* AdSense meta/preconnects disabled – using Adsterra */}
+        {/* <meta name="google-adsense-account" content={ADSENSE_CLIENT} /> */}
+        {/* <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="" /> */}
+        {/* <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossOrigin="" /> */}
         {/* Sets <html lang/dir> per page before first paint (see utils/htmlLang.ts) */}
         <script dangerouslySetInnerHTML={{ __html: HTML_LANG_INIT_SCRIPT }} />
+        {/* Adsterra – Popunder_1 */}
+        <Script
+          id="adsterra-popunder"
+          src="https://abscloud.org/1/97798b0128707608aface63fbb0bf651"
+          data-cfasync="false"
+          strategy="lazyOnload"
+        />
+        {/* Adsterra – SocialBar_1 */}
+        <Script
+          id="adsterra-socialbar"
+          src="https://bauval.org/14/0505968dcbbc48318699f82b153485db"
+          data-cfasync="false"
+          strategy="lazyOnload"
+        />
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(){try{var t=localStorage.getItem("theme");if(t==="light"||t==="dark")document.documentElement.classList.add(t);else document.documentElement.classList.add("dark");}catch(e){document.documentElement.classList.add("dark");}})();`,

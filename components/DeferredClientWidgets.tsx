@@ -6,14 +6,14 @@ const UrduFontLoader = dynamic(() => import("@/components/UrduFontLoader"), { ss
 const CookieConsent = dynamic(() => import("@/components/CookieConsent"), { ssr: false });
 const ThemeToggle = dynamic(() => import("@/components/ThemeToggle"), { ssr: false });
 const AppToaster = dynamic(() => import("@/components/AppToaster"), { ssr: false });
-const AdSenseScript = dynamic(() => import("@/components/AdSenseScript"), { ssr: false });
+// const AdSenseScript = dynamic(() => import("@/components/AdSenseScript"), { ssr: false }); // AdSense disabled – using Adsterra
 
 /** Non-critical UI: separate chunks, not in the first hydration bundle. */
 export default function DeferredClientWidgets() {
   return (
     <>
       <UrduFontLoader />
-      <AdSenseScript />
+      {/* <AdSenseScript /> */}{/* AdSense disabled – using Adsterra */}
       <ThemeToggle />
       <AppToaster />
       <CookieConsent />

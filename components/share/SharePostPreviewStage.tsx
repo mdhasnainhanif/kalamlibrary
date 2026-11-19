@@ -24,7 +24,7 @@ export default function SharePostPreviewStage({
   design,
 }: Props) {
   const areaRef = useRef<HTMLDivElement>(null);
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(0.85);
 
   const cardHeight = POST_ARTBOARD_HEIGHT[design.layout.aspectRatio];
 
@@ -34,11 +34,13 @@ export default function SharePostPreviewStage({
 
     const compute = () => {
       const { width, height } = el.getBoundingClientRect();
-      const pad = width < 768 ? 16 : 24;
-      const areaW = Math.max(0, width - pad);
-      const areaH = Math.max(0, height - pad);
-      const s = Math.min(areaW / POST_ARTBOARD_WIDTH, areaH / cardHeight, 1.1);
-      setScale(Number.isFinite(s) && s > 0 ? s : 1);
+      const padX = width < 768 ? 20 : 64;
+      const padY = width < 768 ? 20 : 64;
+      const areaW = Math.max(0, width - padX);
+      const areaH = Math.max(0, height - padY);
+      const maxScale = width < 768 ? 1 : 0.88;
+      const s = Math.min(areaW / POST_ARTBOARD_WIDTH, areaH / cardHeight, maxScale);
+      setScale(Number.isFinite(s) && s > 0 ? s : 0.85);
     };
 
     compute();
@@ -53,7 +55,7 @@ export default function SharePostPreviewStage({
   return (
     <div
       ref={areaRef}
-      className="relative z-[1] flex h-full max-h-full min-h-0 w-full flex-1 items-center justify-center overflow-hidden p-2 md:p-8"
+      className="relative z-[1] flex h-full max-h-full min-h-0 w-full flex-1 items-center justify-center overflow-hidden p-3 md:p-6"
     >
       <div
         className="relative overflow-hidden rounded-xl ring-1 ring-[color-mix(in_srgb,var(--foreground)_12%,transparent)] transition-[width,height] duration-300 ease-out"

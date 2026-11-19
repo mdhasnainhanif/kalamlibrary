@@ -184,7 +184,7 @@ export default function SharePreviewModal({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descId}
-        className="relative z-[1] flex h-[100dvh] w-full flex-col overflow-hidden bg-[var(--background)] text-[var(--foreground)] md:absolute md:left-1/2 md:top-1/2 md:h-[min(720px,92vh)] md:w-full md:max-w-[1024px] md:-translate-x-1/2 md:-translate-y-1/2 md:flex-row md:rounded-2xl md:border md:border-[var(--border)] md:shadow-2xl"
+        className="relative z-[1] flex h-[100dvh] w-full flex-col overflow-hidden bg-[var(--background)] text-[var(--foreground)] md:absolute md:left-1/2 md:top-1/2 md:h-[min(780px,94vh)] md:w-full md:max-w-[1080px] md:-translate-x-1/2 md:-translate-y-1/2 md:flex-row md:rounded-2xl md:border md:border-[var(--border)] md:shadow-2xl"
       >
         {/* Mobile top bar */}
         <header className="share-designer-topbar flex shrink-0 items-start justify-between gap-3 border-b border-[var(--border)] bg-[color-mix(in_srgb,var(--background)_88%,transparent)] px-4 py-3 backdrop-blur-md md:hidden">
@@ -210,8 +210,8 @@ export default function SharePreviewModal({
         </header>
 
         {/* Preview column — capped on mobile so editor + actions stay in view */}
-        <section className="flex h-[min(38dvh,340px)] min-h-0 shrink-0 flex-col overflow-hidden md:h-full md:min-w-0 md:flex-1">
-          <div className="share-designer-preview-pane flex min-h-0 flex-col">
+        <section className="relative flex h-[min(38dvh,340px)] min-h-0 shrink-0 flex-col overflow-hidden md:h-full md:min-w-0 md:flex-1">
+          <div className="share-designer-preview-pane relative flex min-h-0 flex-1 flex-col overflow-hidden">
             <div
               aria-hidden
               className="pointer-events-none absolute inset-0 opacity-[0.32] dark:hidden"

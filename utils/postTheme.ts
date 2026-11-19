@@ -118,8 +118,8 @@ export const DEFAULT_POST_THEME: PostTheme = {
   },
   visibility: {
     poetName: true,
-    websiteLink: true,
-    contactNumber: true,
+    websiteLink: false,
+    contactNumber: false,
   },
 };
 

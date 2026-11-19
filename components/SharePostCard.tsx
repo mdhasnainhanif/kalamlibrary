@@ -1,7 +1,5 @@
 "use client";
 
-import { getShareContactDefaults } from "@/utils/shareKalamPost";
-import { normalizeSharePageUrl } from "@/utils/exportShareCard";
 import {
   buildPostBackgroundStyle,
   getPostThemeCaptureBackground,
@@ -45,15 +43,10 @@ export default function SharePostCard({
   artboard = false,
 }: SharePostCardProps) {
   const isUrdu = lang === "urdu";
-  const canonical = normalizeSharePageUrl(pageUrl);
-  const displayUrl = canonical.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
-  const contactPhone = getShareContactDefaults().whatsappDisplay;
-
   const fontClass = postThemeFontClass(design.typography.fontFamily, isUrdu);
   const align = textAlignClass(design.typography.textAlign);
   const fs = design.typography.fontSize;
   const titleSize = Math.round(fs * 1.15);
-  const footerSize = Math.max(9, Math.round(fs * 0.72));
   const poetSize = Math.max(10, Math.round(fs * 0.78));
 
   const sherBg = withAlpha(design.sherCard.background, design.sherCard.opacity / 100);
@@ -65,9 +58,8 @@ export default function SharePostCard({
     <div
       id={exportId}
       data-share-capture-bg={captureBg}
-      className={`relative mx-auto flex flex-col overflow-hidden border text-center ${align} ${
-        artboard ? "w-[420px] shadow-none" : preview ? "w-full max-w-[28rem] shadow-lg" : "w-full max-w-md shadow-lg"
-      }`}
+      className={`relative mx-auto flex flex-col overflow-hidden border text-center ${align} ${artboard ? "w-[420px] shadow-none" : preview ? "w-full max-w-[28rem] shadow-lg" : "w-full max-w-md shadow-lg"
+        }`}
       style={{
         ...rootBg,
         ...(artboard
@@ -85,8 +77,8 @@ export default function SharePostCard({
         />
       ) : null}
 
-      <div className="relative z-[1] flex min-h-0 flex-1 flex-col px-4 pb-5 pt-4 sm:px-5 sm:pb-6 sm:pt-5">
-        <div className="mb-3 flex shrink-0 items-center justify-between gap-2">
+      <div className="relative z-[1] flex min-h-0 flex-1 flex-col overflow-hidden px-4 py-4 sm:px-5 sm:py-4">
+        <div className="mb-2.5 flex shrink-0 items-center justify-between gap-2">
           <div className="flex items-center gap-1.5">
             <span
               className="h-1.5 w-1.5 rounded-full"
@@ -108,90 +100,99 @@ export default function SharePostCard({
           </span>
         </div>
 
-        <h3
-          lang={isUrdu ? "ur" : undefined}
-          dir={isUrdu ? "rtl" : dir}
-          className={`shrink-0 ${fontClass} font-bold leading-snug ${align}`}
-          style={{ color: design.colors.title, fontSize: titleSize }}
-        >
-          {title}
-        </h3>
-        {design.visibility.poetName && author ? (
-          <p
-            className={`mt-1 font-sans ${align}`}
-            style={{ color: design.colors.poet, fontSize: poetSize }}
-          >
-            {author}
-          </p>
-        ) : null}
-
-        <div
-          className="mx-auto my-2 h-px w-10 shrink-0"
-          style={{ backgroundColor: design.colors.divider }}
-          aria-hidden
-        />
-
-        <div
-          className={`flex min-h-0 flex-1 flex-col overflow-hidden ${
-            preview ? "justify-start" : "justify-center"
-          }`}
-        >
-          {stanzas.length > 0 ? (
-            <div
+        {/* Main vertically centered content: Title + Poet + Divider + Shers */}
+        <div className="my-auto flex min-h-0 flex-1 flex-col justify-center w-full">
+          <div className="shrink-0 mb-2">
+            <h3
               lang={isUrdu ? "ur" : undefined}
-              dir={dir}
-              className={`share-post-lyrics mx-auto w-full space-y-2 ${fontClass} ${align} ${
-                compact ? "leading-[1.75]" : "leading-[1.78] sm:leading-[1.85]"
-              }`}
-              style={{ color: design.colors.sher, fontSize: fs }}
+              dir={isUrdu ? "rtl" : dir}
+              className={`${fontClass} font-bold leading-snug ${align}`}
+              style={{ color: design.colors.title, fontSize: titleSize }}
             >
-              {stanzas.map((block, i) => (
-                <div
-                  key={i}
-                  className="whitespace-pre-wrap break-words border px-3 py-2.5 sm:px-3.5 sm:py-3"
-                  style={{
-                    backgroundColor: sherBg,
-                    borderColor: design.sherCard.border,
-                    borderRadius: design.sherCard.radius,
-                  }}
-                >
-                  {block.split("\n").map((line, j) => (
-                    <p key={j} className={j > 0 ? "mt-1.5" : ""}>
-                      {line}
-                    </p>
-                  ))}
-                </div>
-              ))}
-            </div>
+              {title}
+            </h3>
+            {design.visibility.poetName && author ? (
+              <p
+                className={`mt-1 font-sans ${align}`}
+                style={{ color: design.colors.poet, fontSize: poetSize }}
+              >
+                {author}
+              </p>
+            ) : null}
+
+            <div
+              className="mx-auto my-1.5 h-px w-10 shrink-0"
+              style={{ backgroundColor: design.colors.divider }}
+              aria-hidden
+            />
+          </div>
+
+            {stanzas.length > 0 ? (
+              <div
+                lang={isUrdu ? "ur" : undefined}
+                dir={dir}
+              className={`share-post-lyrics mx-auto w-full overflow-hidden ${stanzas.length >= 4
+                    ? "space-y-1.5"
+                    : stanzas.length === 3
+                      ? "space-y-2"
+                      : "space-y-2.5"
+                  } ${fontClass} ${align} ${compact ? "leading-[1.75]" : "leading-[1.78] sm:leading-[1.85]"
+                  }`}
+                style={{ color: design.colors.sher, fontSize: fs }}
+              >
+                {stanzas.map((block, i) => (
+                  <div
+                    key={i}
+                    className={`whitespace-pre-wrap break-words overflow-hidden border ${
+                      stanzas.length >= 4
+                        ? "px-3 py-1.5 sm:px-3 sm:py-2"
+                        : stanzas.length === 3
+                          ? "px-3.5 py-2.5 sm:px-4 sm:py-2.5"
+                          : "px-3.5 py-3 sm:px-4 sm:py-3.5"
+                    }`}
+                    style={{
+                      backgroundColor: sherBg,
+                      borderColor: design.sherCard.border,
+                      borderRadius: design.sherCard.radius,
+                    }}
+                  >
+                {block.split("\n").map((line, j) => (
+                  <p key={j} className={j > 0 ? "mt-1" : ""}>
+                    {line}
+                  </p>
+                ))}
+              </div>
+            ))}
+          </div>
           ) : (
-            <p className="py-4 font-sans text-xs" style={{ color: design.colors.footer }}>
-              Tap couplets above to add them to this post
-            </p>
+          <p className="py-4 font-sans text-xs" style={{ color: design.colors.footer }}>
+            Tap couplets above to add them to this post
+          </p>
           )}
         </div>
 
-        {(design.visibility.websiteLink || design.visibility.contactNumber) && (
-          <div
-            className={`mt-3 shrink-0 space-y-1 font-sans leading-relaxed ${align}`}
-            style={{ fontSize: footerSize }}
-          >
-            {design.visibility.websiteLink ? (
-              <>
-                <p style={{ color: design.colors.footer }}>Read full naat on Kalam Library</p>
-                <p className="break-all" style={{ color: design.colors.footerUrl }}>
-                  {displayUrl}
-                </p>
-              </>
-            ) : null}
-            {design.visibility.contactNumber ? (
-              <p className={design.visibility.websiteLink ? "pt-1" : ""} style={{ color: design.colors.footer }}>
-                Contact me:{" "}
-                <span style={{ color: design.colors.footerPhone }}>{contactPhone}</span>
-              </p>
-            ) : null}
+        {/* Simple elegant footer */}
+          <div className="shrink-0 pt-2 text-center font-sans">
+            <div className="flex items-center justify-center gap-2">
+              <span
+                className="h-px w-6 opacity-30"
+                style={{ backgroundColor: design.colors.divider }}
+                aria-hidden
+              />
+              <span
+                className="text-[10px] font-medium tracking-[0.2em] uppercase opacity-75"
+                style={{ color: design.colors.footer }}
+              >
+                kalamlibrary.me
+              </span>
+              <span
+                className="h-px w-6 opacity-30"
+                style={{ backgroundColor: design.colors.divider }}
+                aria-hidden
+              />
+            </div>
           </div>
-        )}
+        </div>
       </div>
-    </div>
-  );
+      );
 }
