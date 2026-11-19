@@ -1,11 +1,17 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
+const FALLBACK_SUPABASE_URL = "https://pbcmhgcailbocwugbrqn.supabase.co";
+const FALLBACK_SUPABASE_KEY = "sb_publishable_H7oNsv2ciS-ItKCH0idpZw_awWrfTL3";
+
 function readSupabaseEnv() {
-  const supabaseUrl = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").trim();
+  const supabaseUrl = (
+    process.env.NEXT_PUBLIC_SUPABASE_URL ||
+    FALLBACK_SUPABASE_URL
+  ).trim();
   const supabaseAnonKey =
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-    "";
+    FALLBACK_SUPABASE_KEY;
   const configured =
     supabaseUrl.length > 0 &&
     !supabaseUrl.includes("placeholder-please-set") &&

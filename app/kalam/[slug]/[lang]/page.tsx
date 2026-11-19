@@ -60,9 +60,9 @@ interface LanguageConfig {
 
 const LANGUAGES_MAP: Record<string, LanguageConfig> = {
   "roman-english": { code: "roman_english", label: "Roman English", dir: "ltr", locale: "ur-Latn" },
-  "urdu": { code: "urdu", label: "اردو (Urdu)", dir: "rtl", locale: "ur-PK" },
-  "hindi": { code: "hindi", label: "हिन्दी (Hindi)", dir: "ltr", locale: "hi-IN" },
-  "bangla": { code: "bangla", label: "বাংলা (Bangla)", dir: "ltr", locale: "bn-BD" }
+  "urdu": { code: "urdu", label: "اردو (Urdu)", dir: "rtl", locale: "ur" },
+  "hindi": { code: "hindi", label: "हिन्दी (Hindi)", dir: "ltr", locale: "hi" },
+  "bangla": { code: "bangla", label: "বাংলা (Bangla)", dir: "ltr", locale: "bn" }
 };
 
 interface PageProps {

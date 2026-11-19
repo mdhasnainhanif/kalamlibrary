@@ -6,9 +6,9 @@ export type LanguagePath = "urdu" | "hindi" | "bangla";
 
 const HREFLANG: Record<KalamTranslationLanguage, string> = {
   roman_english: "ur-Latn",
-  urdu: "ur-PK",
-  hindi: "hi-IN",
-  bangla: "bn-BD",
+  urdu: "ur",
+  hindi: "hi",
+  bangla: "bn",
 };
 
 const PATH_BY_CODE: Record<KalamTranslationLanguage, LanguagePath | null> = {

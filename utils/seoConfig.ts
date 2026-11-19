@@ -65,8 +65,8 @@ export function buildWebSiteSchema() {
   return {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: SITE_CONFIG.name,
-    alternateName: ["Kalam Library Naat Lyrics", "KalamLibrary", "کلام لائبریری"],
+    name: "KalamLibrary",
+    alternateName: ["Kalam Library", "Kalam Library Naat Lyrics", "کلام لائبریری"],
     url: SITE_CONFIG.url,
     description: SITE_CONFIG.description,
     publisher: {

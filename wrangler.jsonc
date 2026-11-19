@@ -22,6 +22,10 @@
     "enabled": true,
     "cross_version_cache": false
   },
+  "vars": {
+    "NEXT_PUBLIC_SUPABASE_URL": "https://pbcmhgcailbocwugbrqn.supabase.co",
+    "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_H7oNsv2ciS-ItKCH0idpZw_awWrfTL3"
+  },
   "assets": {
     "directory": ".open-next/assets",
     "binding": "ASSETS",
