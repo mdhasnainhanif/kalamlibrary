@@ -128,13 +128,6 @@ export default function RootLayout({
         {/* <link rel="preconnect" href="https://googleads.g.doubleclick.net" crossOrigin="" /> */}
         {/* Sets <html lang/dir> per page before first paint (see utils/htmlLang.ts) */}
         <script dangerouslySetInnerHTML={{ __html: HTML_LANG_INIT_SCRIPT }} />
-        {/* Adsterra – Popunder_1 */}
-        <Script
-          id="adsterra-popunder"
-          src="https://abscloud.org/1/97798b0128707608aface63fbb0bf651"
-          data-cfasync="false"
-          strategy="lazyOnload"
-        />
         {/* Adsterra – SocialBar_1 */}
         <Script
           id="adsterra-socialbar"
