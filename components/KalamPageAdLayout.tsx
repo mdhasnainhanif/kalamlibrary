@@ -1,7 +1,8 @@
 "use client";
 
 import { type ReactNode } from "react";
-import AdsterraBanner from "@/components/AdsterraBanner";
+import AdsterraDisplayBanner from "@/components/AdsterraDisplayBanner";
+import AdsterraNativeBanner from "@/components/AdsterraNativeBanner";
 // AdSense disabled – using Adsterra. Imports kept for easy re-enable.
 // import { useCallback, useState, type ReactNode } from "react";
 // import AdSenseDisplay, { type AdSenseResolveStatus } from "@/components/AdSenseDisplay";
@@ -59,9 +60,9 @@ export default function KalamPageAdLayout({ lyrics, children }: KalamPageAdLayou
       {/* <SidebarGutter side="left" slot={ADSENSE_SLOT_VERTICAL_LEFT} /> */}
 
       <div className="w-full max-w-2xl lg:max-w-3xl flex-1 flex flex-col items-center min-w-0">
-        <AdsterraBanner className="mb-6" />
+        <AdsterraDisplayBanner className="mb-6" />
         {lyrics}
-        <AdsterraBanner className="mt-6 mb-2" />
+        <AdsterraNativeBanner className="mt-8 mb-4" />
         <div className="w-full">
           {/* <AdSenseDisplay slot={ADSENSE_SLOT_FIRST} format="auto" layout="inline" /> */}
         </div>
