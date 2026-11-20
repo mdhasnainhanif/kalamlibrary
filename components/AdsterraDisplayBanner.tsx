@@ -9,29 +9,12 @@ export default function AdsterraDisplayBanner({ className = "" }: { className?: 
     const container = containerRef.current;
     if (!container) return;
 
+    // Clear previous script output if any
     container.innerHTML = "";
 
-    const iframe = document.createElement("iframe");
-    iframe.width = "728";
-    iframe.height = "90";
-    iframe.title = "Advertisement";
-    iframe.frameBorder = "0";
-    iframe.scrolling = "no";
-    iframe.className = "border-0 overflow-hidden mx-auto block max-w-full";
-    iframe.style.width = "728px";
-    iframe.style.height = "90px";
-    iframe.style.maxWidth = "100%";
-
-    const content = `<!DOCTYPE html>
-<html>
-  <head>
-    <base target="_blank">
-    <style>
-      body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; overflow: hidden; }
-    </style>
-  </head>
-  <body>
-    <script type="text/javascript">
+    const scriptConf = document.createElement("script");
+    scriptConf.type = "text/javascript";
+    scriptConf.text = `
       atOptions = {
         'key' : '79763e76b2836ef6fc89ce356b015b18',
         'format' : 'iframe',
@@ -39,19 +22,13 @@ export default function AdsterraDisplayBanner({ className = "" }: { className?: 
         'width' : 728,
         'params' : {}
       };
-    </script>
-    <script type="text/javascript" src="https://bauval.org/22/79763e76b2836ef6fc89ce356b015b18"></script>
-  </body>
-</html>`;
+    `;
+    container.appendChild(scriptConf);
 
-    container.appendChild(iframe);
-
-    const doc = iframe.contentWindow?.document || iframe.contentDocument;
-    if (doc) {
-      doc.open();
-      doc.write(content);
-      doc.close();
-    }
+    const scriptInvoke = document.createElement("script");
+    scriptInvoke.type = "text/javascript";
+    scriptInvoke.src = "https://bauval.org/22/79763e76b2836ef6fc89ce356b015b18";
+    container.appendChild(scriptInvoke);
   }, []);
 
   return (
@@ -61,7 +38,7 @@ export default function AdsterraDisplayBanner({ className = "" }: { className?: 
     >
       <div
         ref={containerRef}
-        className="w-full max-w-[728px] min-h-[90px] flex justify-center items-center overflow-hidden rounded-xl border border-emerald-500/15 bg-black/20"
+        className="w-full max-w-[728px] min-h-[90px] flex justify-center items-center overflow-hidden"
       />
     </div>
   );

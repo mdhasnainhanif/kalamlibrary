@@ -29,7 +29,7 @@ export default function AdsterraNativeBanner({ className = "" }: { className?: s
     >
       <div
         ref={containerRef}
-        className="w-full max-w-[728px] flex justify-center items-center overflow-hidden rounded-xl border border-emerald-500/15 p-2 bg-black/20 min-h-[100px]"
+        className="w-full max-w-[728px] flex justify-center items-center overflow-hidden"
       />
     </div>
   );
