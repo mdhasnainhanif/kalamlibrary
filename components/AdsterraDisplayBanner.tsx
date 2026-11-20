@@ -1,20 +1,24 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-
 export default function AdsterraDisplayBanner({ className = "" }: { className?: string }) {
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
-    // Clear previous script output if any
-    container.innerHTML = "";
-
-    const scriptConf = document.createElement("script");
-    scriptConf.type = "text/javascript";
-    scriptConf.text = `
+  return (
+    <div
+      aria-label="Advertisement Banner"
+      className={`w-full flex justify-center items-center my-4 overflow-hidden px-2 ${className}`}
+    >
+      <div className="w-full max-w-[728px] min-h-[90px] flex justify-center items-center overflow-hidden">
+        <iframe
+          title="Advertisement"
+          srcDoc={`<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_blank">
+    <style>
+      body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; overflow: hidden; }
+    </style>
+  </head>
+  <body>
+    <script type="text/javascript">
       atOptions = {
         'key' : '79763e76b2836ef6fc89ce356b015b18',
         'format' : 'iframe',
@@ -22,24 +26,16 @@ export default function AdsterraDisplayBanner({ className = "" }: { className?: 
         'width' : 728,
         'params' : {}
       };
-    `;
-    container.appendChild(scriptConf);
-
-    const scriptInvoke = document.createElement("script");
-    scriptInvoke.type = "text/javascript";
-    scriptInvoke.src = "https://bauval.org/22/79763e76b2836ef6fc89ce356b015b18";
-    container.appendChild(scriptInvoke);
-  }, []);
-
-  return (
-    <div
-      aria-label="Advertisement Banner"
-      className={`w-full flex justify-center items-center my-4 overflow-hidden px-2 ${className}`}
-    >
-      <div
-        ref={containerRef}
-        className="w-full max-w-[728px] min-h-[90px] flex justify-center items-center overflow-hidden"
-      />
+    </script>
+    <script type="text/javascript" src="https://bauval.org/22/79763e76b2836ef6fc89ce356b015b18"></script>
+  </body>
+</html>`}
+          width={728}
+          height={90}
+          className="border-0 overflow-hidden max-w-full"
+          scrolling="no"
+        />
+      </div>
     </div>
   );
 }

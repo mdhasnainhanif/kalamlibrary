@@ -9,11 +9,8 @@ export default function AdsterraNativeBanner({ className = "" }: { className?: s
     const container = containerRef.current;
     if (!container) return;
 
-    container.innerHTML = "";
-
-    const adDiv = document.createElement("div");
-    adDiv.id = "container-a0437e5a405cabbaa281844a0c35a5f1";
-    container.appendChild(adDiv);
+    const existingScript = container.querySelector("script");
+    if (existingScript) existingScript.remove();
 
     const script = document.createElement("script");
     script.async = true;
@@ -29,8 +26,10 @@ export default function AdsterraNativeBanner({ className = "" }: { className?: s
     >
       <div
         ref={containerRef}
-        className="w-full max-w-[728px] flex justify-center items-center overflow-hidden"
-      />
+        className="w-full max-w-[728px] flex flex-col justify-center items-center overflow-hidden"
+      >
+        <div id="container-a0437e5a405cabbaa281844a0c35a5f1" className="w-full" />
+      </div>
     </div>
   );
 }
