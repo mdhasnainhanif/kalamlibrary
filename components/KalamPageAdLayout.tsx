@@ -62,7 +62,7 @@ export default function KalamPageAdLayout({ lyrics, children }: KalamPageAdLayou
       <div className="w-full max-w-2xl lg:max-w-3xl flex-1 flex flex-col items-center min-w-0">
         <AdsterraDisplayBanner className="mb-6" />
         {lyrics}
-        <AdsterraNativeBanner className="mt-8 mb-4" />
+        {/* AdsterraNativeBanner disabled to protect against inappropriate ad content */}
         <div className="w-full">
           {/* <AdSenseDisplay slot={ADSENSE_SLOT_FIRST} format="auto" layout="inline" /> */}
         </div>
